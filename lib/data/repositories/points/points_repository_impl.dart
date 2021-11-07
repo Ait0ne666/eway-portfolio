@@ -1,10 +1,12 @@
 import 'package:dartz/dartz.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:lseway/core/Responses/failures.dart';
 import 'package:lseway/core/network/network_info.dart';
 import 'package:lseway/data/data-sources/points/points_remote_data_source.dart';
 import 'package:lseway/domain/entitites/coordinates/coordinates.dart';
 import 'package:lseway/domain/entitites/filter/filter.dart';
 import 'package:lseway/domain/entitites/point/distance.dart';
+import 'package:lseway/domain/entitites/point/nearest_point.dart';
 import 'package:lseway/domain/entitites/point/point.entity.dart';
 import 'package:lseway/domain/entitites/point/pointInfo.entity.dart';
 import 'package:lseway/domain/repositories/points/points.repository.dart';
@@ -52,5 +54,18 @@ class PointsRepositoryImpl implements PointsRepository {
 
   Future<TravelDistance?> getTravelDistance(Coordinates origin, Coordinates destination) {
     return remoteDataSource.getTravelDistance(origin, destination);
+  }
+
+
+  Future<Either<Failure, List<NearestPoint>>> getNearestPoints(LatLng coords) async {
+    bool isConnected = await networkInfo.isConnected;
+
+    if (!isConnected) {
+      return Left(
+        NetworkFailure("Отсутствует подключение к интернету"),
+      );
+    }
+
+    return remoteDataSource.getNearestPoints(coords);
   }
 }

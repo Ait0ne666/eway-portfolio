@@ -11,6 +11,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:lseway/domain/entitites/coordinates/coordinates.dart';
 import 'package:lseway/domain/entitites/point/point.entity.dart';
+import 'package:lseway/presentation/bloc/activePoints/active_point_state.dart';
 import 'package:lseway/presentation/bloc/activePoints/active_points_bloc.dart';
 import 'package:lseway/presentation/bloc/pointInfo/pointInfo.event.dart';
 import 'package:lseway/presentation/bloc/pointInfo/pointInfo.state.dart';
@@ -31,7 +32,8 @@ import '../../../../injection_container.dart' as di;
 import 'package:permission_handler/permission_handler.dart' as Permission;
 
 class MapView extends StatefulWidget {
-  const MapView({Key? key}) : super(key: key);
+  final void Function() showBooking;
+  const MapView({Key? key, required this.showBooking}) : super(key: key);
 
   @override
   _MapViewState createState() => _MapViewState();
@@ -47,6 +49,7 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
   BitmapDescriptor? activeFarIcon;
   BitmapDescriptor? inActiveFarIcon;
   BitmapDescriptor? myLocationIcon;
+  BitmapDescriptor? selectedIcon;
   Set<Marker> markers = {};
   late GeolocatorService geolocatorService;
   bool _showMyLocation = false;
@@ -70,7 +73,6 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
       controller.setMapStyle("[]");
     }
     if (state == ui.AppLifecycleState.resumed && !_showMyLocation) {
-
       var permissionStatus = Permission.Permission.locationWhenInUse.status;
 
       permissionStatus.isGranted.then((value) {
@@ -212,9 +214,7 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
   }
 
   void onCameraMove(CameraPosition position) async {
-
     var camera = geolocatorService.getLastKnownPosition();
-
 
     final GoogleMapController controller = await _controller.future;
     var bounds = await controller.getVisibleRegion();
@@ -228,8 +228,8 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
             lat: position.target.latitude, long: position.target.longitude),
         range: range));
 
-
-    if ((camera.zoom <13 && position.zoom>=13) || (camera.zoom >13 && position.zoom<=13)) {
+    if ((camera.zoom < 13 && position.zoom >= 13) ||
+        (camera.zoom > 13 && position.zoom <= 13)) {
       var points = BlocProvider.of<PointsBloc>(context).state.points;
       _buildMarkersSet(points);
     }
@@ -239,7 +239,7 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
 
   void loadMorePoints() async {
     final GoogleMapController controller = await _controller.future;
-    
+
     var bounds = await controller.getVisibleRegion();
     var range = Geolocator.distanceBetween(
         bounds.northeast.latitude,
@@ -258,12 +258,14 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
   void _buildMarkersSet(List<Point> points) async {
     BitmapDescriptor? activeBitmap;
     BitmapDescriptor? inActiveBitmap;
-        BitmapDescriptor? activeFarBitmap;
+    BitmapDescriptor? activeFarBitmap;
     BitmapDescriptor? inActiveFarBitmap;
     BitmapDescriptor? myLocationBitmap;
+    BitmapDescriptor? selectedBitmap;
 
     if (activeFarIcon == null) {
-      activeFarBitmap = await getDescriptorFromAsset('assets/active_far.png', null);
+      activeFarBitmap =
+          await getDescriptorFromAsset('assets/active_far.png', null);
       setState(() {
         activeFarIcon = activeFarBitmap;
       });
@@ -271,15 +273,15 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
       activeFarBitmap = activeFarIcon;
     }
 
-        if (inActiveFarIcon == null) {
-      inActiveFarBitmap = await getDescriptorFromAsset('assets/inactive_far.png', null);
+    if (inActiveFarIcon == null) {
+      inActiveFarBitmap =
+          await getDescriptorFromAsset('assets/inactive_far.png', null);
       setState(() {
         inActiveFarIcon = inActiveFarBitmap;
       });
     } else {
       inActiveFarBitmap = inActiveFarIcon;
     }
-
 
     if (activeIcon == null) {
       activeBitmap = await getDescriptorFromAsset('assets/active.png', null);
@@ -308,10 +310,25 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
     } else {
       myLocationBitmap = myLocationIcon;
     }
+
+    if (selectedIcon == null) {
+      selectedBitmap =
+          await getDescriptorFromAsset('assets/selected22.png', 240);
+      setState(() {
+        selectedIcon = selectedBitmap;
+      });
+    } else {
+      selectedBitmap = selectedIcon;
+    }
+
+
+
     var camera = geolocatorService.getLastKnownPosition();
 
-
     Set<Marker> newMarkers = {};
+
+    var reservedPoint = BlocProvider.of<ActivePointsBloc>(context).state.reservedPoint;
+    var chargingPoint = BlocProvider.of<ActivePointsBloc>(context).state.chargingPoint;
 
     points.forEach((element) {
       newMarkers.add(
@@ -320,16 +337,22 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
               element.id.toString(),
             ),
             position: LatLng(element.latitude, element.longitude),
-            icon: element.availability ? camera.zoom<13 ? activeFarBitmap! : activeBitmap! : camera.zoom<13 ? inActiveFarBitmap! : inActiveBitmap!,
-            anchor: camera.zoom<13 ? const Offset(0.5, 0.4) : const Offset(0.5, 0.7),
+            icon: (reservedPoint == element.id || chargingPoint == element.id) ? selectedBitmap! : element.availability
+                ? camera.zoom < 13
+                    ? activeFarBitmap!
+                    : activeBitmap!
+                : camera.zoom < 13
+                    ? inActiveFarBitmap!
+                    : inActiveBitmap!,
+            anchor:(reservedPoint == element.id || chargingPoint == element.id) ? const Offset(0.5, 0.7) : camera.zoom < 13
+                ? const Offset(0.5, 0.4)
+                : const Offset(0.5, 0.7),
             onTap: () => onMarkerClick(context, element.id)),
       );
     });
 
     if (myPosition != null) {
       Set<Marker> newLocationMarkers = {};
-
-      
 
       newLocationMarkers.add(Marker(
         markerId: const MarkerId(
@@ -374,15 +397,32 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
   }
 
   void onMarkerClick(BuildContext context, int pointId) {
-    var activePoint = BlocProvider.of<ActivePointsBloc>(context).state.chargingPoint;
-    showPoint(context, pointId, pointId == activePoint);
+    var reservedPoint =
+        BlocProvider.of<ActivePointsBloc>(context).state.reservedPoint;
+
+    if (pointId == reservedPoint) {
+      widget.showBooking();
+    } else {
+      var activePoint =
+          BlocProvider.of<ActivePointsBloc>(context).state.chargingPoint;
+
+      showPoint(context, pointId, pointId == activePoint);
+    }
   }
 
   void pointListener(BuildContext context, PointInfoState state) {
     if (state is ShowPointState) {
-      var activePoint = BlocProvider.of<ActivePointsBloc>(context).state.chargingPoint;
-      showPoint(context, state.pointid, state.pointid == activePoint);
-      BlocProvider.of<PointInfoBloc>(context).add(ClearPoint());
+      var reservedPoint =
+          BlocProvider.of<ActivePointsBloc>(context).state.reservedPoint;
+
+      if (state.pointid == reservedPoint) {
+        widget.showBooking();
+      } else {
+        var activePoint =
+            BlocProvider.of<ActivePointsBloc>(context).state.chargingPoint;
+        showPoint(context, state.pointid, state.pointid == activePoint);
+        BlocProvider.of<PointInfoBloc>(context).add(ClearPoint());
+      }
     }
   }
 
@@ -394,15 +434,12 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
   }
 
   void updateMyPositionMarker(Position position) async {
-    
-    
-    if (geolocatorService.getMyLastPosition?.latitude == position.latitude && geolocatorService.getMyLastPosition?.longitude == position.longitude) {
+    if (geolocatorService.getMyLastPosition?.latitude == position.latitude &&
+        geolocatorService.getMyLastPosition?.longitude == position.longitude) {
       return;
     }
 
     BitmapDescriptor? myLocationBitmap;
-
-
 
     if (myLocationIcon == null) {
       myLocationBitmap = await getDescriptorFromAsset('assets/me.png', 120);
@@ -434,11 +471,20 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
   }
 
 
+  void activePointsListener(BuildContext context, ActivePointsState state) {
+    var points = BlocProvider.of<PointsBloc>(context).state.points;
+    _buildMarkersSet(points);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<PointInfoBloc, PointInfoState>(
-      listener: pointListener,
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<PointInfoBloc, PointInfoState>(
+          listener: pointListener,
+        ),
+        BlocListener<ActivePointsBloc, ActivePointsState>(listener: activePointsListener)
+      ],
       child: Container(
           child: Stack(
         children: [
@@ -456,26 +502,31 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
                 onCameraMove: onCameraMove),
           ),
           const CustomAppBar(),
-          Positioned(
-              right: 0,
-              bottom: 50 + MediaQuery.of(context).viewPadding.bottom,
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    QRScanner(
-                      toggleMap: toggleMap,
-                    ),
-                    CustomIconButton(
-                        onTap: () => getCurrentPosition(false),
-                        icon: SvgPicture.asset('assets/position.svg'))
-                  ],
-                ),
-              )),
-              
+          BlocBuilder<ActivePointsBloc, ActivePointsState>(
+              builder: (context, state) {
+            if (state.reservedPoint != null) {
+              return const SizedBox();
+            }
+            return Positioned(
+                right: 0,
+                bottom: 50 + MediaQuery.of(context).viewPadding.bottom,
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      QRScanner(
+                        toggleMap: toggleMap,
+                      ),
+                      CustomIconButton(
+                          onTap: () => getCurrentPosition(false),
+                          icon: SvgPicture.asset('assets/position.svg'))
+                    ],
+                  ),
+                ));
+          }),
         ],
       )),
     );

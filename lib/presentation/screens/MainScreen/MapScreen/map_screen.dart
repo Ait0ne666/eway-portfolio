@@ -1,5 +1,8 @@
 import 'package:expandable_bottom_sheet/expandable_bottom_sheet.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lseway/presentation/bloc/booking/booking.bloc.dart';
+import 'package:lseway/presentation/bloc/booking/booking.state.dart';
 import 'package:lseway/presentation/screens/MainScreen/BookingWrapper/booking_wrapper.dart';
 import 'package:lseway/presentation/widgets/Booking/booking.dart';
 import 'package:lseway/presentation/widgets/CustomDrawer/custom_drawer.dart';
@@ -51,10 +54,13 @@ class _MapScreenState extends State<MapScreen> {
       body: Stack(
         children: [
           showMap
-              ? BookingWrapper(
-                  lowerLayer: const MapView(),
-                  upperLayer: Booking()
-                )
+              ? BlocBuilder<BookingBloc, BookingState>(
+                  builder: (context, state) {
+                  return BookingWrapper(
+                    booking: state.booking,
+                    
+                  );
+                })
               : SizedBox(),
           AnimatedSwitcher(
             duration: Duration(milliseconds: 300),

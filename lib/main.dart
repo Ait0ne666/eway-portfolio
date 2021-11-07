@@ -4,10 +4,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:lseway/domain/use-cases/booking/booking_use_case.dart';
 import 'package:lseway/domain/use-cases/charge/charge_use_case.dart';
 import 'package:lseway/presentation/bloc/activePoints/active_points_bloc.dart';
+import 'package:lseway/presentation/bloc/booking/booking.bloc.dart';
 import 'package:lseway/presentation/bloc/charge/charge.bloc.dart';
 import 'package:lseway/presentation/bloc/history/history.bloc.dart';
+import 'package:lseway/presentation/bloc/nearestPoints/nearest_points.bloc.dart';
 import 'package:lseway/presentation/bloc/payment/payment.bloc.dart';
 import 'package:lseway/presentation/bloc/pointInfo/pointinfo.bloc.dart';
 import 'package:lseway/presentation/bloc/points/points.bloc.dart';
@@ -42,20 +45,19 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   late ChargeBloc chargeBloc;
   late ActivePointsBloc activePointsBloc;
+  late BookingBloc bookingBloc;
 
   @override
   void initState() {
-
     activePointsBloc = ActivePointsBloc();
-    
-    chargeBloc = ChargeBloc(usecase: di.sl<ChargeUseCase>(), activePointsBloc: activePointsBloc);
+
+    chargeBloc = ChargeBloc(
+        usecase: di.sl<ChargeUseCase>(), activePointsBloc: activePointsBloc);
+    bookingBloc = BookingBloc(
+        usecase: di.sl<BookingUseCase>(), activePointsBloc: activePointsBloc);
 
     super.initState();
-
-
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -85,10 +87,16 @@ class _MyAppState extends State<MyApp> {
         BlocProvider(
           create: (_) => chargeBloc,
         ),
+        BlocProvider(
+          create: (_) => bookingBloc,
+        ),
+        BlocProvider(
+          create: (_) => di.sl<NearestPointsBloc>(),
+        ),
       ],
       child: MaterialApp(
         navigatorKey: NavigationService.navigatorKey,
-        title: 'Flutter Demo',
+        title: 'E-way',
         theme: ThemeData(
             primaryColor: const Color(0xffF7F7FA),
             colorScheme: const ColorScheme(

@@ -21,7 +21,7 @@ class GreenContainer extends StatelessWidget {
             color: Color.fromRGBO(83, 193, 81, 0.4),
           )
         ],
-        gradient: const LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [Color(0xff41C696), Color(0xff6BD15A)])
+        gradient: const LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [Color(0xff4fc985), Color(0xff6cd168)], stops: [0,0.5])
       ),
       child: Neumorphic(
         style: const NeumorphicStyle(

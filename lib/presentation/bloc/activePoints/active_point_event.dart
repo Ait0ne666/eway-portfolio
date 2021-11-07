@@ -37,10 +37,6 @@ class SetReservedPoint extends ActivePointEvent {
 class ClearChargingPoint extends ActivePointEvent {
 
 
-  
-
-
-  
 
 
 }

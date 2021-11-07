@@ -4,9 +4,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lseway/domain/entitites/filter/filter.dart';
 import 'package:lseway/presentation/bloc/charge/charge.bloc.dart';
 import 'package:lseway/presentation/bloc/charge/charge.event.dart';
+import 'package:lseway/presentation/bloc/history/history.bloc.dart';
+import 'package:lseway/presentation/bloc/history/history.state.dart';
 import 'package:lseway/presentation/bloc/pointInfo/pointInfo.event.dart';
 import 'package:lseway/presentation/bloc/pointInfo/pointInfo.state.dart';
 import 'package:lseway/presentation/bloc/pointInfo/pointinfo.bloc.dart';
+import 'package:lseway/presentation/widgets/AnimatedBattery/animated_battery.dart';
 import 'package:lseway/presentation/widgets/Main/Map/Point/Charge/charge_80_dialog.dart';
 import 'package:lseway/presentation/widgets/Main/Map/Point/Charge/charge_view.dart';
 import 'package:lseway/presentation/widgets/Main/Map/Point/point_content.dart';
@@ -43,8 +46,6 @@ void showPoint(BuildContext context, int pointId, bool isActive) {
     }
   });
 }
-
-
 
 
 class PointView extends StatefulWidget {
@@ -94,8 +95,23 @@ class _PointViewState extends State<PointView> {
     });
   }
 
+
+  double calculateTopPadding(BuildContext context, double height) {
+
+
+    if (MediaQuery.of(context).size.height - MediaQuery.of(context).padding.vertical  > height +20) {
+      return MediaQuery.of(context).size.height  - height - 20;
+    }
+
+    return 135;
+
+
+
+  }
+
   @override
   Widget build(BuildContext context) {
+    var padding = calculateTopPadding(context, 780);
     return ConstrainedBox(
       constraints:
           BoxConstraints(maxHeight: MediaQuery.of(context).size.height),
@@ -109,45 +125,51 @@ class _PointViewState extends State<PointView> {
             children: [
               Container(
                 // color: const Color.fromRGBO(38, 38, 50, 0.2),
-                padding: const EdgeInsets.only(
-                    top: 135, bottom: 20, left: 20, right: 20),
+                padding: EdgeInsets.only(
+                    top: padding, bottom: 20, left: 20, right: 20),
                 child: GestureDetector(
                   onTap: () {},
-                  child: Container(
-                    height: 715,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(30),
-                        color: Colors.white),
-                    child: BlocBuilder<PointInfoBloc, PointInfoState>(
-                        builder: (context, state) {
-                      var currentPointExist =
-                          state.points.containsKey(widget.pointId);
+                  child: BlocBuilder<HistoryBloc, HistoryState>(
+                    builder: (context, state) {
+                      var shouldShowBook = state.history.isNotEmpty;
+                      return Container(
+                        height: shouldShowBook ?   715: 650,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30),
+                            color: Colors.white),
+                        child: BlocBuilder<PointInfoBloc, PointInfoState>(
+                            builder: (context, state) {
+                          var currentPointExist =
+                              state.points.containsKey(widget.pointId);
 
-                      if (!currentPointExist) {
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Center(
-                              child: CircularProgressIndicator(
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                    Theme.of(context).colorScheme.onSurface),
-                              ),
-                            ),
-                          ],
-                        );
-                      }
+                          if (!currentPointExist) {
+                            return Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Center(
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Theme.of(context).colorScheme.onSurface),
+                                  ),
+                                ),
+                              ],
+                            );
+                          }
 
-                      var point = state.points[widget.pointId]!;
-                      return Material(
-                          color: Colors.transparent,
-                          child: PointContent(
-                            point: point,
-                            geolocatorService: geolocatorService,
-                            ctx: widget.parentCtx,
-                            charge: showCharge,
-                          ));
-                    }),
+                          var point = state.points[widget.pointId]!;
+                          return Material(
+                              color: Colors.transparent,
+                              child: PointContent(
+                                point: point,
+                                geolocatorService: geolocatorService,
+                                ctx: widget.parentCtx,
+                                charge: showCharge,
+                                shouldShowBooking: shouldShowBook,
+                              ));
+                        }),
+                      );
+                    }
                   ),
                 ),
               ),
@@ -156,7 +178,7 @@ class _PointViewState extends State<PointView> {
                   child: Image.asset('assets/point.png',
                       height: 1335 / 3.5, width: 876 / 3.5),
                 ),
-                top: 10,
+                top: (padding-135) + 10,
                 right: 0,
               ),
               Positioned(
@@ -167,9 +189,10 @@ class _PointViewState extends State<PointView> {
                   width: 34,
                   height: 4,
                 ),
-                top: 153,
+                top: (padding - 135) + 153,
                 left: MediaQuery.of(context).size.width / 2 - 17,
-              )
+              ),
+              // AnimatedBattery() 
             ],
           ),
         ),

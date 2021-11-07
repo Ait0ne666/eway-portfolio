@@ -4,6 +4,8 @@ import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lseway/presentation/bloc/booking/booking.bloc.dart';
+import 'package:lseway/presentation/bloc/booking/booking.event.dart';
 import 'package:lseway/presentation/bloc/history/history.bloc.dart';
 import 'package:lseway/presentation/bloc/history/history.event.dart';
 import 'package:lseway/presentation/bloc/payment/payment.bloc.dart';
@@ -37,6 +39,7 @@ class _MainScreenState extends State<MainScreen> {
     initUniLinks();
     BlocProvider.of<PaymentBloc>(context).add(FetchCards());
     BlocProvider.of<HistoryBloc>(context).add(FetchHistory());
+    BlocProvider.of<BookingBloc>(context).add(CheckBookings());
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeRight,
       DeviceOrientation.landscapeLeft,

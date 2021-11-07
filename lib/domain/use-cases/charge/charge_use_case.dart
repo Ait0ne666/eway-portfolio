@@ -9,7 +9,7 @@ class ChargeUseCase {
 
   ChargeUseCase({required this.repository});
 
-  Future<Either<Failure, Stream<ChargeProgress>>> startCharge(int pointId) {
+  Future<Either<Failure, ChargeResult>> startCharge(int pointId) {
     return repository.startCharge(pointId);
   }
 

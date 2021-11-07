@@ -14,3 +14,10 @@ class ChargeProgress {
 }
 
 
+class ChargeResult {
+  final Stream<ChargeProgress> stream;
+  final ChargeProgress initialValue;
+
+
+  ChargeResult({required this.initialValue, required this.stream});
+}

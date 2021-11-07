@@ -6,7 +6,7 @@ import 'package:lseway/domain/entitites/charge/charge_progress.entity.dart';
 abstract class ChargeRepository {
 
   
-  Future<Either<Failure, Stream<ChargeProgress>>> startCharge(int pointId);
+  Future<Either<Failure, ChargeResult>> startCharge(int pointId);
 
   Future<Either<Failure, Stream<ChargeProgress>>> resumeCharge(int pointId);
 

@@ -12,6 +12,7 @@ import 'package:lseway/presentation/widgets/AvailabilityChip/availability_chip.d
 import 'package:lseway/presentation/widgets/Core/CustomButton/custom_button.dart';
 import 'package:lseway/presentation/widgets/Core/CustomSelect/custom_select.dart';
 import 'package:lseway/presentation/widgets/Core/LabeledBox/labeled_box.dart';
+import 'package:lseway/presentation/widgets/Main/Map/Book/book_modal.dart';
 import 'package:lseway/presentation/widgets/Main/Map/Point/RouteBuilder/route_view.dart';
 import 'package:lseway/presentation/widgets/Main/Map/Point/point.dart';
 import 'package:lseway/presentation/widgets/Main/Map/geolocation.dart';
@@ -22,13 +23,15 @@ class PointContent extends StatefulWidget {
   final PointInfo point;
   final GeolocatorService geolocatorService;
   final BuildContext ctx;
+  final bool shouldShowBooking;
   final void Function(BuildContext ctx, bool dismiss) charge;
   const PointContent(
       {Key? key,
       required this.point,
       required this.geolocatorService,
       required this.ctx,
-      required this.charge
+      required this.charge,
+      required this.shouldShowBooking
       })
       : super(key: key);
 
@@ -43,8 +46,9 @@ class _PointContentState extends State<PointContent> {
   void initState() {
     if (widget.point.connectors.length > 0) {
       connector = widget.point.connectors[0].type;
+    } else {
+      connector = ConnectorTypes.CHADEMO;
     }
-    connector = ConnectorTypes.CHADEMO;
     super.initState();
   }
 
@@ -61,7 +65,10 @@ class _PointContentState extends State<PointContent> {
     }).toList();
   }
 
-  void handleBooking(BuildContext context) {}
+  void handleBooking(BuildContext context) {
+    Navigator.of(context).pop();
+    showBookModal(widget.point.point.id, connector);
+  }
 
   void buildRoute(BuildContext context, Coords destination) {
     widget.geolocatorService.determinePosition().then((value) {
@@ -285,14 +292,15 @@ class _PointContentState extends State<PointContent> {
           const SizedBox(
             height: 30,
           ),
-          CustomButton(
+          
+          widget.shouldShowBooking ? CustomButton(
             text: 'Забронировать',
             onPress: () => handleBooking(context),
             type: ButtonTypes.SECONDARY,
             icon: SvgPicture.asset('assets/clock.svg'),
-          ),
-          const SizedBox(
-            height: 15,
+          ) : const SizedBox(),
+          SizedBox(
+            height: widget.shouldShowBooking ?  15 : 0,
           ),
           CustomButton(
             text: 'Проложить маршрут',

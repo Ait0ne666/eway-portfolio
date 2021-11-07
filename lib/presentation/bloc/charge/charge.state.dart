@@ -20,6 +20,12 @@ class ChargeInitialState extends ChargeState {
   const ChargeInitialState(): super(progress: null);
 }
 
+
+class ChargeStartedState extends ChargeState {
+
+  const ChargeStartedState({required ChargeProgress progress}): super(progress: progress);
+}
+
 class ChargeInProgressState extends ChargeState {
 
   const ChargeInProgressState({required ChargeProgress progress}): super(progress: progress);

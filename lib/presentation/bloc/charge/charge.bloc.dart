@@ -21,9 +21,10 @@ class ChargeBloc extends Bloc<ChargeEvent, ChargeState> {
 
       result.fold((failure) {
         emit(ChargeErrorState(progress: progress, message: failure.message));
-      }, (stream) {
+      }, (result) {
         activePointsBloc.add(SetChargingPoint(pointId: event.pointId));
-        stream.listen((event) {
+        emit(ChargeStartedState(progress: result.initialValue));
+        result.stream.listen((event) {
           progress = event;
           add(SetChargeProgress(progress: progress!));
         });
