@@ -52,10 +52,9 @@ class UserLocalDataSource {
 
   UserModel? getUserModel() {
     var jsonString = box.get('user');
-    if (jsonString !=null) {
-    var json = jsonDecode(jsonString);
-    return UserModel.fromJson(json);
-
+    if (jsonString != null) {
+      var json = jsonDecode(jsonString);
+      return UserModel.fromJson(json);
     }
     return null;
   }
@@ -64,32 +63,25 @@ class UserLocalDataSource {
     box.delete('user');
   }
 
-
   void saveFilter(Filter filter) {
     box.put('currentFilter', jsonEncode(filter.toJson()));
   }
 
-    Filter? getFilter() {
+  Filter? getFilter() {
     var jsonString = box.get('currentFilter');
-    if (jsonString!=null) {
+    if (jsonString != null) {
       var json = jsonDecode(jsonString);
       return Filter.fromJson(json);
-
     }
 
     return null;
-
   }
 
   void deleteFilter() {
     box.delete('currentFilter');
   }
 
-
-
-
   void saveCoordinates(LatLng coords, double bearing, double zoom) {
-    
     box.put("lastCoordinates", json.encode(coords.toJson()));
     box.put("lastBearing", bearing);
     box.put("lastZoom", zoom);
@@ -102,8 +94,12 @@ class UserLocalDataSource {
 
     if (coords == null) return null;
 
-    return CoordResult(bearing: bearing, target: LatLng.fromJson(jsonDecode(coords), ), zoom: zoom);
-    
+    return CoordResult(
+        bearing: bearing,
+        target: LatLng.fromJson(
+          jsonDecode(coords),
+        ),
+        zoom: zoom);
   }
 
   void deleteCoords() {
@@ -111,13 +107,40 @@ class UserLocalDataSource {
     box.delete("lastBearing");
     box.delete("lastZoom");
   }
-}
 
+  void saveEmailConfirmationShown() {
+    box.put("emailConfirmShown", true);
+  }
+
+  bool getEmailConfirmationShown() {
+    var shown = box.get("emailConfirmShown");
+    return shown ?? false;
+  }
+
+  void deleteEmailConfrimationShown() {
+    box.delete("emailConfirmShown");
+  }
+
+  String? getDeviceToken() {
+    return box.get("device_token");
+  }
+
+
+  void setDeviceToken(String token) {
+    var shown = box.put("device_token", token);
+  }
+
+  void deleteDeviceToken() {
+    box.delete("device_token");
+  }
+
+}
 
 class CoordResult {
   final LatLng? target;
   final double? bearing;
   final double? zoom;
 
-  CoordResult({required this.bearing, required this.target, required this.zoom});
+  CoordResult(
+      {required this.bearing, required this.target, required this.zoom});
 }

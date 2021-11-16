@@ -1,4 +1,6 @@
+import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
+import 'package:lseway/presentation/navigation/app_router.dart';
 import 'package:lseway/presentation/widgets/Core/CustomButton/custom_button.dart';
 import 'package:lseway/presentation/widgets/CustomAppBar/custom_profile_bar.dart';
 
@@ -26,7 +28,10 @@ class SupportScreen extends StatelessWidget {
             ),
             CustomButton(
               text: 'Чат с поддержкой',
-              onPress: () {},
+              onPress: () {
+                AppRouter.router.navigateTo(context, '/support/chat',
+                    transition: TransitionType.cupertino);
+              },
               icon: Image.asset(
                 'assets/chat.png',
                 width: 39,
@@ -43,7 +48,6 @@ class SupportScreen extends StatelessWidget {
                 width: 39,
               ),
               type: ButtonTypes.DARK,
-              
             )
           ],
         ),

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_maps_cluster_manager/google_maps_cluster_manager.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:lseway/presentation/bloc/points/points.bloc.dart';
 import 'package:lseway/presentation/bloc/points/points.state.dart';
@@ -13,6 +14,7 @@ class Map extends StatelessWidget {
   final Set<Marker> markers;
   final bool showMyLocation;
   final CameraPosition kGooglePlex;
+  final ClusterManager manager;
   final void Function(CameraPosition) onCameraMove;
   final void Function(BuildContext, PointsState) pointsListener;
 
@@ -26,7 +28,7 @@ class Map extends StatelessWidget {
       this.activeIcon,
       this.inActiveIcon,
       required this.onCameraMove,
-      
+      required this.manager,
       })
       : super(key: key);
 
@@ -42,12 +44,18 @@ class Map extends StatelessWidget {
             myLocationEnabled: showMyLocation,
             myLocationButtonEnabled: false,
             mapToolbarEnabled: false,
-            onCameraMove: onCameraMove,
+            onCameraMove: (camera) {
+              onCameraMove(camera);
+              manager.onCameraMove(camera);
+            } ,
+            
+            onCameraIdle: manager.updateMap,
             markers: markers,
             onMapCreated: (GoogleMapController _controller) {
               if (!controller.isCompleted) {
                 controller.complete(_controller);
               }
+              manager.setMapId(_controller.mapId);
             },
           );
         });

@@ -7,14 +7,16 @@ import 'package:lseway/presentation/widgets/IconButton/icon_button.dart';
 import 'package:lseway/presentation/widgets/Menu/menu.dart';
 
 class CustomAppBar extends StatelessWidget {
-  const CustomAppBar({Key? key}) : super(key: key);
-
-
+  final void Function() reload;
+  const CustomAppBar({Key? key, required this.reload}) : super(key: key);
 
   void showNearest(BuildContext context) {
-    AppRouter.router.navigateTo(context, '/nearest', transition: TransitionType.cupertino);
+    AppRouter.router
+        .navigateTo(context, '/nearest', transition: TransitionType.cupertino)
+        .then((value) {
+      reload();
+    });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -30,8 +32,12 @@ class CustomAppBar extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  CustomIconButton(icon: SvgPicture.asset('assets/list.svg'), onTap: () => showNearest(context)),
-                  const SizedBox(width: 12,),
+                  CustomIconButton(
+                      icon: SvgPicture.asset('assets/list.svg'),
+                      onTap: () => showNearest(context)),
+                  const SizedBox(
+                    width: 12,
+                  ),
                   const CustomFilter(),
                 ],
               ),

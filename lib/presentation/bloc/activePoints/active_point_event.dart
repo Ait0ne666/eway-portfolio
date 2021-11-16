@@ -48,3 +48,13 @@ class ClearReservedPoint extends ActivePointEvent {
 
 
 }
+
+
+
+class SetAndShowChargingPoint extends ActivePointEvent {
+  final int pointId;
+
+
+  SetAndShowChargingPoint({required this.pointId});
+
+}

@@ -1,5 +1,3 @@
-
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lseway/data/data-sources/user/user_local_data_source.dart';
 import 'package:lseway/domain/entitites/point/pointInfo.entity.dart';
@@ -12,14 +10,13 @@ class PointInfoBloc extends Bloc<PointInfoEvent, PointInfoState> {
   final UserLocalDataSource localDataSource;
   Map<int, PointInfo> points = {};
 
-  PointInfoBloc({required this.usecase, required this.localDataSource}):super(InitialPointInfoState()){
-
-
+  PointInfoBloc({required this.usecase, required this.localDataSource})
+      : super(InitialPointInfoState()) {
     on<LoadPoint>((event, emit) async {
       var existingPoint = points.containsKey(event.pointId);
 
       if (!existingPoint) {
-          emit(PointInfoLoadingState(points: points));
+        emit(PointInfoLoadingState(points: points));
       }
 
       var result = await usecase.getPointInfo(event.pointId);
@@ -36,13 +33,26 @@ class PointInfoBloc extends Bloc<PointInfoEvent, PointInfoState> {
       emit(ShowPointState(pointid: event.pointId, points: points));
     });
 
-    
     on<ClearPoint>((event, emit) {
       emit(ClearPointState(points: points));
     });
+    on<CheckIfPointExist>((event, emit) async {
+      var existingPoint = points.containsKey(event.pointId);
+
+      if (!existingPoint) {
+        emit(PointInfoExistLoadingState(points: points,));
+
+        var result = await usecase.getPointInfo(event.pointId);
+
+        result.fold((failure) {
+          emit(PointInfoExistErrorState(points: points, message: failure.message));
+        }, (success) {
+          points[event.pointId] = success;
+          emit(PointInfoExistState(points: points, pointId: event.pointId));
+        });
+      } else {
+        emit(PointInfoExistState(points: points, pointId: event.pointId));
+      }
+    });
   }
-
-
-
 }
-

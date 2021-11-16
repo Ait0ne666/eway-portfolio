@@ -13,7 +13,7 @@ class BookingEvent extends Equatable {
 class BookPoint extends BookingEvent {
 
   final int pointId;
-  final ConnectorTypes connector;
+  final int connector;
   final DateTime time;
 
 
@@ -37,3 +37,6 @@ class CheckBookings extends BookingEvent {
 }
 
 
+class ClearBooking extends BookingEvent {
+
+}

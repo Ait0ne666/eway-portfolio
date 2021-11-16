@@ -9,6 +9,7 @@ import 'package:lseway/presentation/screens/MainScreen/ProfileScreen/profile_scr
 import 'package:lseway/presentation/screens/NearestStations/nearest_stations.dart';
 import 'package:lseway/presentation/screens/SettingsScreens/OrderHistoryScreen/order_history_screen.dart';
 import 'package:lseway/presentation/screens/SettingsScreens/PaymentMethodsScreen/payment_methods_screen.dart';
+import 'package:lseway/presentation/screens/SettingsScreens/SupportChatScreen/support_chat_screen.dart';
 import 'package:lseway/presentation/screens/SettingsScreens/SupportScreen/support_screen.dart';
 import 'package:lseway/presentation/screens/SettingsScreens/TopPlacesScreen/top_places_screen.dart';
 
@@ -46,9 +47,14 @@ class AppRouter {
   static final Handler _paymentMethodsHandler = Handler(
       handlerFunc: (context, pwarameters) => const PaymentMethodsScreen());
 
+  static final Handler _nearestStationsHandler =
+      Handler(handlerFunc: (context, pwarameters) => const NearestStations());
 
-        static final Handler _nearestStationsHandler = Handler(
-      handlerFunc: (context, pwarameters) => const NearestStations());
+  static final Handler _chatHandler =
+      Handler(handlerFunc: (context, pwarameters) => const SupportChatScreen());
+
+
+
 
   static void setupRouter() {
     router.define('/', handler: _mapHandler);
@@ -60,6 +66,7 @@ class AppRouter {
     router.define('/history', handler: _orderHistoryHandler);
     router.define('/topPlaces', handler: _topPlacesHandler);
     router.define('/support', handler: _supportHandler);
+    router.define('/support/chat', handler: _chatHandler);
     router.define('/paymentMethods', handler: _paymentMethodsHandler);
     router.define('/nearest', handler: _nearestStationsHandler);
   }

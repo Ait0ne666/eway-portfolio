@@ -95,13 +95,17 @@ class UserRemoteDataSource {
 
       var result = response.data['result'];
 
-      return Right(UserModel(
-          showWelcome: true,
-          email: result["email"],
-          name: result["name"],
-          phone: result["phone"] ?? '79859153858',
-          email_confirmed: result["email_confirmed"] ?? false,
-          avatarUrl: result["avatar"]));
+      return Right(
+        UserModel(
+          id: 55555555,
+            showWelcome: true,
+            email: result["email"],
+            name: result["name"],
+            phone: result["phone"] ?? '79859153858',
+            email_confirmed: result["email_confirmed"] ?? false,
+            avatarUrl: result["avatar"],
+            aggreedToNews: result["aggree"] ?? true),
+      );
     } on DioError catch (err) {
       print(err.response);
 
@@ -115,7 +119,8 @@ class UserRemoteDataSource {
 
     try {
       dio.interceptors.requestLock.lock();
-      var response = await dio.post(url,
+      var refreshDio = Dio();
+      var response = await refreshDio.post(url,
           data: {"refresh_token": refresh},
           options: Options(headers: {"Authorization": "Bearer " + jwt}));
       var data = response.data;
@@ -140,6 +145,17 @@ class UserRemoteDataSource {
 
       return Right(Success(message: phone));
     } on DioError catch (err) {
+      if (err.response?.statusCode == 400) {
+        var errors = err.response!.data['errors'];
+        if (errors != null) {
+          var err = errors[0];
+
+          if (err['message'] == 'Invalid phone number') {
+            return registerWithPhone(phone);
+          }
+        }
+      }
+
       if (err.response?.statusCode == 400 || err.response?.statusCode == 401) {
         var message = 'Пользователь с таким номером телефона не найден';
         return Left(ServerFailure(message));
@@ -148,8 +164,22 @@ class UserRemoteDataSource {
     }
   }
 
+  Future<Either<Failure, Success>> registerWithPhone(String phone) async {
+    const url = _apiUrl + 'register';
+
+    var data = {"phone": phone};
+
+    try {
+      var response = dio.post(url, data: data);
+
+      return Right(Success(message: phone));
+    } catch (err) {
+      return Left(ServerFailure('Произошла непредвиденная ошибка'));
+    }
+  }
+
   Future<Either<Failure, LoginResult>> confirmPhone(
-    String phone, String code) async {
+      String phone, String code) async {
     const url = _apiUrl + 'confirm';
 
     try {
@@ -173,69 +203,99 @@ class UserRemoteDataSource {
   }
 
   Future<Either<Failure, String>> changeName(String name) async {
+    const url = _apiUrl + 'me';
 
-      await Future.delayed(const Duration(milliseconds: 200));
+    var data = {"name": name};
 
+    try {
+      var response = await dio.post(url, data: data);
 
       return Right(name);
-
-
+    } catch (err) {
+      return Left(ServerFailure('Произошла непредвиденная ошибка'));
+    }
   }
 
-  Future<Either<Failure, String>> changeEmail(String email) async {
+  Future<Either<Failure, String>> changeEmail(String email, bool aggree) async {
+    const url = _apiUrl + 'me';
 
-      await Future.delayed(const Duration(milliseconds: 200));
+    var data = {"email": email};
 
+    try {
+      var response = await dio.post(url, data: data);
 
       return Right(email);
-
+    } on DioError catch (err) {
+      if (err.response?.statusCode == 400 || err.response?.statusCode == 401) {
+        var message = 'Пользователь с таким email уже существует';
+        return Left(ServerFailure(message));
+      }
+      return Left(ServerFailure('Произошла непредвиденная ошибка'));
+    }
   }
 
   Future<Either<Failure, String>> confirmEmail(
       String email, String code) async {
+    await Future.delayed(const Duration(milliseconds: 200));
 
-        await Future.delayed(const Duration(milliseconds: 200));
+    return Left(ServerFailure('Произошла непредвиденная ошибка'));
+  }
 
-        return Left(ServerFailure('Произошла непредвиденная ошибка'));
-      }
+  Future<Either<Failure, String>> resetAccess(String email) async {
+    await Future.delayed(const Duration(milliseconds: 200));
 
+    return Right(email);
+  }
 
+  Future<Either<Failure, String>> confirmReset(
+      String email, String code) async {
+    await Future.delayed(const Duration(milliseconds: 200));
 
-      Future<Either<Failure, String>> resetAccess(String email) async {
+    return Right(email);
+  }
 
-          await Future.delayed(const Duration(milliseconds: 200));
+  Future<Either<Failure, ResetResult>> setNewPhone(
+      String email, String phone) async {
+    await Future.delayed(const Duration(milliseconds: 200));
 
+    return Right(ResetResult(email: email, phone: phone));
+  }
 
-          return Right(email);
+  Future<Either<Failure, LoginResult>> confirmNewPhone(
+      String email, String phone, String code) async {
+    await Future.delayed(const Duration(milliseconds: 200));
 
-
-
-      }
-
-
-
-      Future<Either<Failure, String>> confirmReset(String email, String code) async {
-          await Future.delayed(const Duration(milliseconds: 200));
-
-
-          return Right(email);
-      }
-
-      Future<Either<Failure, ResetResult>> setNewPhone(String email, String phone) async {
-          await Future.delayed(const Duration(milliseconds: 200));
-
-
-          return Right(ResetResult(email: email, phone: phone));
-      }
+    return Right(
+        LoginResult(accessToken: 'asdasdasdas', refreshToken: 'ffsdsdsf'));
+  }
 
 
-      Future<Either<Failure, LoginResult>> confirmNewPhone(String email, String phone, String code) async {
-          await Future.delayed(const Duration(milliseconds: 200));
+  Future<Either<Failure, String>> saveDeviceToken(String token) async {
+    const url = _apiUrl + 'me';
+
+    var data = {"device_token": token};
+
+    try {
+      var response = await dio.post(url, data: data);
+
+      return Right(token);
+    } catch (err) {
+      return Left(ServerFailure('Произошла непредвиденная ошибка'));
+    }
+  }
 
 
-          return Right(LoginResult(accessToken: 'asdasdasdas', refreshToken: 'ffsdsdsf'));
-      }
+  Future<Either<Failure, Success>> deleteDeviceToken() async {
+    const url = _apiUrl + 'me';
+
+    var data = {"device_token": ""};
+
+    try {
+      var response = await dio.post(url, data: data);
+
+      return Right(Success());
+    } catch (err) {
+      return Left(ServerFailure('Произошла непредвиденная ошибка'));
+    }
+  }
 }
-
-
-

@@ -1,14 +1,26 @@
 import 'dart:ui';
 
+import 'package:cloudpayments/cloudpayments.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
+import 'package:lseway/config/config.dart';
+import 'package:lseway/core/dialogBuilder/dialogBuilder.dart';
+import 'package:lseway/core/toast/toast.dart';
+import 'package:lseway/domain/entitites/payment/threeDs.entity.dart';
+import 'package:lseway/presentation/bloc/payment/payment.bloc.dart';
+import 'package:lseway/presentation/bloc/payment/payment.event.dart';
+import 'package:lseway/presentation/bloc/payment/payment.state.dart';
 import 'package:lseway/presentation/widgets/Core/CustomButton/custom_button.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class CreditCardForm extends StatefulWidget {
-  const CreditCardForm({Key? key}) : super(key: key);
+  final double? extent;
+  final void Function() onSuccess;
+  const CreditCardForm({Key? key, required this.onSuccess, this.extent})
+      : super(key: key);
 
   @override
   _CreditCardFormState createState() => _CreditCardFormState();
@@ -19,8 +31,11 @@ class _CreditCardFormState extends State<CreditCardForm> {
   Widget build(BuildContext context) {
     return AnimatedContainer(
       duration: Duration(milliseconds: 200),
-      height: MediaQuery.of(context).size.height * 7 / 9 + MediaQuery.of(context).viewInsets.bottom,
-      padding: EdgeInsets.only(bottom: 22 + MediaQuery.of(context).viewInsets.bottom, top: 22),
+      height: widget.extent != null ? widget.extent! + MediaQuery.of(context).viewInsets.bottom :
+          MediaQuery.of(context).size.height * 7 / 9 +
+              MediaQuery.of(context).viewInsets.bottom,
+      padding: EdgeInsets.only(
+          bottom: 22 + MediaQuery.of(context).viewInsets.bottom, top: 22),
       decoration: const BoxDecoration(
         borderRadius: BorderRadius.only(
             topLeft: Radius.circular(40), topRight: Radius.circular(40)),
@@ -43,7 +58,7 @@ class _CreditCardFormState extends State<CreditCardForm> {
           const SizedBox(
             height: 45,
           ),
-          const CardForm()
+          CardForm(onSuccess: widget.onSuccess)
         ],
       ),
     );
@@ -51,7 +66,8 @@ class _CreditCardFormState extends State<CreditCardForm> {
 }
 
 class CardForm extends StatefulWidget {
-  const CardForm({Key? key}) : super(key: key);
+  final void Function() onSuccess;
+  const CardForm({Key? key, required this.onSuccess}) : super(key: key);
 
   @override
   _CardFormState createState() => _CardFormState();
@@ -88,20 +104,23 @@ class _CardFormState extends State<CardForm> {
         filledCard = filled;
         unfilledCard = unfilled;
       });
-      if (_cardController.value.text.length == 25 && _cardController.selection.end == 25) {
+      if (_cardController.value.text.length == 25 &&
+          _cardController.selection.end == 25) {
         print(_cardController.selection.end);
         monthFocusNode.requestFocus();
       }
     });
 
     _monthController.addListener(() {
-      if (_monthController.value.text.length == 2 && _monthController.selection.end == 2) {
+      if (_monthController.value.text.length == 2 &&
+          _monthController.selection.end == 2) {
         yearFocusNode.requestFocus();
       }
     });
 
     _yearController.addListener(() {
-      if (_yearController.value.text.length == 2 && _yearController.selection.end == 2) {
+      if (_yearController.value.text.length == 2 &&
+          _yearController.selection.end == 2) {
         codeFocusNode.requestFocus();
       }
     });
@@ -196,9 +215,75 @@ class _CardFormState extends State<CardForm> {
     return false;
   }
 
-  void submit() {
-    
-    if (!validateForm()) {}
+  void submit() async {
+    if (!validateForm()) {
+      var publicId = Config.CLOUD_PAYMENTS_ID;
+      var month = _monthController.value.text;
+      var year = _yearController.value.text;
+      var code = _codeController.value.text;
+      try {
+        var card = _cardFormatter.getUnmaskedText();
+        var cryptogram = await Cloudpayments.cardCryptogram(
+            cardNumber: card,
+            cardDate: month + '/' + year,
+            cardCVC: code,
+            publicId: publicId);
+
+        if (cryptogram.cryptogram != null) {
+          BlocProvider.of<PaymentBloc>(context).add(
+            AddCard(cryptoToken: cryptogram.cryptogram!),
+          );
+          //           BlocProvider.of<PaymentBloc>(context).add(
+          //   Get3DS(cryptoToken: cryptogram.cryptogram!),
+          // );
+        }
+      } on PlatformException catch (error) {
+        if (error.message == 'Card number is not correct.') {
+          setState(() {
+            cardError = true;
+          });
+        } else if (error.message == 'Expiration date is not correct.') {
+          setState(() {
+            dateError = true;
+          });
+        }
+
+        
+      }
+    }
+  }
+
+
+  void paymentListener (BuildContext context, PaymentState state) {
+
+    var dialog = DialogBuilder();
+    var isVisible = TickerMode.of(context);
+
+    if (state is CreditCardAddingState) {
+      dialog.showLoadingDialog(
+        context,
+      );
+    } else if (state is CreditCardAddErrorState) {
+      Navigator.of(context, rootNavigator: true).pop();
+      Toast.showToast(context, state.message);
+    } else if (state is CreditCardAddedState) {
+      Navigator.of(context, rootNavigator: true).pop();
+      widget.onSuccess();
+    } else if (state is CreditCard3DSState) {
+      Navigator.of(context, rootNavigator: true).pop();
+      handle3DS(state.threeDs);
+    }
+  } 
+
+  void handle3DS(ThreeDS threeDs) async {
+    try {
+      var result = await Cloudpayments.show3ds(acsUrl: threeDs.acsUrl, transactionId: threeDs.transactionId, paReq: threeDs.paReq);
+      print(result);
+
+    } catch (err) {
+      Toast.showToast(context, 'Не удалось привязать карту');
+    }
+
   }
 
   @override
@@ -210,7 +295,9 @@ class _CardFormState extends State<CardForm> {
           padding: EdgeInsets.symmetric(horizontal: 25),
           child: Column(
             children: [
+
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                BlocListener<PaymentBloc, PaymentState>(listener: paymentListener, child: const SizedBox(),),
                 Text(
                   'Номер карты',
                   style: Theme.of(context).textTheme.bodyText1,
@@ -222,7 +309,9 @@ class _CardFormState extends State<CardForm> {
                 Container(
                   padding: const EdgeInsets.all(1),
                   decoration: BoxDecoration(
-                    color: cardError ?  Theme.of(context).colorScheme.error  : Color(0xffEAEAF2),
+                    color: cardError
+                        ? Theme.of(context).colorScheme.error
+                        : Color(0xffEAEAF2),
                     borderRadius: BorderRadius.circular(100),
                   ),
                   child: Container(
@@ -351,7 +440,9 @@ class _CardFormState extends State<CardForm> {
                           Container(
                             padding: const EdgeInsets.all(1),
                             decoration: BoxDecoration(
-                              color: dateError ?  Theme.of(context).colorScheme.error : Color(0xffEAEAF2),
+                              color: dateError
+                                  ? Theme.of(context).colorScheme.error
+                                  : Color(0xffEAEAF2),
                               borderRadius: BorderRadius.circular(100),
                             ),
                             child: Container(
@@ -461,7 +552,7 @@ class _CardFormState extends State<CardForm> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'CCV-код',
+                            'CVC-код',
                             style: Theme.of(context).textTheme.bodyText1,
                             textAlign: TextAlign.left,
                           ),
@@ -471,7 +562,9 @@ class _CardFormState extends State<CardForm> {
                           Container(
                             padding: const EdgeInsets.all(1),
                             decoration: BoxDecoration(
-                              color: codeError ?  Theme.of(context).colorScheme.error : Color(0xffEAEAF2),
+                              color: codeError
+                                  ? Theme.of(context).colorScheme.error
+                                  : Color(0xffEAEAF2),
                               borderRadius: BorderRadius.circular(100),
                             ),
                             child: Container(

@@ -50,7 +50,7 @@ class EditEmailScreen extends StatelessWidget {
               vertical: MediaQuery.of(context).viewPadding.top + 30),
           child: Column(
             children: [
-              const CustomProfileBar(title: 'Введите E-mail'),
+              const CustomProfileBar(title: 'Введите E-mail', isCentered: true,),
               const SizedBox(
                 height: 73,
               ),

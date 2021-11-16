@@ -9,7 +9,7 @@ abstract class BookingRepository {
   Future<List<Booking>> checkBookings();
 
 
-  Future<Either<Failure, Booking>> bookPoint(DateTime time, int pointId, ConnectorTypes connector);
+  Future<Either<Failure, Booking>> bookPoint(DateTime time, int pointId, int connector);
 
 
   Future<Either<Failure, int>>  cancelBooking(int pointId);

@@ -28,26 +28,26 @@ class AuthWithPhone extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(height: 50,),
-            InkWell(
-              onTap: () {
-                MainRouter.router.navigateTo(context, '/reset', transition: TransitionType.cupertino);
-              },
-              child: Container(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  decoration: const BoxDecoration(
-                      border: Border(
-                          bottom:
-                              BorderSide(width: 1, color: Color(0xff1A1D21)))),
-                  child: Text(
-                    'Восстановить доступ',
-                    style: Theme.of(context).textTheme.bodyText2?.copyWith(
-                          fontSize: 16,
-                        ),
-                  )),
-            ),
-            const SizedBox(
-              height: 70,
-            ),
+            // InkWell(
+            //   onTap: () {
+            //     MainRouter.router.navigateTo(context, '/reset', transition: TransitionType.cupertino);
+            //   },
+            //   child: Container(
+            //       padding: const EdgeInsets.only(bottom: 4),
+            //       decoration: const BoxDecoration(
+            //           border: Border(
+            //               bottom:
+            //                   BorderSide(width: 1, color: Color(0xff1A1D21)))),
+            //       child: Text(
+            //         'Восстановить доступ',
+            //         style: Theme.of(context).textTheme.bodyText2?.copyWith(
+            //               fontSize: 16,
+            //             ),
+            //       )),
+            // ),
+            // const SizedBox(
+            //   height: 70,
+            // ),
             Text.rich(
               TextSpan(children: [
                 const TextSpan(

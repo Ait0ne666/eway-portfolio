@@ -13,6 +13,7 @@ class DialogBuilder {
         context: context,
         barrierDismissible: false,
         useRootNavigator: true,
+        
         builder: (dialogContext) {
           return SimpleDialog(
             

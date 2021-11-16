@@ -21,7 +21,7 @@ class ConfrimEmailScreen extends StatelessWidget {
               vertical: MediaQuery.of(context).viewPadding.top + 30),
           child: Column(
             children: [
-              const CustomProfileBar(title: 'Подтверждение'),
+              const CustomProfileBar(title: 'Подтверждение', isCentered: true,),
               const SizedBox(
                 height: 73,
               ),
@@ -62,7 +62,7 @@ class ConfrimEmailScreen extends StatelessWidget {
                         child: SendAgainButton(
                           onSend: () {
                             BlocProvider.of<UserBloc>(context)
-                                .add(ChangeEmail(email: state.user!.email!));
+                                .add(ChangeEmail(email: state.user!.email!, aggree: state.user!.aggreedToNews));
                           },
                           sendText: 'Письмо успешно отправлено',
                         ),

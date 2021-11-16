@@ -63,7 +63,7 @@ class EditNameScreen extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: 20 , vertical: MediaQuery.of(context).viewPadding.top + 30),
           child: Column(
             children: [
-               const CustomProfileBar(title: 'Введите имя'),
+               const CustomProfileBar(title: 'Введите имя', isCentered: true,),
               const SizedBox(height: 73,),
               BlocConsumer<UserBloc, UserState>(
                 listener: changeListener,

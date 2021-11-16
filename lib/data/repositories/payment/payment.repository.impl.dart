@@ -4,20 +4,20 @@ import 'package:lseway/core/network/network_info.dart';
 import 'package:lseway/data/data-sources/payment/payment.dart';
 import 'package:lseway/data/data-sources/user/user_local_data_source.dart';
 import 'package:lseway/domain/entitites/payment/card.entity.dart';
+import 'package:lseway/domain/entitites/payment/threeDs.entity.dart';
 import 'package:lseway/domain/repositories/payment/payment.repository.dart';
 
 class PaymentRepositoryImpl implements PaymentRepository {
-
   final PaymentRemoteDataSource remoteDataSource;
   final NetworkInfo networkInfo;
   final UserLocalDataSource localDataSource;
 
+  PaymentRepositoryImpl(
+      {required this.localDataSource,
+      required this.networkInfo,
+      required this.remoteDataSource});
 
-
-  PaymentRepositoryImpl({required this.localDataSource, required this.networkInfo, required this.remoteDataSource});
-
-
-
+  @override
   Future<Either<Failure, List<CreditCard>>> fetchCards() async {
     bool isConnected = await networkInfo.isConnected;
 
@@ -27,21 +27,65 @@ class PaymentRepositoryImpl implements PaymentRepository {
       );
     }
 
-
     var result = await remoteDataSource.fetchCards();
-
-
 
     return result.fold((failure) {
       return Left(failure);
     }, (models) {
-
-      var cards = models.map((model) => CreditCard(mask: model.mask, month: model.month, year: model.year)).toList();
+      var cards = models
+          .map((model) => CreditCard(
+              mask: model.mask,
+              month: model.month,
+              year: model.year,
+              id: model.id,
+              isActive: model.isActive))
+          .toList();
       return Right(cards);
     });
-
   }
 
+  @override
+  Future<Either<Failure, List<CreditCard>>> addCard(String cryptoToken) async {
+    bool isConnected = await networkInfo.isConnected;
 
+    if (!isConnected) {
+      return Left(
+        NetworkFailure("Отсутствует подключение к интернету"),
+      );
+    }
 
+    var result = await remoteDataSource.addCard(cryptoToken);
+
+    return result.fold((failure) {
+      return Left(failure);
+    }, (models) {
+      var cards = models
+          .map((model) => CreditCard(
+              mask: model.mask,
+              month: model.month,
+              year: model.year,
+              id: model.id,
+              isActive: model.isActive))
+          .toList();
+      return Right(cards);
+    });
+  }
+
+  @override
+  Future<Either<Failure, ThreeDS>> get3DsInfo(String cryptoToken) async {
+    bool isConnected = await networkInfo.isConnected;
+
+    if (!isConnected) {
+      return Left(
+        NetworkFailure("Отсутствует подключение к интернету"),
+      );
+    }
+
+    return remoteDataSource.get3DsInfo(cryptoToken);
+  }
+
+  @override
+  Future<Either<Failure, String>> changeActiveCard(String id) async {
+    return remoteDataSource.changeActiveCard(id);
+  }
 }

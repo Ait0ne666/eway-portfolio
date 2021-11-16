@@ -3,19 +3,30 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:lseway/core/dialogBuilder/dialogBuilder.dart';
+import 'package:lseway/core/toast/toast.dart';
 import 'package:lseway/domain/entitites/filter/filter.dart';
 import 'package:lseway/domain/entitites/point/pointInfo.entity.dart';
+import 'package:lseway/presentation/bloc/booking/booking.bloc.dart';
 import 'package:lseway/presentation/bloc/charge/charge.bloc.dart';
 import 'package:lseway/presentation/bloc/charge/charge.event.dart';
 import 'package:lseway/presentation/bloc/charge/charge.state.dart';
+import 'package:lseway/presentation/bloc/payment/payment.bloc.dart';
+import 'package:lseway/presentation/bloc/pointInfo/pointInfo.event.dart';
+import 'package:lseway/presentation/bloc/pointInfo/pointinfo.bloc.dart';
 import 'package:lseway/presentation/widgets/AvailabilityChip/availability_chip.dart';
+import 'package:lseway/presentation/widgets/ConfirmationDialog/confirmation_dialog.dart';
 import 'package:lseway/presentation/widgets/Core/CustomButton/custom_button.dart';
 import 'package:lseway/presentation/widgets/Core/CustomSelect/custom_select.dart';
 import 'package:lseway/presentation/widgets/Core/LabeledBox/labeled_box.dart';
+import 'package:lseway/presentation/widgets/Core/SuccessModal/success_modal.dart';
 import 'package:lseway/presentation/widgets/Main/Map/Book/book_modal.dart';
+import 'package:lseway/presentation/widgets/Main/Map/Point/Charge/charge_80_dialog.dart';
+import 'package:lseway/presentation/widgets/Main/Map/Point/NoPaymentMethodsDialog/no_payment_methods_dialog.dart';
 import 'package:lseway/presentation/widgets/Main/Map/Point/RouteBuilder/route_view.dart';
 import 'package:lseway/presentation/widgets/Main/Map/Point/point.dart';
 import 'package:lseway/presentation/widgets/Main/Map/geolocation.dart';
+import 'package:lseway/presentation/widgets/global.dart';
 import 'package:lseway/utils/utils.dart';
 import 'package:map_launcher/map_launcher.dart';
 
@@ -31,8 +42,7 @@ class PointContent extends StatefulWidget {
       required this.geolocatorService,
       required this.ctx,
       required this.charge,
-      required this.shouldShowBooking
-      })
+      required this.shouldShowBooking})
       : super(key: key);
 
   @override
@@ -66,8 +76,15 @@ class _PointContentState extends State<PointContent> {
   }
 
   void handleBooking(BuildContext context) {
+    if (!isAvailable(widget.point, connector)) {
+      return;
+    }
     Navigator.of(context).pop();
-    showBookModal(widget.point.point.id, connector);
+    var conn =
+        widget.point.connectors.where((el) => el.type == connector).toList();
+    if (conn.isNotEmpty) {
+      showBookModal(widget.point.point.id, conn[0].id);
+    }
   }
 
   void buildRoute(BuildContext context, Coords destination) {
@@ -121,24 +138,96 @@ class _PointContentState extends State<PointContent> {
   }
 
   void charge(BuildContext context) {
-    BlocProvider.of<ChargeBloc>(context).add(StartCharge(pointId: widget.point.point.id));
-    
+    if (!isAvailable(widget.point, connector)) {
+      return;
+    }
+
+    var cards = BlocProvider.of<PaymentBloc>(context).state.cards;
+
+    if (cards.length > 0) {
+      var existingBooking = BlocProvider.of<BookingBloc>(context).state.booking;
+
+      if (existingBooking != null &&
+          existingBooking.pointId != widget.point.point.id) {
+        showConfirmationModal(() {
+          Navigator.of(context, rootNavigator: true).pop();
+          var conn = widget.point.connectors
+              .firstWhere((element) => element.type == connector);
+          BlocProvider.of<ChargeBloc>(context).add(
+              StartCharge(pointId: widget.point.point.id, connector: conn.id));
+        },
+            () {
+              Navigator.of(context, rootNavigator: true).pop();
+            },
+            [
+              'Вами забронирована другая станция.',
+              'При начале зарядки бронирование будет отменено.'
+            ],
+            'Продолжить?');
+      } else {
+        
+        var conn = widget.point.connectors
+            .firstWhere((element) => element.type == connector);
+        BlocProvider.of<ChargeBloc>(context).add(
+            StartCharge(pointId: widget.point.point.id, connector: conn.id));
+      }
+    } else {
+      Navigator.of(context).pop();
+      showNoPaymentMethodsDialog(showSuccess);
+    }
   }
 
-  bool isAvailable(
-      List<ConnectorInfo> connectors, ConnectorTypes currentConnector) {
-    var connector = connectors.isNotEmpty
-        ? connectors.firstWhere((element) => element.type == currentConnector)
+  void showSuccess() {
+    var globalContext = NavigationService.navigatorKey.currentContext;
+
+    if (globalContext != null) {
+      Navigator.of(globalContext).pop();
+      showSuccessModal(
+          globalContext,
+          Container(
+              constraints: const BoxConstraints(maxWidth: 272),
+              child: Text(
+                'Карта успешно привязана',
+                textAlign: TextAlign.center,
+                style: Theme.of(globalContext)
+                    .textTheme
+                    .bodyText2
+                    ?.copyWith(fontSize: 28),
+              ))).then((value) {
+        BlocProvider.of<PointInfoBloc>(globalContext).add(
+          ShowPoint(pointId: widget.point.point.id),
+        );
+      });
+    }
+  }
+
+  bool isAvailable(PointInfo point, ConnectorTypes currentConnector) {
+    if (!point.point.availability || !point.point.up) {
+      return false;
+    }
+    var connector = point.connectors.isNotEmpty
+        ? point.connectors
+            .firstWhere((element) => element.type == currentConnector)
         : null;
 
     if (connector == null) return false;
     return connector.available;
   }
 
-
-
   void chargeListener(BuildContext context, ChargeState state) {
-    if (state is ChargeInProgressState && state.progress?.pointId == widget.point.point.id) {
+    var dialog = DialogBuilder();
+    var isVisible = TickerMode.of(context);
+
+    if (state is ChargeConnectingState) {
+      dialog.showLoadingDialog(
+        context,
+      );
+    } else if (state is ChargeErrorState) {
+      Navigator.of(context, rootNavigator: true).pop();
+      Toast.showToast(context, state.message);
+    } else if (state is ChargeStartedState &&
+        state.progress?.pointId == widget.point.point.id) {
+      Navigator.of(context, rootNavigator: true).pop();
       widget.charge(context, true);
     }
   }
@@ -150,7 +239,10 @@ class _PointContentState extends State<PointContent> {
       padding: const EdgeInsets.only(top: 45, bottom: 35, left: 20, right: 20),
       child: Column(
         children: [
-          BlocListener<ChargeBloc, ChargeState>(listener: chargeListener, child: const SizedBox(),),
+          BlocListener<ChargeBloc, ChargeState>(
+            listener: chargeListener,
+            child: const SizedBox(),
+          ),
           Row(
             children: [
               ConstrainedBox(
@@ -196,7 +288,8 @@ class _PointContentState extends State<PointContent> {
                         height: 10,
                       ),
                       AvailabilityChip(
-                          available: isAvailable(point.connectors, connector))
+                          up: point.point.up,
+                          available: isAvailable(point, connector))
                     ],
                   ),
                 ),
@@ -292,15 +385,16 @@ class _PointContentState extends State<PointContent> {
           const SizedBox(
             height: 30,
           ),
-          
-          widget.shouldShowBooking ? CustomButton(
-            text: 'Забронировать',
-            onPress: () => handleBooking(context),
-            type: ButtonTypes.SECONDARY,
-            icon: SvgPicture.asset('assets/clock.svg'),
-          ) : const SizedBox(),
+          widget.shouldShowBooking
+              ? CustomButton(
+                  text: 'Забронировать',
+                  onPress: () => handleBooking(context),
+                  type: ButtonTypes.SECONDARY,
+                  icon: SvgPicture.asset('assets/clock.svg'),
+                )
+              : const SizedBox(),
           SizedBox(
-            height: widget.shouldShowBooking ?  15 : 0,
+            height: widget.shouldShowBooking ? 15 : 0,
           ),
           CustomButton(
             text: 'Проложить маршрут',

@@ -10,7 +10,8 @@ class ActivePointsBloc extends Bloc<ActivePointEvent, ActivePointsState> {
     on<SetChargingPoint>((event, emit) async {
       chargingPoint = event.pointId;
 
-      emit(ActivePointsLoadedState(chargingPoint: chargingPoint, reservedPoint: reservedPoint));
+      reservedPoint = null;
+      emit(ActivePointsLoadedState(chargingPoint: chargingPoint, reservedPoint: null));
     });
     on<SetReservedPoint>((event, emit) async {
       reservedPoint = event.pointId;
@@ -27,6 +28,11 @@ class ActivePointsBloc extends Bloc<ActivePointEvent, ActivePointsState> {
       reservedPoint = null;
 
       emit(ActivePointsLoadedState(reservedPoint: reservedPoint, chargingPoint: chargingPoint));
+    });
+    on<SetAndShowChargingPoint>((event, emit) {
+      chargingPoint = event.pointId;
+      reservedPoint = null;
+      emit(ShowActiveChargingPoint(reservedPoint: reservedPoint, chargingPoint: chargingPoint));
     });
   }
 }

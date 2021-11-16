@@ -31,8 +31,9 @@ class WheelDatePicker extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                    width: 25,
-                    child: Center(
+                    width: 30,
+                    child: Align(
+                      alignment: Alignment.centerRight,
                         child: Text(
                       hourFormat.format(date),
                       style: Theme.of(context).textTheme.bodyText2?.copyWith(
@@ -45,8 +46,9 @@ class WheelDatePicker extends StatelessWidget {
                   width: 30,
                 ),
                 Container(
-                    width: 25,
-                    child: Center(
+                    width: 30,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
                         child: Text(
                       minuteFormat.format(date),
                       style: Theme.of(context).textTheme.bodyText2?.copyWith(

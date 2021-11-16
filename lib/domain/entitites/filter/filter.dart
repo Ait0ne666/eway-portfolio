@@ -56,6 +56,29 @@ String mapVoltageToString(VoltageTypes type) {
 }
 
 
+int mapVoltageToNumber(VoltageTypes type) {
+  switch (type) {
+    case VoltageTypes.AC7:
+      return 7;
+        case VoltageTypes.AC22:
+      return 22;
+
+          case VoltageTypes.DC50:
+      return 50;
+          case VoltageTypes.DC80:
+      return 80;
+          case VoltageTypes.DC90:
+      return 90;
+          case VoltageTypes.DC120:
+      return 120;
+          case VoltageTypes.DC150:
+      return 150;
+          case VoltageTypes.DC180:
+      return 180;
+  }
+}
+
+
 
 
 @JsonSerializable()

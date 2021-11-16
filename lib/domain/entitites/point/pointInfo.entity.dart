@@ -29,6 +29,7 @@ class PointInfo extends Equatable {
   final List<ConnectorInfo> connectors;
   final double? price;
   final List<Tariff> tariffs;
+  final double? distance;
 
   const PointInfo({
     required this.point,
@@ -36,6 +37,7 @@ class PointInfo extends Equatable {
     required this.connectors,
     required this.price,
     required this.tariffs,
+    this.distance,
   });
 
   PointInfo copyWith({
@@ -44,16 +46,18 @@ class PointInfo extends Equatable {
   List<ConnectorInfo>? connectors,
   double? price,
   List<Tariff>? tariffs,
+  double? distance,
   }) {
     return PointInfo(
       point: point ?? this.point,
       voltage: voltage ?? this.voltage,
       connectors: connectors ?? this.connectors,
       price: price ?? this.price,
-      tariffs: tariffs ?? this.tariffs
+      tariffs: tariffs ?? this.tariffs,
+      distance: distance ?? this.distance,
     );
   }
 
   @override
-  List<Object?> get props => [point, voltage, connectors, price];
+  List<Object?> get props => [point, voltage, connectors, price, distance];
 }

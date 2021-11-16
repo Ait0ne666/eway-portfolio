@@ -64,15 +64,22 @@ class UserRepositoryImpl implements UserRepository {
       return null;
     }, (model) {
       localDataSource.saveUserModel(model);
+      saveDeviceToken();
       return mapModelToUser(model);
     });
   }
 
   @override
-  void logout() {
+  void logout() async {
+    try {
+      await deleteDeviceToken();
+    } catch (err) {
+
+    }
     localDataSource.deleteJwt();
     localDataSource.deleteRefresh();
     localDataSource.deleteFilter();
+    localDataSource.deleteEmailConfrimationShown();
   }
 
   @override
@@ -100,6 +107,7 @@ class UserRepositoryImpl implements UserRepository {
         return Left(l);
       }, (model) {
         localDataSource.saveUserModel(model);
+        saveDeviceToken();
         return Right(mapModelToUser(model));
       });
     });
@@ -157,6 +165,7 @@ class UserRepositoryImpl implements UserRepository {
         return Left(l);
       }, (model) {
         localDataSource.saveUserModel(model);
+        saveDeviceToken();
         return Right(mapModelToUser(model));
       });
     });
@@ -188,7 +197,7 @@ class UserRepositoryImpl implements UserRepository {
     });
   }
 
-  Future<Either<Failure, String>> changeEmail(String email) async {
+  Future<Either<Failure, String>> changeEmail(String email, bool aggree) async {
     bool isConnected = await networkInfo.isConnected;
 
     if (!isConnected) {
@@ -197,7 +206,7 @@ class UserRepositoryImpl implements UserRepository {
       );
     }
 
-    var result = await remoteDataSource.changeEmail(email);
+    var result = await remoteDataSource.changeEmail(email, aggree);
 
     return result.fold((failure) {
       return Left(failure);
@@ -295,6 +304,7 @@ class UserRepositoryImpl implements UserRepository {
         return Left(l);
       }, (model) {
         localDataSource.saveUserModel(model);
+        saveDeviceToken();
         return Right(mapModelToUser(model));
       });
     });
@@ -303,4 +313,16 @@ class UserRepositoryImpl implements UserRepository {
   // Future<Either<Failure, String>> confirmReset({String email, String code});
   // Future<Either<Failure, ResetResult>> setNewPhone({String email, String phone});
   // Future<Either<Failure, User>> confirmNewPhone({String email, String phone, String code});
+
+  Future<void> saveDeviceToken() async {
+    var deviceToken = localDataSource.getDeviceToken();
+    if (deviceToken != null) {
+      // remoteDataSource.saveDeviceToken(deviceToken);
+    }
+  }
+
+  Future<void> deleteDeviceToken() async {
+    localDataSource.deleteDeviceToken();
+    await remoteDataSource.deleteDeviceToken();
+  }
 }

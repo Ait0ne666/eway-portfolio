@@ -14,7 +14,7 @@ class BookingUseCase {
   }
 
   Future<Either<Failure, Booking>> bookPoint(
-      DateTime time, int pointId, ConnectorTypes connector) {
+      DateTime time, int pointId, int connector) {
     return repository.bookPoint(time, pointId, connector);
   }
 

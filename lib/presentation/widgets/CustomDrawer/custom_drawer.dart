@@ -18,9 +18,10 @@ class CustomDrawer extends StatelessWidget {
       child: SingleChildScrollView(
         child: SafeArea(
           child: Container(
-            height: MediaQuery.of(context).size.height - MediaQuery.of(context).viewPadding.vertical,
-            padding: const EdgeInsets.only(
-                top: 30, bottom: 100, left: 20, right: 20),
+            constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height -
+                MediaQuery.of(context).viewPadding.vertical),
+            padding: EdgeInsets.only(
+                top: 30, bottom: MediaQuery.of(context).viewPadding.bottom + MediaQuery.of(context).size.height/10, left: 20, right: 20),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -34,7 +35,8 @@ class CustomDrawer extends StatelessWidget {
                       icon: Image.asset('assets/wallet-grey.png'),
                       onTap: () {
                         Navigator.of(context).pop();
-                        AppRouter.router.navigateTo(context, '/paymentMethods', transition: TransitionType.cupertino);
+                        AppRouter.router.navigateTo(context, '/paymentMethods',
+                            transition: TransitionType.cupertino);
                       },
                       title: 'Способы оплаты',
                     ),
@@ -45,7 +47,8 @@ class CustomDrawer extends StatelessWidget {
                       icon: Image.asset('assets/calendar-grey.png'),
                       onTap: () {
                         Navigator.of(context).pop();
-                        AppRouter.router.navigateTo(context, '/history', transition: TransitionType.cupertino);
+                        AppRouter.router.navigateTo(context, '/history',
+                            transition: TransitionType.cupertino);
                       },
                       title: 'История заказов',
                     ),
@@ -56,7 +59,8 @@ class CustomDrawer extends StatelessWidget {
                       icon: Image.asset('assets/star-grey.png'),
                       onTap: () {
                         Navigator.of(context).pop();
-                        AppRouter.router.navigateTo(context, '/topPlaces', transition: TransitionType.cupertino);
+                        AppRouter.router.navigateTo(context, '/topPlaces',
+                            transition: TransitionType.cupertino);
                       },
                       title: 'Топ мест',
                     ),
@@ -67,22 +71,41 @@ class CustomDrawer extends StatelessWidget {
                       icon: Image.asset('assets/message-grey.png'),
                       onTap: () {
                         Navigator.of(context).pop();
-                        AppRouter.router.navigateTo(context, '/support', transition: TransitionType.cupertino);
+                        AppRouter.router.navigateTo(context, '/support',
+                            transition: TransitionType.cupertino);
                       },
                       title: 'Служба поддержки',
                     ),
+                    const SizedBox(
+                      height: 18,
+                    ),
+                    DrawerItem(
+                      icon: Image.asset('assets/info.png', width: 24,),
+                      onTap: () {},
+                      title: 'Условия пользования ',
+                    ),
                   ],
                 ),
+                SizedBox(height: 40,),
                 InkWell(
                   onTap: () {
-                    MainRouter.router.navigateTo(context, '/login', clearStack: true, transition: TransitionType.cupertino);
+                    MainRouter.router.navigateTo(context, '/login',
+                        clearStack: true, transition: TransitionType.cupertino);
                     BlocProvider.of<UserBloc>(context).add(Logout());
                   },
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Transform.translate(offset: Offset(0, -2), child: Image.asset('assets/arrow-left.png', width: 45/3, height: 33/3,)),
-                      SizedBox(width: 12,),
+                      Transform.translate(
+                          offset: Offset(0, -2),
+                          child: Image.asset(
+                            'assets/arrow-left.png',
+                            width: 45 / 3,
+                            height: 33 / 3,
+                          )),
+                      SizedBox(
+                        width: 12,
+                      ),
                       Text(
                         'Выйти из аккаунта',
                         style: TextStyle(

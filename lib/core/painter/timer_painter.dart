@@ -13,8 +13,7 @@ class TimerPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    print('VALUE');
-    print(currentPercent.value);
+
     double strokeWidth = stroke ?? 20;
     final Rect rect = Offset.zero & size;
     final Rect innerRect = Offset(strokeWidth*0.05, strokeWidth*0.05) & Size(size.width-strokeWidth*0.2, size.height-strokeWidth*0.2);

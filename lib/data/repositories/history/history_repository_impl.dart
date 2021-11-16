@@ -20,7 +20,7 @@ class HistoryRepositoryImpl implements HistoryRepository {
 
 
     return result.map((items){
-      return HistoryItem(amount: items.amount, address: items.address, date: items.date);
+      return HistoryItem(amount: items.amount, address: items.address, date: items.date, id: items.id, pointId: items.pointId);
     }).toList();
   }
 }

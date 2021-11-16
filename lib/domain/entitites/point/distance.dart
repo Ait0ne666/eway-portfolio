@@ -1,5 +1,5 @@
 class TravelDistance {
-  String time;
+  Duration time;
   int distance;
 
 

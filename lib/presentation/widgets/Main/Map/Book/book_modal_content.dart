@@ -5,11 +5,13 @@ import 'package:lseway/core/dialogBuilder/dialogBuilder.dart';
 import 'package:lseway/core/toast/toast.dart';
 import 'package:lseway/domain/entitites/booking/booking.entity.dart';
 import 'package:lseway/domain/entitites/filter/filter.dart';
+import 'package:lseway/domain/entitites/point/pointInfo.entity.dart';
 import 'package:lseway/presentation/bloc/booking/booking.bloc.dart';
 import 'package:lseway/presentation/bloc/booking/booking.event.dart';
 import 'package:lseway/presentation/bloc/booking/booking.state.dart';
 import 'package:lseway/presentation/bloc/pointInfo/pointInfo.event.dart';
 import 'package:lseway/presentation/bloc/pointInfo/pointinfo.bloc.dart';
+import 'package:lseway/presentation/widgets/ConfirmationDialog/confirmation_dialog.dart';
 import 'package:lseway/presentation/widgets/Core/CustomButton/custom_button.dart';
 import 'package:lseway/presentation/widgets/Core/GreenContainer/green_container.dart';
 import 'package:lseway/presentation/widgets/Core/WheelDatePicker/wheel_date_picker.dart';
@@ -169,7 +171,7 @@ void showSuccessDialog(Booking booking) {
 
 class BookModalContent extends StatefulWidget {
   final int pointId;
-  final ConnectorTypes connector;
+  final int connector;
   const BookModalContent(
       {Key? key, required this.pointId, required this.connector})
       : super(key: key);
@@ -270,18 +272,30 @@ class _BookModalContentState extends State<BookModalContent> {
 
   void handleBooking() {
     if (selectedTime != null) {
-      BlocProvider.of<BookingBloc>(context).add(BookPoint(
-          connector: widget.connector,
-          time: selectedTime!,
-          pointId: widget.pointId));
+      var existingBooking = BlocProvider.of<BookingBloc>(context).state.booking;
+
+      if (existingBooking != null) {
+        showConfirmationModal(() {
+          Navigator.of(context, rootNavigator: true).pop();
+          BlocProvider.of<BookingBloc>(context).add(BookPoint(
+              connector: widget.connector,
+              time: selectedTime!,
+              pointId: widget.pointId));
+        }, () {
+          Navigator.of(context, rootNavigator: true).pop();
+        }, ['Предыдущая бронь будет отменена'], 'Продолжить?');
+      } else {
+        BlocProvider.of<BookingBloc>(context).add(BookPoint(
+            connector: widget.connector,
+            time: selectedTime!,
+            pointId: widget.pointId));
+      }
     }
   }
 
   void onBookingSuccess(Booking booking) {
     Navigator.of(context).pop();
-    showSuccessDialog(
-      booking
-    );
+    showSuccessDialog(booking);
   }
 
   void bookingsListener(BuildContext context, BookingState state) {

@@ -12,6 +12,8 @@ abstract class PointsRepository {
 
   Future<Either<Failure, List<Point>>> getPointsByFilter(Filter filter, Coordinates gps, double range);
   Future<Either<Failure, PointInfo>> getPointInfo(int pointId);
-  Future<TravelDistance?> getTravelDistance(Coordinates origin, Coordinates destination);
+  Future<TravelDistance?> getTravelDistance(Coordinates origin, Coordinates destination, int pointId);
   Future<Either<Failure, List<NearestPoint>>> getNearestPoints(LatLng coords);
+
+  Future<Either<Failure, PointInfo>> getChargingPoint();
 }

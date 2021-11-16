@@ -65,3 +65,23 @@ class ClearPointState extends PointInfoState {
 
 
 
+class PointInfoExistState extends PointInfoState {
+  final int pointId;
+  const PointInfoExistState({required Map<int,PointInfo> points, required this.pointId}): super(points: points);
+}
+
+
+class PointInfoExistErrorState extends PointInfoState {
+  final String message;
+
+  const PointInfoExistErrorState({required Map<int,PointInfo> points, required this.message}): super(points: points);
+
+    @override
+  List<Object> get props => [points, message];
+}
+
+
+class PointInfoExistLoadingState extends PointInfoState {
+  const PointInfoExistLoadingState({required Map<int,PointInfo> points}): super(points: points);
+}
+

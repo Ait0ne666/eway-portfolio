@@ -119,7 +119,10 @@ class PinCodeFieldState extends State<PinCodeField>
 
   List<Widget> getInputList() {
     List<Widget> result = [];
-
+    var containerWidth = (MediaQuery.of(context).size.width)>450 ? 450 : MediaQuery.of(context).size.width;
+    var width = ( containerWidth-40 - (8*(widget.length-1))) / widget.length;
+    
+    var height =  width/78*91;
     nodes.asMap().forEach((key, node) {
       result.add(Neumorphic(
         style: NeumorphicStyle(
@@ -131,8 +134,8 @@ class PinCodeFieldState extends State<PinCodeField>
         ),
         child: AnimatedContainer(
           duration: Duration(milliseconds: 200),
-          height: 88,
-          width: (MediaQuery.of(context).size.width - 70 - (12*widget.length-1)) / widget.length,
+          height: height,
+          width: width,
           
           alignment: Alignment.center,
           decoration: BoxDecoration(
@@ -163,7 +166,7 @@ class PinCodeFieldState extends State<PinCodeField>
                   maxLength: 1,
                   textAlignVertical: TextAlignVertical.center,
                   style: Theme.of(context).textTheme.bodyText2?.copyWith(
-                      fontSize: 50,
+                      fontSize: height*0.625,
                       height: 1.2,
                       color: widget.error == true
                           ? Theme.of(context).colorScheme.error

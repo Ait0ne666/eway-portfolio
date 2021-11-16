@@ -56,8 +56,9 @@ class Toggle80Percent extends UserEvent {}
 
 class ChangeEmail extends UserEvent {
   final String email;
+  final bool aggree;
 
-  ChangeEmail({required this.email});
+  ChangeEmail({required this.email, required this.aggree});
 
   @override
   List<Object> get props => [email];

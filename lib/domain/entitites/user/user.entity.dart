@@ -7,12 +7,13 @@ class User extends Equatable {
   final String? email;
   final bool showWelcome;
   final bool email_confirmed;
+  final bool aggreedToNews;
   final String? avatarUrl;
   
 
 
 
-  const User({this.id, this.name, this.email, required this.email_confirmed, this.avatarUrl, required this.phone, required this.showWelcome});
+  const User({this.id, this.name, this.email, required this.email_confirmed, this.avatarUrl, required this.phone, required this.showWelcome, required this.aggreedToNews});
 
 
 
@@ -25,6 +26,7 @@ class User extends Equatable {
     bool? email_confirmed,
     bool? showWelcome,
     String? avatarUrl,
+    bool? aggreedToNews,
   }) {
     return User(
       id: id?? this.id,
@@ -34,11 +36,12 @@ class User extends Equatable {
       phone: phone ?? this.phone,
       showWelcome: showWelcome ?? this.showWelcome,
       avatarUrl: avatarUrl ?? this.avatarUrl,
+      aggreedToNews: aggreedToNews ?? this.aggreedToNews,
     );
   }
 
   @override
-  List<Object?> get props => [id, name, phone, showWelcome, email_confirmed, email, avatarUrl];
+  List<Object?> get props => [id, name, phone, showWelcome, email_confirmed, email, avatarUrl, aggreedToNews];
 
 
 

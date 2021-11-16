@@ -37,20 +37,34 @@ class _NearestStationsState extends State<NearestStations> {
     } catch (err) {}
   }
 
+
+  String getDistanceString(double distance) {
+    if (distance>1) {
+      return distance.round().toString() + ' км';
+    } else {
+      return (distance*1000).round().toString() + ' м';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: const Color(0xffF0F1F6),
       body: Container(
-        padding: EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: MediaQuery.of(context).viewPadding.top + 30),
+        color: const Color(0xffF0F1F6),
+        padding: EdgeInsets.only(
+            
+            top: MediaQuery.of(context).viewPadding.top + 30),
         child: Column(
           children: [
-            const CustomProfileBar(
-              title: 'Станции поблизости',
-              isCentered: true,
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: CustomProfileBar(
+                title: 'Станции поблизости',
+                isCentered: true,
+              ),
             ),
             const SizedBox(
               height: 52,
@@ -58,6 +72,11 @@ class _NearestStationsState extends State<NearestStations> {
             BlocBuilder<NearestPointsBloc, NearestPointsState>(
                 builder: (context, state) {
               var points = state.points;
+              points.sort((a, b) {
+                if (a.distance<b.distance) return -1;
+                if (a.distance>b.distance) return 1;
+                return 0;
+              });
               if (state.points.isEmpty) {
                 return Text(
                   'Нет точек поблизости',
@@ -70,7 +89,7 @@ class _NearestStationsState extends State<NearestStations> {
               } else {
                 return Expanded(
                   child: ListView.separated(
-                    padding: const EdgeInsets.only(bottom: 20),
+                    padding: const EdgeInsets.only(bottom: 20, left: 20, right: 20),
                     physics: const BouncingScrollPhysics(),
                     itemCount: state.points.length,
                     separatorBuilder: (context, index) {
@@ -88,9 +107,11 @@ class _NearestStationsState extends State<NearestStations> {
                           );
                         },
                         child: Container(
-                          height: 68,
+                          // height: 68,
+                          constraints: BoxConstraints(minHeight: 68),
                           padding: const EdgeInsets.symmetric(
                             horizontal: 18,
+                            vertical: 12
                           ),
                           width: double.infinity,
                           decoration: BoxDecoration(
@@ -98,8 +119,8 @@ class _NearestStationsState extends State<NearestStations> {
                               boxShadow: const [
                                 BoxShadow(
                                   offset: Offset(15, 20),
-                                  blurRadius: 100,
-                                  color: Color.fromRGBO(205, 205, 218, 0.6),
+                                  blurRadius: 60,
+                                  color: Color.fromRGBO(205, 205, 218, 0.4),
                                 )
                               ],
                               borderRadius: BorderRadius.circular(13)),
@@ -125,7 +146,7 @@ class _NearestStationsState extends State<NearestStations> {
                                     width: 7,
                                   ),
                                   Text(
-                                    point.distance.toString() + ' км',
+                                    getDistanceString(point.distance),
                                     style: const TextStyle(
                                         fontWeight: FontWeight.w700,
                                         fontSize: 16,

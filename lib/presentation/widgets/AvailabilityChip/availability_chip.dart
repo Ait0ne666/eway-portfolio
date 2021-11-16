@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 
 class AvailabilityChip extends StatelessWidget {
   final bool available;
-  const AvailabilityChip({Key? key, required this.available}) : super(key: key);
+  final bool up;
+  const AvailabilityChip({Key? key, required this.available, required this.up}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +15,7 @@ class AvailabilityChip extends StatelessWidget {
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(17),
           
-          gradient: LinearGradient(colors: available ? [
+          gradient: LinearGradient(colors: !up ? [Color(0xff8F9398), Color(0xffB4B7C1)]  : available ? [
             Color(0xff41C696),
             Color(0xff6BD15A),
           ] : [Color(0xffE01E1D), Color(0xffF41D25)], begin: Alignment.centerLeft, end: Alignment.centerRight, stops: [0, 0.2]),
@@ -35,7 +36,7 @@ class AvailabilityChip extends StatelessWidget {
         ),
         child: Center(
           child: Text(
-            available ? 'свободна' : 'занята',
+            !up ? 'неактивна' :  available ? 'свободна' : 'занята',
             style: Theme.of(context).textTheme.overline,
           ),
         ),

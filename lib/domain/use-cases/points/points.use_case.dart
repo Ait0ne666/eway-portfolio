@@ -24,13 +24,18 @@ class PointsUseCase {
   }
 
 
-  Future<TravelDistance?> getTravelDistance(Coordinates origin, Coordinates destination) {
-    return repository.getTravelDistance(origin, destination);
+  Future<TravelDistance?> getTravelDistance(Coordinates origin, Coordinates destination, int pointId) {
+    return repository.getTravelDistance(origin, destination, pointId);
   }
 
 
 
   Future<Either<Failure, List<NearestPoint>>> getNearestPoints(LatLng coords) {
     return repository.getNearestPoints(coords);
+  }
+
+
+  Future<Either<Failure, PointInfo>> getChargingPoint() {
+    return repository.getChargingPoint();
   }
 }

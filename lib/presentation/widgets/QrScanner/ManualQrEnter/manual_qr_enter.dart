@@ -2,8 +2,14 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:lseway/core/dialogBuilder/dialogBuilder.dart';
+import 'package:lseway/core/toast/toast.dart';
+import 'package:lseway/presentation/bloc/pointInfo/pointInfo.event.dart';
+import 'package:lseway/presentation/bloc/pointInfo/pointInfo.state.dart';
+import 'package:lseway/presentation/bloc/pointInfo/pointinfo.bloc.dart';
 import 'package:lseway/presentation/widgets/Core/CustomButton/custom_button.dart';
 import 'package:lseway/presentation/widgets/IconButton/icon_button.dart';
 
@@ -20,34 +26,63 @@ class _ManualQrEnterState extends State<ManualQrEnter> {
 
   void submit() {
     var isValid = _formKey.currentState?.validate();
-    if (isValid != null && isValid) {}
+    if (isValid != null && isValid) {
+      var id = _controller.value.text;
+
+      BlocProvider.of<PointInfoBloc>(context)
+          .add(CheckIfPointExist(pointId: int.parse(id)));
+    }
+  }
+
+  void pointInfoListener(BuildContext context, PointInfoState state) {
+    var dialog = DialogBuilder();
+    var isVisible = TickerMode.of(context);
+
+    if (state is PointInfoExistLoadingState && isVisible) {
+      dialog.showLoadingDialog(
+        context,
+      );
+    } else if (state is PointInfoExistErrorState && isVisible) {
+      Navigator.of(context, rootNavigator: true).pop();
+      Toast.showToast(context, 'Неверный код');
+    } else if (state is PointInfoExistState && isVisible) {
+      Navigator.of(context, rootNavigator: true).pop();
+      Navigator.of(context, rootNavigator: true).popUntil((route) {
+        print(route.settings.name);
+
+        return route.settings.name == '/main';
+      });
+      BlocProvider.of<PointInfoBloc>(context)
+          .add(ShowPoint(pointId: state.pointId));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height,
-          maxWidth: MediaQuery.of(context).size.width,
-        ),
-        child: Stack(
-          children: [
-            Image.asset(
-              'assets/qrbg.png',
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              fit: BoxFit.cover,
+      body: Stack(
+        children: [
+          BlocListener<PointInfoBloc, PointInfoState>(
+            listener: pointInfoListener,
+            child: const SizedBox(),
+          ),
+          Image.asset(
+            'assets/qrbg.png',
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            fit: BoxFit.cover,
+          ),
+          BackdropFilter(
+            filter: ImageFilter.blur(
+              sigmaX: 20,
+              sigmaY: 20,
             ),
-            BackdropFilter(
-              filter: ImageFilter.blur(
-                sigmaX: 20,
-                sigmaY: 20,
-              ),
+            child: SingleChildScrollView(
               child: Container(
+                  constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height),
                   width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height,
+                  // height: MediaQuery.of(context).size.height,
                   color: const Color.fromRGBO(34, 35, 40, 0.7),
                   padding: EdgeInsets.symmetric(
                       horizontal: 20,
@@ -94,15 +129,18 @@ class _ManualQrEnterState extends State<ManualQrEnter> {
                               fontFamily: 'URWGeometricExt',
                               fontSize: 22,
                               height: 1.2,
+                              color: Color(0xff1A1D21),
+                              letterSpacing: 5
                             ),
                             textAlign: TextAlign.center,
                             cursorColor:
                                 Theme.of(context).colorScheme.onPrimary,
-                            keyboardType: const TextInputType.numberWithOptions(
-                                decimal: false),
+                            keyboardType: TextInputType.number,
                             validator: FormBuilderValidators.compose([
                               FormBuilderValidators.required(context,
                                   errorText: 'Обязательное поле'),
+                              FormBuilderValidators.numeric(context,
+                                  errorText: 'Код содержит только цифры')
                             ]),
                             decoration: InputDecoration(
                               filled: true,
@@ -135,8 +173,8 @@ class _ManualQrEnterState extends State<ManualQrEnter> {
                     ),
                   )),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

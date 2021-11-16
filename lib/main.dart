@@ -6,9 +6,11 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:lseway/domain/use-cases/booking/booking_use_case.dart';
 import 'package:lseway/domain/use-cases/charge/charge_use_case.dart';
+import 'package:lseway/firebase/firebase.dart';
 import 'package:lseway/presentation/bloc/activePoints/active_points_bloc.dart';
 import 'package:lseway/presentation/bloc/booking/booking.bloc.dart';
 import 'package:lseway/presentation/bloc/charge/charge.bloc.dart';
+import 'package:lseway/presentation/bloc/chat/chat.bloc.dart';
 import 'package:lseway/presentation/bloc/history/history.bloc.dart';
 import 'package:lseway/presentation/bloc/nearestPoints/nearest_points.bloc.dart';
 import 'package:lseway/presentation/bloc/payment/payment.bloc.dart';
@@ -31,6 +33,7 @@ void main() async {
   await initializeDateFormatting();
   await Hive.initFlutter();
   await Hive.openBox('session');
+  await LocalFirebase.init();
   await di.init();
   runApp(const MyApp());
 }
@@ -46,6 +49,7 @@ class _MyAppState extends State<MyApp> {
   late ChargeBloc chargeBloc;
   late ActivePointsBloc activePointsBloc;
   late BookingBloc bookingBloc;
+  late PointsBloc pointsBloc;
 
   @override
   void initState() {
@@ -55,7 +59,8 @@ class _MyAppState extends State<MyApp> {
         usecase: di.sl<ChargeUseCase>(), activePointsBloc: activePointsBloc);
     bookingBloc = BookingBloc(
         usecase: di.sl<BookingUseCase>(), activePointsBloc: activePointsBloc);
-
+    pointsBloc = PointsBloc(usecase: di.sl(), localDataSource: di.sl(), chargeBloc: chargeBloc);
+    
     super.initState();
   }
 
@@ -67,7 +72,7 @@ class _MyAppState extends State<MyApp> {
           create: (_) => di.sl<UserBloc>(),
         ),
         BlocProvider(
-          create: (_) => di.sl<PointsBloc>(),
+          create: (_) => pointsBloc,
         ),
         BlocProvider(
           create: (_) => di.sl<PointInfoBloc>(),
@@ -93,6 +98,10 @@ class _MyAppState extends State<MyApp> {
         BlocProvider(
           create: (_) => di.sl<NearestPointsBloc>(),
         ),
+        BlocProvider(
+          create: (_) => di.sl<ChatBloc>(),
+        ),
+        
       ],
       child: MaterialApp(
         navigatorKey: NavigationService.navigatorKey,

@@ -3,20 +3,26 @@ import 'package:lseway/data/data-sources/user/user_local_data_source.dart';
 import 'package:lseway/domain/entitites/filter/filter.dart';
 import 'package:lseway/domain/entitites/point/point.entity.dart';
 import 'package:lseway/domain/use-cases/points/points.use_case.dart';
+import 'package:lseway/presentation/bloc/charge/charge.bloc.dart';
+import 'package:lseway/presentation/bloc/charge/charge.event.dart';
 import 'package:lseway/presentation/bloc/points/points.event.dart';
 import 'package:lseway/presentation/bloc/points/points.state.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
+import 'package:lseway/utils/utils.dart';
 
 class PointsBloc extends Bloc<PointsEvent, PointsState> {
   final PointsUseCase usecase;
   final UserLocalDataSource localDataSource;
+  final ChargeBloc chargeBloc;
   Filter filter = Filter(availability: false);
   List<Point> points = [];
 
-  PointsBloc({required this.usecase, required this.localDataSource})
+  PointsBloc(
+      {required this.usecase,
+      required this.localDataSource,
+      required this.chargeBloc})
       : super(PointsInitialState()) {
     on<ChangeFilter>((event, emit) async {
-      
       filter = event.filter;
       emit(FilterChangedState(filter: filter, points: points));
     });
@@ -39,6 +45,7 @@ class PointsBloc extends Bloc<PointsEvent, PointsState> {
         emit(PointsErrorState(
             filter: filter, message: failure.message, points: points));
       }, (success) {
+        // points = combinePointLists(points, success, filter: filter);
         points = success;
         emit(PointsLoadedState(filter: filter, points: points));
       });
@@ -53,9 +60,20 @@ class PointsBloc extends Bloc<PointsEvent, PointsState> {
         emit(PointsErrorState(
             filter: filter, message: failure.message, points: points));
       }, (success) {
+        // points = combinePointLists(points, success);
         points = success;
         emit(PointsLoadedState(filter: filter, points: points));
       });
     }, transformer: droppable());
+
+    on<FetchChargingPoint>((event, emit) async {
+      var result = await usecase.getChargingPoint();
+
+      result.fold((failure) {}, (success) {
+        points = combinePointLists(points, [success.point]);
+        chargeBloc.add(ResumeCharge(pointId: success.point.id));
+        emit(PointsLoadedState(filter: filter, points: points));
+      });
+    });
   }
 }

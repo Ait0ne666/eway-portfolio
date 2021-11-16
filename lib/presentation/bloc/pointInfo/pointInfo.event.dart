@@ -37,3 +37,16 @@ class ClearPoint extends PointInfoEvent {
 
 
 }
+
+
+
+class CheckIfPointExist extends PointInfoEvent {
+
+  final int pointId;
+
+
+  CheckIfPointExist({required this.pointId});
+
+  @override
+  List<Object> get props => [pointId];
+}

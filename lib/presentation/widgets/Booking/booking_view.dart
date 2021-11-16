@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:lseway/core/dialogBuilder/dialogBuilder.dart';
 import 'package:lseway/core/painter/timer_painter.dart';
+import 'package:lseway/core/toast/toast.dart';
 import 'package:lseway/domain/entitites/booking/booking.entity.dart';
 import 'package:lseway/domain/entitites/filter/filter.dart';
 import 'package:lseway/presentation/bloc/booking/booking.bloc.dart';
@@ -67,8 +69,8 @@ class _BookingViewState extends State<BookingView>
       setState(() {
         booking = widget.booking;
       });
+      updateTimer();
     }
-    updateTimer();
     super.didUpdateWidget(oldWidget);
   }
 
@@ -88,13 +90,15 @@ class _BookingViewState extends State<BookingView>
       var total = bookingEnd.difference(start).inMinutes;
       var gone = currentTime.difference(start).inMinutes;
 
-      var percent = gone / total;
+      var percent = 1 - gone / total;
       _controller.animateTo(percent);
       setState(() {
-        timeLeft = total - gone;
+        timeLeft = total - gone > 0 ? total - gone : 0;
       });
       if (currentTime.isAfter(bookingEnd)) {
         timer?.cancel();
+        BlocProvider.of<BookingBloc>(context)
+            .add(ClearBooking());
       }
     } else {
       timer?.cancel();
@@ -160,16 +164,28 @@ class _BookingViewState extends State<BookingView>
 
   void charge(BuildContext context) {
     if (booking != null) {
-      BlocProvider.of<ChargeBloc>(context)
-          .add(StartCharge(pointId: booking!.pointId));
+      BlocProvider.of<ChargeBloc>(context).add(StartCharge(
+          pointId: booking!.pointId, connector: booking!.connector.id));
     }
   }
 
   void chargeListener(BuildContext context, ChargeState state) {
-    if (state is ChargeStartedState &&
+    var dialog = DialogBuilder();
+    var isVisible = TickerMode.of(context);
+
+    if (state is ChargeConnectingState) {
+      dialog.showLoadingDialog(
+        context,
+      );
+    } else if (state is ChargeErrorState) {
+      Navigator.of(context, rootNavigator: true).pop();
+      Toast.showToast(context, state.message);
+    } else if (state is ChargeStartedState &&
         booking != null &&
         state.progress?.pointId == booking!.pointId) {
-      widget.hideBooking();
+      Navigator.of(context, rootNavigator: true).pop();
+      // widget.hideBooking();
+      BlocProvider.of<BookingBloc>(context).add(ClearBooking());
       BlocProvider.of<PointInfoBloc>(context)
           .add(ShowPoint(pointId: booking!.pointId));
     }
@@ -445,7 +461,7 @@ class _BookingViewState extends State<BookingView>
                                     booking == null
                                         ? ''
                                         : mapConnectorTypesToString(
-                                            booking!.connector),
+                                            booking!.connector.type),
                                     style:
                                         Theme.of(context).textTheme.headline6,
                                   ),

@@ -18,7 +18,7 @@ abstract class UserRepository {
 
   Future<Either<Failure, String>> changeName(String name);
 
-  Future<Either<Failure, String>> changeEmail(String email);
+  Future<Either<Failure, String>> changeEmail(String email, bool aggree);
 
   Future<Either<Failure, String>> confirmEmail(String email, String code);
 

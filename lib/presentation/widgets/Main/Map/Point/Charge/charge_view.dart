@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:lseway/core/dialogBuilder/dialogBuilder.dart';
 import 'package:lseway/core/snackbarBuilder/snackbarBuilder.dart';
 import 'package:lseway/core/toast/toast.dart';
 import 'package:lseway/presentation/bloc/charge/charge.bloc.dart';
 import 'package:lseway/presentation/bloc/charge/charge.event.dart';
 import 'package:lseway/presentation/bloc/charge/charge.state.dart';
+import 'package:lseway/presentation/bloc/history/history.bloc.dart';
+import 'package:lseway/presentation/bloc/history/history.event.dart';
 import 'package:lseway/presentation/widgets/Core/CustomButton/custom_button.dart';
 import 'package:lseway/presentation/widgets/Main/Map/Point/Charge/amount_box.dart';
 import 'package:lseway/presentation/widgets/Main/Map/Point/Charge/charge_80_dialog.dart';
+import 'package:lseway/presentation/widgets/Main/Map/Point/Charge/time_left_counter.dart';
 import 'package:lseway/presentation/widgets/Main/Map/Point/Charge/timer.dart';
 import 'package:lseway/presentation/widgets/global.dart';
 
@@ -22,20 +26,31 @@ class ChargeView extends StatefulWidget {
 
 class _ChargeViewState extends State<ChargeView> {
   void chargeListener(BuildContext context, ChargeState state) {
-    if (state is ChargeErrorState) {
+    var dialog = DialogBuilder();
+    var isVisible = TickerMode.of(context);
 
+    if (state is ChargeStoppingState) {
+      dialog.showLoadingDialog(
+        context,
+      );
+    } else if (state is ChargeErrorState) {
+      Navigator.of(context, rootNavigator: true).pop();
       Toast.showToast(context, state.message);
-
     } else if (state is ChargeEndedState) {
-      
-        Navigator.of(context, rootNavigator: true).pop();
-      
-      
-    } else  if (state is ChargeInProgressState) {
-      if (state.progress?.progress != null && (state.progress!.progress!  == 80)) {
+      Navigator.of(context, rootNavigator: true).pop();
+      Navigator.of(context, rootNavigator: true).pop();
+      BlocProvider.of<HistoryBloc>(context).add(FetchHistory());
+    } else if (state is ChargeInProgressState) {
+      if (state.progress?.progress != null &&
+          (state.progress!.progress! == 80)) {
         showCharge80Dialog(context, widget.pointId);
       }
+    } else if (state is ChargeEndedRemotelyState) {
+      Navigator.of(context, rootNavigator: true).pop();
+      BlocProvider.of<HistoryBloc>(context).add(FetchHistory());
     }
+
+
   }
 
   @override
@@ -109,16 +124,12 @@ class _ChargeViewState extends State<ChargeView> {
                             const SizedBox(
                               height: 7,
                             ),
-                            Text(
-                              'Осталось: 15:00:00',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyText1
-                                  ?.copyWith(
-                                    fontSize: 15,
-                                    color: const Color(0xffB6B8C2),
+                            state.progress?.timeLeft != null
+                                ? TimeLeftCounter(
+                                    time: state.progress!.timeLeft!)
+                                : SizedBox(
+                                    height: 20,
                                   ),
-                            ),
                             const SizedBox(
                               height: 20,
                             ),
@@ -136,7 +147,8 @@ class _ChargeViewState extends State<ChargeView> {
                               children: [
                                 AmountBox(
                                     amount: state.progress?.paymentAmount ?? 0,
-                                    startTime: state.progress?.createdAt ?? DateTime.now()),
+                                    startTime: state.progress?.createdAt ??
+                                        DateTime.now()),
                                 const SizedBox(
                                   width: 5,
                                 ),
@@ -146,15 +158,16 @@ class _ChargeViewState extends State<ChargeView> {
                                     Text.rich(TextSpan(children: [
                                       TextSpan(
                                           text: state.progress?.powerAmount
-                                              .toInt()
-                                              .toString() ?? '',
+                                                  .toInt()
+                                                  .toString() ??
+                                              '',
                                           style: Theme.of(context)
                                               .textTheme
                                               .bodyText2
                                               ?.copyWith(
                                                   fontSize: 25, height: 1.05)),
                                       TextSpan(
-                                          text: 'кВт',
+                                          text: ' кВт',
                                           style: Theme.of(context)
                                               .textTheme
                                               .bodyText1

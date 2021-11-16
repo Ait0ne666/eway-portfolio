@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:lseway/domain/entitites/charge/charge_progress.entity.dart';
+import 'package:lseway/domain/entitites/filter/filter.dart';
 
 class ChargeEvent extends Equatable {
 
@@ -14,8 +15,9 @@ class ChargeEvent extends Equatable {
 class StartCharge extends ChargeEvent {
 
   final int pointId;
+  final int connector;
 
-  StartCharge({required this.pointId});
+  StartCharge({required this.pointId, required this.connector});
 
 
 }
@@ -48,4 +50,18 @@ class StopChargeAutomatic extends ChargeEvent {
   StopChargeAutomatic({required this.pointId});
 
 
+}
+
+
+class ResumeCharge extends ChargeEvent {
+
+  final int pointId;
+
+  ResumeCharge({required this.pointId});
+
+}
+
+
+class ClearCharge extends ChargeEvent {
+  
 }

@@ -51,5 +51,10 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
         emit(BookingMadeState(booking: booking!));
       }
     });
+    on<ClearBooking>((event, emit) {
+      booking = null;
+      activePointsBloc.add(ClearReservedPoint());
+      emit(const BookingClearedState());
+    });
   }
 }

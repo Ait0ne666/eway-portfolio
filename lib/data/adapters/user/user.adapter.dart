@@ -9,5 +9,7 @@ User mapModelToUser(UserModel model) {
       name: model.name,
       email: model.email,
       id: model.id,
-      avatarUrl: model.avatarUrl);
+      avatarUrl: model.avatarUrl,
+      aggreedToNews: model.aggreedToNews
+      );
 }

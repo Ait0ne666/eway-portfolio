@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lseway/domain/entitites/payment/card.entity.dart';
+import 'package:lseway/presentation/bloc/payment/payment.bloc.dart';
+import 'package:lseway/presentation/bloc/payment/payment.event.dart';
 
 class CreditCardList extends StatefulWidget {
   final List<CreditCard> cards;
@@ -11,7 +14,7 @@ class CreditCardList extends StatefulWidget {
 }
 
 class _CreditCardListState extends State<CreditCardList> {
-  String? selectedCard;
+  // CreditCard? selectedCard;
 
   List<Widget> _buildCreditCardList() {
     List<Widget> result = [];
@@ -19,9 +22,7 @@ class _CreditCardListState extends State<CreditCardList> {
     widget.cards.asMap().forEach((index, card) {
       result.add(InkWell(
         onTap: () {
-          setState(() {
-            selectedCard = card.mask;
-          });
+          BlocProvider.of<PaymentBloc>(context).add(ChangeActiveCard(id: card.id));
         },
         child: SizedBox(
           height: 55,
@@ -52,7 +53,7 @@ class _CreditCardListState extends State<CreditCardList> {
                       height: 2,
                     ),
                     Text(
-                      card.month + '/' + card.year,
+                      card.month.padLeft(2, "0") + '/' + (card.year.length == 4 ? card.year.substring(2,4): card.year),
                       style: Theme.of(context).textTheme.subtitle1?.copyWith(
                           fontSize: 16,
                           color: const Color(0xffADAFBB),
@@ -74,7 +75,7 @@ class _CreditCardListState extends State<CreditCardList> {
                 child: AnimatedSwitcher(
                   switchInCurve: Curves.easeInOut,
                   switchOutCurve: Curves.easeInOut,
-                  child: card.mask == selectedCard
+                  child: card.isActive
                       ? Image.asset('assets/check-large.png', width: 23)
                       : const SizedBox(),
                   duration: const Duration(milliseconds: 300),

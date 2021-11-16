@@ -65,7 +65,7 @@ class _BookingWrapperState extends State<BookingWrapper>
 
   @override
   void dispose() {
-    _controller.dispose();
+    // _controller.dispose();
 
     super.dispose();
   }
@@ -81,6 +81,9 @@ class _BookingWrapperState extends State<BookingWrapper>
 
   @override
   Widget build(BuildContext context) {
+    
+    
+    
     return RubberBottomSheet(
       // scrollController: _scrollController,
       animationController: _controller,

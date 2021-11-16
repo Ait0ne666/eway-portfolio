@@ -68,5 +68,10 @@ class BookingCanceledState extends BookingState {
 
 }
 
+class BookingClearedState extends BookingState {
 
+
+  const BookingClearedState():super(booking: null);
+
+}
 

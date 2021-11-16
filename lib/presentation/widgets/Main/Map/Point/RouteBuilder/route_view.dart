@@ -17,7 +17,7 @@ class RouteView extends StatefulWidget {
 class _RouteViewState extends State<RouteView> {
   late GeolocatorService geolocatorService;
   late PointsUseCase usecase;
-  TravelDistance? _travelDistance = TravelDistance(distance: 8, time: '20 мин');
+  TravelDistance? _travelDistance;
 
   @override
   void initState() {
@@ -25,7 +25,7 @@ class _RouteViewState extends State<RouteView> {
     usecase = di.sl<PointsUseCase>();
     super.initState();
 
-    // fetchDistance();
+    fetchDistance();
   }
 
   void fetchDistance() async {
@@ -38,11 +38,14 @@ class _RouteViewState extends State<RouteView> {
           lat: widget.info.point.latitude,
           long: widget.info.point.longitude,
         ),
+        widget.info.point.id
       );
       if (travelDistance!=null) {
-        setState(() {
-          _travelDistance = travelDistance;
-        });
+        if (this.mounted) {
+          setState(() {
+            _travelDistance = travelDistance;
+          });
+        }
       }
     }
   }
@@ -50,8 +53,9 @@ class _RouteViewState extends State<RouteView> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 68,
-      padding: EdgeInsets.symmetric(horizontal: 18, ),
+      // height: 68,
+      constraints: const BoxConstraints(minHeight: 68),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 5),
       width: double.infinity,
       decoration: BoxDecoration(
           color: Colors.white,
@@ -97,7 +101,7 @@ class _RouteViewState extends State<RouteView> {
               ),
               ),
               const SizedBox(width: 7,),
-              Text(_travelDistance!.time, style: Theme.of(context).textTheme.subtitle1?.copyWith(fontSize: 16),)
+              Text(_travelDistance!.time.inMinutes.toString() + ' мин', style: Theme.of(context).textTheme.subtitle1?.copyWith(fontSize: 16),)
 
             ],
           )

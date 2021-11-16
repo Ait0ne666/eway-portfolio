@@ -35,6 +35,7 @@ class _AuthWithPhoneFormState extends State<AuthWithPhoneForm> {
     _phoneController.addListener(() {
       if (_phoneController.value.text.length < 2) {
         _phoneController.value = const TextEditingValue(text: '+7');
+        _phoneController.selection = TextSelection.collapsed(offset: 2);
       }
     });
 

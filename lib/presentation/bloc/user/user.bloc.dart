@@ -91,12 +91,12 @@ class UserBloc extends Bloc<UserEvent, UserState> {
           });
       } else if (event is ChangeEmail) {
          yield UserChangingState(user: user);
-          var result = await useCase.changeEmail(event.email);
+          var result = await useCase.changeEmail(event.email, event.aggree);
 
           yield* result.fold((failure) async* {
             yield UserChangeErrorState(message: failure.message, user: user);
           }, (result) async* {
-            user = user?.copyWith(email: result, email_confirmed: false);
+            user = user?.copyWith(email: result, email_confirmed: false, aggreedToNews: event.aggree);
             yield UserChangedState(user: user);
           });
       } else  if (event is ApplyForResetWithEmail) {

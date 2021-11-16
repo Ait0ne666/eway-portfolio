@@ -15,6 +15,7 @@ UserModel _$UserModelFromJson(Map<String, dynamic> json) {
     phone: json['phone'] as String,
     showWelcome: json['showWelcome'] as bool,
     avatarUrl: json['avatarUrl'] as String?,
+    aggreedToNews: json['aggreedToNews'] as bool,
   );
 }
 
@@ -26,4 +27,5 @@ Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
       'email_confirmed': instance.email_confirmed,
       'showWelcome': instance.showWelcome,
       'avatarUrl': instance.avatarUrl,
+      'aggreedToNews': instance.aggreedToNews,
     };

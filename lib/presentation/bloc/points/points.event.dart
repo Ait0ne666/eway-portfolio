@@ -39,3 +39,8 @@ class LoadInitialPoints extends PointsEvent {
 }
 
 
+class FetchChargingPoint extends PointsEvent {
+
+  
+
+}

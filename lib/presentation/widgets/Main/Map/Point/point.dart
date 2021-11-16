@@ -6,12 +6,14 @@ import 'package:lseway/presentation/bloc/charge/charge.bloc.dart';
 import 'package:lseway/presentation/bloc/charge/charge.event.dart';
 import 'package:lseway/presentation/bloc/history/history.bloc.dart';
 import 'package:lseway/presentation/bloc/history/history.state.dart';
+import 'package:lseway/presentation/bloc/payment/payment.bloc.dart';
 import 'package:lseway/presentation/bloc/pointInfo/pointInfo.event.dart';
 import 'package:lseway/presentation/bloc/pointInfo/pointInfo.state.dart';
 import 'package:lseway/presentation/bloc/pointInfo/pointinfo.bloc.dart';
 import 'package:lseway/presentation/widgets/AnimatedBattery/animated_battery.dart';
 import 'package:lseway/presentation/widgets/Main/Map/Point/Charge/charge_80_dialog.dart';
 import 'package:lseway/presentation/widgets/Main/Map/Point/Charge/charge_view.dart';
+import 'package:lseway/presentation/widgets/Main/Map/Point/NoPaymentMethodsDialog/no_payment_methods_dialog.dart';
 import 'package:lseway/presentation/widgets/Main/Map/Point/point_content.dart';
 import 'package:lseway/presentation/widgets/Main/Map/geolocation.dart';
 import 'package:lseway/presentation/widgets/global.dart';
@@ -72,7 +74,7 @@ class _PointViewState extends State<PointView> {
 
   void showCharge(BuildContext ctx, bool dissmissPrev) {
     if (dissmissPrev) {
-      Navigator.of(ctx, rootNavigator: true).pop();
+      Navigator.of(ctx, rootNavigator: true).popUntil((route) => route.settings.name == '/main');
     }
     showMaterialModalBottomSheet(
         context: context,
@@ -93,6 +95,11 @@ class _PointViewState extends State<PointView> {
               }
           }
     });
+
+
+
+
+
   }
 
 
@@ -133,7 +140,7 @@ class _PointViewState extends State<PointView> {
                     builder: (context, state) {
                       var shouldShowBook = state.history.isNotEmpty;
                       return Container(
-                        height: shouldShowBook ?   715: 650,
+                        height: shouldShowBook ?   725: 670,
                         width: double.infinity,
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(30),

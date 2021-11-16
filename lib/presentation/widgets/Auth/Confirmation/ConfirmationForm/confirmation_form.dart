@@ -93,7 +93,9 @@ class _ConfirmationFormState extends State<ConfirmationForm> {
           Container(
               child: Column(
             children: [
-              PinCodeField(onChange: onCodeChange, length: 6, error: error,),
+              Container(
+                constraints: const BoxConstraints(maxWidth: 400),
+                child: PinCodeField(onChange: onCodeChange, length: 6, error: error,)),
               const SizedBox(
                 height: 19,
               ),

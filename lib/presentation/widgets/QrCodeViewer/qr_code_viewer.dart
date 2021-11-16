@@ -1,9 +1,15 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:lseway/core/clipper/qr_overlay_clipper.dart';
+import 'package:lseway/core/dialogBuilder/dialogBuilder.dart';
 import 'package:lseway/core/painter/qr_painter.dart';
+import 'package:lseway/core/toast/toast.dart';
+import 'package:lseway/presentation/bloc/pointInfo/pointInfo.event.dart';
+import 'package:lseway/presentation/bloc/pointInfo/pointInfo.state.dart';
+import 'package:lseway/presentation/bloc/pointInfo/pointinfo.bloc.dart';
 import 'package:lseway/presentation/widgets/Core/CustomButton/custom_button.dart';
 import 'package:lseway/presentation/widgets/IconButton/icon_button.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
@@ -23,6 +29,7 @@ class _QrCodeViewerState extends State<QrCodeViewer> {
   final GlobalKey containerKey = GlobalKey();
   Size? cutOffSize;
   Offset? cutOffOffset;
+  bool scanning = false;
 
   @override
   void reassemble() {
@@ -37,8 +44,17 @@ class _QrCodeViewerState extends State<QrCodeViewer> {
   void _onQRViewCreated(QRViewController controller) {
     this.controller = controller;
     controller.scannedDataStream.listen((scanData) {
-      if (scanData.code == 'test') {
-        controller.stopCamera();
+      if (!scanning) {
+        var code = scanData.code;
+        var codeNumber = int.tryParse(code);
+        if (codeNumber != null) {
+          // controller.stopCamera();
+          setState(() {
+            scanning = true;
+          });
+          BlocProvider.of<PointInfoBloc>(context)
+              .add(CheckIfPointExist(pointId: codeNumber));
+        }
       }
     });
   }
@@ -52,8 +68,8 @@ class _QrCodeViewerState extends State<QrCodeViewer> {
           containerKey.currentContext?.findRenderObject() as RenderBox?;
       if (box != null) {
         Offset containerOffset = box.localToGlobal(Offset.zero);
-        double width = MediaQuery.of(context).size.width - 130;
-        double height = 300;
+        double width = MediaQuery.of(context).size.width - 140;
+        double height = 270;
 
         setState(() {
           cutOffOffset = containerOffset;
@@ -69,6 +85,32 @@ class _QrCodeViewerState extends State<QrCodeViewer> {
     super.dispose();
   }
 
+  void pointInfoListener(BuildContext context, PointInfoState state) {
+    var dialog = DialogBuilder();
+    var isVisible = TickerMode.of(context);
+
+    if (state is PointInfoExistLoadingState && isVisible) {
+      dialog.showLoadingDialog(
+        context,
+      );
+    } else if (state is PointInfoExistErrorState && isVisible) {
+      Navigator.of(context, rootNavigator: true).pop();
+      Toast.showToast(context, 'Неверный код');
+      setState(() {
+        scanning = false;
+      });
+    } else if (state is PointInfoExistState && isVisible) {
+      Navigator.of(context, rootNavigator: true).pop();
+      Navigator.of(context, rootNavigator: true).popUntil((route) {
+        print(route.settings.name);
+
+        return route.settings.name == '/main';
+      });
+      BlocProvider.of<PointInfoBloc>(context)
+          .add(ShowPoint(pointId: state.pointId));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
@@ -78,6 +120,10 @@ class _QrCodeViewerState extends State<QrCodeViewer> {
       ),
       child: Stack(
         children: [
+          BlocListener<PointInfoBloc, PointInfoState>(
+            listener: pointInfoListener,
+            child: const SizedBox(),
+          ),
           QRView(
             key: qrKey,
             onQRViewCreated: _onQRViewCreated,
@@ -113,18 +159,18 @@ class _QrCodeViewerState extends State<QrCodeViewer> {
                     ],
                   ),
                   const SizedBox(
-                    height: 50,
+                    height: 40,
                   ),
                   CustomPaint(
                     painter: QrPainter(),
                     child: SizedBox(
                       key: containerKey,
-                      width: MediaQuery.of(context).size.width - 128,
-                      height: 300,
+                      width: MediaQuery.of(context).size.width - 138,
+                      height:270,
                     ),
                   ),
                   const SizedBox(
-                    height: 40,
+                    height: 30,
                   ),
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 50),
@@ -140,7 +186,6 @@ class _QrCodeViewerState extends State<QrCodeViewer> {
                   const SizedBox(
                     height: 40,
                   ),
-                  
                   CustomButton(
                     text: 'Ввести код вручную',
                     onPress: () {

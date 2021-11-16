@@ -59,8 +59,8 @@ class UserUseCase {
     }
 
 
-  Future<Either<Failure, String>> changeEmail(String email) {
-    return repository.changeEmail(email);
+  Future<Either<Failure, String>> changeEmail(String email, bool aggree) {
+    return repository.changeEmail(email, aggree);
   }
 
   Future<Either<Failure, String>> confirmEmail(String email, String code) {
@@ -84,4 +84,5 @@ class UserUseCase {
   Future<Either<Failure, User>> confirmNewPhone({required String email, required String phone, required String code}) {
     return repository.confirmNewPhone(email: email, phone: phone, code: code);
   }
+
 }

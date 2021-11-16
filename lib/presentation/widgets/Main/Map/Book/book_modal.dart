@@ -5,7 +5,7 @@ import 'package:lseway/presentation/widgets/Main/Map/Book/book_modal_content.dar
 import 'package:lseway/presentation/widgets/global.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
-void showBookModal(int pointId, ConnectorTypes connector) {
+void showBookModal(int pointId, int connector) {
   var context = NavigationService.navigatorKey.currentContext;
 
   if (context == null) {

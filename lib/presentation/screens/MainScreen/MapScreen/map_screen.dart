@@ -6,8 +6,11 @@ import 'package:lseway/presentation/bloc/booking/booking.state.dart';
 import 'package:lseway/presentation/screens/MainScreen/BookingWrapper/booking_wrapper.dart';
 import 'package:lseway/presentation/widgets/Booking/booking.dart';
 import 'package:lseway/presentation/widgets/CustomDrawer/custom_drawer.dart';
+import 'package:lseway/presentation/widgets/EmailConfirmDialog/email_confirm_dialog.dart';
 import 'package:lseway/presentation/widgets/Main/Map/map.dart';
 import 'package:lseway/presentation/widgets/SplashScreen/splash_screen.dart';
+import 'package:lseway/utils/ImageService/image_service.dart';
+import '../../../../injection_container.dart' as di;
 
 class MapScreen extends StatefulWidget {
   const MapScreen({Key? key}) : super(key: key);
@@ -23,6 +26,14 @@ class _MapScreenState extends State<MapScreen> {
   @override
   void initState() {
     super.initState();
+    removeSplash();
+  }
+
+  void removeSplash() async {
+    var imageService = di.sl<ImageService>();
+
+    await imageService.init();
+
     Future.delayed(const Duration(milliseconds: 1200), () {
       setState(() {
         showSplash = false;
@@ -33,11 +44,17 @@ class _MapScreenState extends State<MapScreen> {
         showMap = true;
       });
     });
+
+    Future.delayed(const Duration(milliseconds: 1800), showConfirmEmailDialog);
   }
 
   @override
   void dispose() {
     super.dispose();
+  }
+
+  void showConfirmEmailDialog() {
+    shouldShowConfrimEmail(context);
   }
 
   @override
@@ -46,6 +63,7 @@ class _MapScreenState extends State<MapScreen> {
       resizeToAvoidBottomInset: false,
       backgroundColor: Theme.of(context).primaryColor,
       drawer: Container(
+        constraints: BoxConstraints(maxWidth: 380),
         width: MediaQuery.of(context).size.width * 0.85,
         child: const Drawer(
           child: CustomDrawer(),
@@ -58,7 +76,6 @@ class _MapScreenState extends State<MapScreen> {
                   builder: (context, state) {
                   return BookingWrapper(
                     booking: state.booking,
-                    
                   );
                 })
               : SizedBox(),

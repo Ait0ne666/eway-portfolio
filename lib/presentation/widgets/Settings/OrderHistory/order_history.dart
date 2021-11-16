@@ -23,6 +23,12 @@ class _OrderHistoryState extends State<OrderHistory> {
     super.initState();
   }
 
+
+
+  void handleBill() {
+    
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<HistoryBloc, HistoryState>(builder: (context, state) {
@@ -38,21 +44,29 @@ class _OrderHistoryState extends State<OrderHistory> {
         return Expanded(
           child: Center(
               child: Container(
-                padding: const EdgeInsets.only(bottom: 80),
-                child: Text(
-            'У вас пока не было заказов',
-            style:
+            padding: const EdgeInsets.only(bottom: 80),
+            child: Text(
+              'У вас пока не было заказов',
+              style:
                   Theme.of(context).textTheme.bodyText2?.copyWith(fontSize: 16),
-          ),
-              )),
+            ),
+          )),
         );
       } else {
+        var items = [...state.history];
+
+        items.sort((a, b) {
+          if (a.date.isBefore(b.date)) return 1;
+          if (b.date.isBefore(a.date)) return -1;
+          return 0;
+        });
+
         return Expanded(
           child: ListView.separated(
               padding: const EdgeInsets.only(bottom: 20),
               physics: const BouncingScrollPhysics(),
               itemBuilder: (context, index) {
-                var item = state.history[index];
+                var item = items[index];
                 var dateFormat = DateFormat('dd.MM.yyyy');
                 var timeFormat = DateFormat('HH:mm');
 
@@ -85,6 +99,7 @@ class _OrderHistoryState extends State<OrderHistory> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
+                              
                               item.address,
                               style: Theme.of(context)
                                   .textTheme
@@ -135,12 +150,26 @@ class _OrderHistoryState extends State<OrderHistory> {
                         ),
                       ),
                       const SizedBox(width: 5),
+                      InkWell(
+                        onTap: handleBill,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 5),
+                          height: 62,
+                          width: 72,
+                          decoration: BoxDecoration(
+                            color: const Color(0xffEDEDF3),
+                            borderRadius: BorderRadius.circular(11)
+                          ),
+                          child: Center(child: Image.asset('assets/bill.png', width: 24),),
+                        ),
+                      ),
+                      const SizedBox(width: 7),
                       GreenContainer(
                           borderRadius: 11,
                           child: Container(
                             padding: EdgeInsets.symmetric(horizontal: 5),
-                            height: 67,
-                            width: 78,
+                            height: 62,
+                            width: 72,
                             child: Center(
                               child: FittedBox(
                                 child: Text.rich(

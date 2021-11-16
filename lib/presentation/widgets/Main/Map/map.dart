@@ -8,9 +8,12 @@ import 'package:flutter_animarker/flutter_map_marker_animation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_cluster_manager/google_maps_cluster_manager.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:lseway/domain/entitites/coordinates/coordinates.dart';
+import 'package:lseway/domain/entitites/filter/filter.dart';
 import 'package:lseway/domain/entitites/point/point.entity.dart';
+import 'package:lseway/presentation/bloc/activePoints/active_point_event.dart';
 import 'package:lseway/presentation/bloc/activePoints/active_point_state.dart';
 import 'package:lseway/presentation/bloc/activePoints/active_points_bloc.dart';
 import 'package:lseway/presentation/bloc/pointInfo/pointInfo.event.dart';
@@ -28,8 +31,18 @@ import 'package:lseway/presentation/widgets/Main/Map/Point/Charge/timer.dart';
 import 'package:lseway/presentation/widgets/Main/Map/Point/point.dart';
 import 'package:lseway/presentation/widgets/Main/Map/geolocation.dart';
 import 'package:lseway/presentation/widgets/QrScanner/qr_scanner.dart';
+import 'package:lseway/utils/ImageService/image_service.dart';
 import '../../../../injection_container.dart' as di;
 import 'package:permission_handler/permission_handler.dart' as Permission;
+
+class Place with ClusterItem {
+  final Point point;
+
+  Place({required this.point});
+
+  @override
+  LatLng get location => LatLng(point.latitude, point.longitude);
+}
 
 class MapView extends StatefulWidget {
   final void Function() showBooking;
@@ -37,10 +50,17 @@ class MapView extends StatefulWidget {
 
   @override
   _MapViewState createState() => _MapViewState();
+
+
 }
 
+Set<Marker> constantAmarkers = {};
+Timer? timer;
+
 class _MapViewState extends State<MapView> with WidgetsBindingObserver {
+  final ValueNotifier<Set<Marker>?> _myLocationMarkerNotifier = ValueNotifier<Set<Marker>?>(null);
   Completer<GoogleMapController> _controller = Completer();
+  GlobalKey<AnimarkerState> animarkerKey = GlobalKey<AnimarkerState>();
   late Stream<ServiceStatus> serviceStatusStream;
   StreamSubscription<ServiceStatus>? serviceListener;
   Coordinates defaultCoordinates = Coordinates(lat: 55.751244, long: 37.618423);
@@ -52,11 +72,17 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
   BitmapDescriptor? selectedIcon;
   Set<Marker> markers = {};
   late GeolocatorService geolocatorService;
+  late ImageService imageService;
+  late ClusterManager _clusterManager;
   bool _showMyLocation = false;
   bool _showMap = true;
   Position? myPosition;
   late StreamSubscription<Position> myPositionStream;
   Set<Marker> myLocationMarker = {};
+  double zoom = 15;
+
+
+
 
   late CameraPosition _kGooglePlex;
 
@@ -80,6 +106,9 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
           setState(() {
             _showMyLocation = true;
           });
+          myPositionStream.cancel();
+          myPositionStream =
+              geolocatorService.getPositionStream().listen(myLocationListener);
         }
       });
     }
@@ -89,7 +118,9 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
   void initState() {
     WidgetsBinding.instance?.addObserver(this);
     geolocatorService = di.sl<GeolocatorService>();
+    imageService = di.sl<ImageService>();
     _kGooglePlex = geolocatorService.getLastKnownPosition();
+    _clusterManager = initClusterManager();
     var permissionStatus = Permission.Permission.locationWhenInUse.status;
 
     permissionStatus.isGranted.then((value) {
@@ -111,6 +142,10 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
             setState(() {
               _showMyLocation = true;
             });
+            myPositionStream.cancel();
+            myPositionStream = geolocatorService
+                .getPositionStream()
+                .listen(myLocationListener);
           }
         });
       }
@@ -171,7 +206,105 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
     WidgetsBinding.instance?.removeObserver(this);
     myPositionStream.cancel();
     // geolocatorService.stopBackgroundLocation();
+    timer?.cancel();
     super.dispose();
+  }
+
+  ClusterManager initClusterManager() {
+    return ClusterManager<Place>([], (Set<Marker> marks) {
+      setState(() {
+        markers = constantAmarkers;
+      });
+      constantAmarkers = {};
+      
+    },
+        clusterAlgorithm: ClusterAlgorithm.MAX_DIST,
+        maxDistParams: MaxDistParams(3),
+        stopClusteringZoom: 15,
+        markerBuilder: _markerBuilder,
+        extraPercent: 1.5);
+  }
+
+  Future<Marker> Function(Cluster<Place>) get _markerBuilder =>
+      (cluster) async {
+        var camera = geolocatorService.getLastKnownPosition();
+        var reservedPoint =
+            BlocProvider.of<ActivePointsBloc>(context).state.reservedPoint;
+        var chargingPoint =
+            BlocProvider.of<ActivePointsBloc>(context).state.chargingPoint;
+
+        if (!cluster.isMultiple) {
+          constantAmarkers.add(
+            Marker(
+              markerId: MarkerId(
+                cluster.items.toList()[0].point.id.toString(),
+              ),
+              position: cluster.location,
+              icon: getImageForSingularCluster(cluster.items.toList()[0].point,
+                  reservedPoint: reservedPoint, chargingPoint: chargingPoint),
+              anchor: (reservedPoint == cluster.items.toList()[0].point.id ||
+                      chargingPoint == cluster.items.toList()[0].point.id)
+                  ? const Offset(0.5, 0.7)
+                  : const Offset(0.5, 0.4),
+              onTap: () =>
+                  onMarkerClick(context, cluster.items.toList()[0].point.id),
+            ),
+          );
+        }
+
+        return cluster.isMultiple
+            ? getMarkerForMultiplePoints(cluster)
+            : Marker(
+                markerId: MarkerId(
+                  cluster.items.toList()[0].point.id.toString(),
+                ),
+                position: cluster.location,
+                icon: getImageForSingularCluster(
+                    cluster.items.toList()[0].point,
+                    reservedPoint: reservedPoint,
+                    chargingPoint: chargingPoint),
+                anchor: (reservedPoint == cluster.items.toList()[0].point.id ||
+                        chargingPoint == cluster.items.toList()[0].point.id)
+                    ? const Offset(0.5, 0.7)
+                    : const Offset(0.5, 0.4),
+                onTap: () =>
+                    onMarkerClick(context, cluster.items.toList()[0].point.id));
+      };
+
+  Marker getMarkerForMultiplePoints(Cluster<Place> places) {
+    bool available = false;
+    bool up = false;
+
+    places.items.toList().forEach((place) {
+      if (place.point.up) {
+        up = true;
+      }
+      if (place.point.availability) {
+        available = true;
+      }
+    });
+
+    places.items.toList().asMap().forEach((index, place) => {
+
+          constantAmarkers.add(Marker(
+            markerId: MarkerId(
+              place.point.id.toString(),
+            ),
+            position: places.location,
+            icon: getImageForCluster(available, up),
+            anchor: const Offset(0.5, 0.7),
+            // visible: index == 0
+          ))
+        });
+
+    return Marker(
+      markerId: MarkerId(
+        places.items.toList()[0].point.id.toString(),
+      ),
+      position: places.location,
+      icon: getImageForCluster(available, up),
+      anchor: const Offset(0.5, 0.7),
+    );
   }
 
   void getCurrentPosition(bool initial) {
@@ -215,7 +348,9 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
 
   void onCameraMove(CameraPosition position) async {
     var camera = geolocatorService.getLastKnownPosition();
-
+    // setState(() {
+    //   zoom = position.zoom;
+    // });
     final GoogleMapController controller = await _controller.future;
     var bounds = await controller.getVisibleRegion();
     var range = Geolocator.distanceBetween(
@@ -227,14 +362,15 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
         gps: Coordinates(
             lat: position.target.latitude, long: position.target.longitude),
         range: range));
+    geolocatorService.saveCameraPosition(position);
 
     if ((camera.zoom < 13 && position.zoom >= 13) ||
         (camera.zoom > 13 && position.zoom <= 13)) {
       var points = BlocProvider.of<PointsBloc>(context).state.points;
+
       _buildMarkersSet(points);
     }
 
-    geolocatorService.saveCameraPosition(position);
   }
 
   void loadMorePoints() async {
@@ -255,52 +391,53 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
         range: range));
   }
 
-  void _buildMarkersSet(List<Point> points) async {
-    BitmapDescriptor? activeBitmap;
-    BitmapDescriptor? inActiveBitmap;
-    BitmapDescriptor? activeFarBitmap;
-    BitmapDescriptor? inActiveFarBitmap;
+  BitmapDescriptor getImageForPoint(Point point, CameraPosition camera,
+      {int? reservedPoint, int? chargingPoint}) {
+    var imageTitle = (reservedPoint == point.id || chargingPoint == point.id)
+        ? 'icons/active' + mapVoltageToNumber(point.voltage!).toString()
+        : point.up
+            ? point.availability
+                ? camera.zoom < 13
+                    ? 'active_far'
+                    : 'icons/free' +
+                        mapVoltageToNumber(point.voltage!).toString()
+                : camera.zoom < 13
+                    ? 'inactive_far'
+                    : 'icons/busy' +
+                        mapVoltageToNumber(point.voltage!).toString()
+            : camera.zoom < 13
+                ? 'down_far'
+                : 'icons/inactive' +
+                    mapVoltageToNumber(point.voltage!).toString();
+
+    return imageService.getDescriptor(imageTitle)!;
+  }
+
+  BitmapDescriptor getImageForSingularCluster(Point point,
+      {int? reservedPoint, int? chargingPoint}) {
+    var imageTitle = (reservedPoint == point.id || chargingPoint == point.id)
+        ? 'icons/active' + mapVoltageToNumber(point.voltage!).toString()
+        : point.up
+            ? point.availability
+                ? 'icons/free' + mapVoltageToNumber(point.voltage!).toString()
+                : 'icons/busy' + mapVoltageToNumber(point.voltage!).toString()
+            : 'icons/inactive' + mapVoltageToNumber(point.voltage!).toString();
+
+    return imageService.getDescriptor(imageTitle)!;
+  }
+
+  BitmapDescriptor getImageForCluster(bool available, bool up) {
+    var imageTitle = up
+        ? available
+            ? 'active_far'
+            : 'inactive_far'
+        : 'down_far';
+
+    return imageService.getDescriptor(imageTitle)!;
+  }
+
+  void _buildMarkersSet(List<Point> points, {bool? near}) async {
     BitmapDescriptor? myLocationBitmap;
-    BitmapDescriptor? selectedBitmap;
-
-    if (activeFarIcon == null) {
-      activeFarBitmap =
-          await getDescriptorFromAsset('assets/active_far.png', null);
-      setState(() {
-        activeFarIcon = activeFarBitmap;
-      });
-    } else {
-      activeFarBitmap = activeFarIcon;
-    }
-
-    if (inActiveFarIcon == null) {
-      inActiveFarBitmap =
-          await getDescriptorFromAsset('assets/inactive_far.png', null);
-      setState(() {
-        inActiveFarIcon = inActiveFarBitmap;
-      });
-    } else {
-      inActiveFarBitmap = inActiveFarIcon;
-    }
-
-    if (activeIcon == null) {
-      activeBitmap = await getDescriptorFromAsset('assets/active.png', null);
-      setState(() {
-        activeIcon = activeBitmap;
-      });
-    } else {
-      activeBitmap = activeIcon;
-    }
-
-    if (inActiveIcon == null) {
-      inActiveBitmap =
-          await getDescriptorFromAsset('assets/inactive.png', null);
-      setState(() {
-        inActiveIcon = inActiveBitmap;
-      });
-    } else {
-      inActiveBitmap = inActiveIcon;
-    }
 
     if (myLocationIcon == null) {
       myLocationBitmap = await getDescriptorFromAsset('assets/me.png', 120);
@@ -311,44 +448,12 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
       myLocationBitmap = myLocationIcon;
     }
 
-    if (selectedIcon == null) {
-      selectedBitmap =
-          await getDescriptorFromAsset('assets/selected22.png', 240);
-      setState(() {
-        selectedIcon = selectedBitmap;
-      });
-    } else {
-      selectedBitmap = selectedIcon;
-    }
-
-
-
     var camera = geolocatorService.getLastKnownPosition();
 
-    Set<Marker> newMarkers = {};
-
-    var reservedPoint = BlocProvider.of<ActivePointsBloc>(context).state.reservedPoint;
-    var chargingPoint = BlocProvider.of<ActivePointsBloc>(context).state.chargingPoint;
+    List<Place> items = [];
 
     points.forEach((element) {
-      newMarkers.add(
-        Marker(
-            markerId: MarkerId(
-              element.id.toString(),
-            ),
-            position: LatLng(element.latitude, element.longitude),
-            icon: (reservedPoint == element.id || chargingPoint == element.id) ? selectedBitmap! : element.availability
-                ? camera.zoom < 13
-                    ? activeFarBitmap!
-                    : activeBitmap!
-                : camera.zoom < 13
-                    ? inActiveFarBitmap!
-                    : inActiveBitmap!,
-            anchor:(reservedPoint == element.id || chargingPoint == element.id) ? const Offset(0.5, 0.7) : camera.zoom < 13
-                ? const Offset(0.5, 0.4)
-                : const Offset(0.5, 0.7),
-            onTap: () => onMarkerClick(context, element.id)),
-      );
+      items.add(Place(point: element));
     });
 
     if (myPosition != null) {
@@ -367,11 +472,10 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
       setState(() {
         myLocationMarker = newLocationMarkers;
       });
+      _myLocationMarkerNotifier.value = newLocationMarkers;
     }
 
-    setState(() {
-      markers = newMarkers;
-    });
+    _clusterManager.setItems(items);
   }
 
   void pointsListener(BuildContext context, PointsState state) {
@@ -397,6 +501,12 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
   }
 
   void onMarkerClick(BuildContext context, int pointId) {
+    if (timer != null) {
+      return;
+    }
+    timer = Timer(Duration(milliseconds: 200), () {
+      timer = null;
+    });
     var reservedPoint =
         BlocProvider.of<ActivePointsBloc>(context).state.reservedPoint;
 
@@ -414,15 +524,18 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
     if (state is ShowPointState) {
       var reservedPoint =
           BlocProvider.of<ActivePointsBloc>(context).state.reservedPoint;
+      var activePoint =
+          BlocProvider.of<ActivePointsBloc>(context).state.chargingPoint;
 
-      if (state.pointid == reservedPoint) {
+      if (state.pointid == activePoint) {
+        showPoint(context, state.pointid, state.pointid == activePoint);
+      } else if (state.pointid == reservedPoint) {
+        // showPoint(context, state.pointid, state.pointid == activePoint);
         widget.showBooking();
       } else {
-        var activePoint =
-            BlocProvider.of<ActivePointsBloc>(context).state.chargingPoint;
         showPoint(context, state.pointid, state.pointid == activePoint);
-        BlocProvider.of<PointInfoBloc>(context).add(ClearPoint());
       }
+      BlocProvider.of<PointInfoBloc>(context).add(ClearPoint());
     }
   }
 
@@ -434,10 +547,10 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
   }
 
   void updateMyPositionMarker(Position position) async {
-    if (geolocatorService.getMyLastPosition?.latitude == position.latitude &&
-        geolocatorService.getMyLastPosition?.longitude == position.longitude) {
-      return;
-    }
+    // if (geolocatorService.getMyLastPosition?.latitude == position.latitude &&
+    //     geolocatorService.getMyLastPosition?.longitude == position.longitude) {
+    //   return;
+    // }
 
     BitmapDescriptor? myLocationBitmap;
 
@@ -463,45 +576,69 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
         position: LatLng(position.latitude, position.longitude),
         icon: myLocationBitmap!,
         anchor: const Offset(0.5, 0.5),
+        
         rotation: position.heading + camera.bearing));
 
     setState(() {
       myLocationMarker = newMarkers;
     });
+    _myLocationMarkerNotifier.value = newMarkers;
   }
-
 
   void activePointsListener(BuildContext context, ActivePointsState state) {
     var points = BlocProvider.of<PointsBloc>(context).state.points;
     _buildMarkersSet(points);
+    if (state is ShowActiveChargingPoint && state.chargingPoint != null) {
+      showPoint(context, state.chargingPoint!, true);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    print(_clusterManager.items);
     return MultiBlocListener(
       listeners: [
         BlocListener<PointInfoBloc, PointInfoState>(
           listener: pointListener,
         ),
-        BlocListener<ActivePointsBloc, ActivePointsState>(listener: activePointsListener)
+        BlocListener<ActivePointsBloc, ActivePointsState>(
+            listener: activePointsListener)
       ],
       child: Container(
           child: Stack(
         children: [
           Animarker(
+            key: animarkerKey,
             mapId: _controller.future.then<int>((value) => value.mapId),
-            markers: myLocationMarker,
+            markers: markers,
+            
             shouldAnimateCamera: false,
+            
             useRotation: false,
-            child: Map(
-                controller: _controller,
-                markers: markers,
-                kGooglePlex: _kGooglePlex,
-                pointsListener: pointsListener,
-                showMyLocation: false,
-                onCameraMove: onCameraMove),
+            duration: Duration(milliseconds: 400),
+            curve: Curves.easeInOut,
+            child: ValueListenableBuilder<Set<Marker>?>(
+              valueListenable: _myLocationMarkerNotifier,
+              builder: (context, value, child) {
+                return Map(
+                    manager: _clusterManager,
+                    controller: _controller,
+                    markers: value ?? {},
+                    kGooglePlex: _kGooglePlex,
+                    pointsListener: pointsListener,
+                    showMyLocation: false,
+                    onCameraMove: onCameraMove);
+              }
+            ),
           ),
-          const CustomAppBar(),
+          CustomAppBar(reload: () {
+            // if (animarkerKey.currentState != null) {
+            //   animarkerKey.currentState?.widget.updateMarkers(animarkerKey.currentState!.widget.markers, markers);
+            // }
+            // setState(() {
+            //   markers= {...markers};
+            // });
+          },),
           BlocBuilder<ActivePointsBloc, ActivePointsState>(
               builder: (context, state) {
             if (state.reservedPoint != null) {

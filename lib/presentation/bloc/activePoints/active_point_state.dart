@@ -32,3 +32,9 @@ class ActivePointsLoadedState extends ActivePointsState {
   ActivePointsLoadedState({int? chargingPoint, int? reservedPoint}): super(chargingPoint: chargingPoint, reservedPoint: reservedPoint);
 
 }
+
+class ShowActiveChargingPoint extends ActivePointsLoadedState {
+
+  ShowActiveChargingPoint({int? chargingPoint, int? reservedPoint}): super(chargingPoint: chargingPoint, reservedPoint: reservedPoint);
+}
+

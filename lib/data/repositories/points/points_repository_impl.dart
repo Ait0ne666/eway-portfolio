@@ -52,8 +52,8 @@ class PointsRepositoryImpl implements PointsRepository {
 
   }
 
-  Future<TravelDistance?> getTravelDistance(Coordinates origin, Coordinates destination) {
-    return remoteDataSource.getTravelDistance(origin, destination);
+  Future<TravelDistance?> getTravelDistance(Coordinates origin, Coordinates destination, int pointId) {
+    return remoteDataSource.getTravelDistance(origin, destination, pointId);
   }
 
 
@@ -67,5 +67,10 @@ class PointsRepositoryImpl implements PointsRepository {
     }
 
     return remoteDataSource.getNearestPoints(coords);
+  }
+
+  @override
+  Future<Either<Failure, PointInfo>> getChargingPoint() async {
+    return remoteDataSource.getChargingPoint();
   }
 }

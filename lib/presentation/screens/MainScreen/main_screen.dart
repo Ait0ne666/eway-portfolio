@@ -10,6 +10,8 @@ import 'package:lseway/presentation/bloc/history/history.bloc.dart';
 import 'package:lseway/presentation/bloc/history/history.event.dart';
 import 'package:lseway/presentation/bloc/payment/payment.bloc.dart';
 import 'package:lseway/presentation/bloc/payment/payment.event.dart';
+import 'package:lseway/presentation/bloc/points/points.bloc.dart';
+import 'package:lseway/presentation/bloc/points/points.event.dart';
 import 'package:lseway/presentation/bloc/user/user.bloc.dart';
 import 'package:lseway/presentation/bloc/user/user.event.dart';
 import 'package:lseway/presentation/bloc/user/user.state.dart';
@@ -27,19 +29,20 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   final _appKey = GlobalKey<NavigatorState>();
-  late Timer timer;
+  Timer? timer;
   StreamSubscription? _uniLinksSub;
 
   @override
   void initState() {
-    timer = Timer.periodic(const Duration(minutes: 5), (timer) {
-      handleRefresh();
-    });
+    // timer = Timer.periodic(const Duration(minutes: 5), (timer) {
+    //   handleRefresh();
+    // });
     super.initState();
     initUniLinks();
     BlocProvider.of<PaymentBloc>(context).add(FetchCards());
     BlocProvider.of<HistoryBloc>(context).add(FetchHistory());
     BlocProvider.of<BookingBloc>(context).add(CheckBookings());
+    BlocProvider.of<PointsBloc>(context).add(FetchChargingPoint());
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeRight,
       DeviceOrientation.landscapeLeft,
@@ -61,7 +64,7 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   void dispose() {
-    timer.cancel();
+    timer?.cancel();
     if (_uniLinksSub != null) {
       _uniLinksSub?.cancel();
     }

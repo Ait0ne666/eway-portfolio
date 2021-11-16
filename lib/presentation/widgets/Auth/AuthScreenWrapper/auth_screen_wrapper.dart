@@ -27,7 +27,7 @@ class AuthScreenWrapper extends StatelessWidget {
                 MediaQuery.of(context).size.height,
               ),
               maxHeight: max(
-                700,
+                750,
                 MediaQuery.of(context).size.height,
               )
               ),

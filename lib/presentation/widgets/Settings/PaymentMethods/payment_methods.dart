@@ -22,7 +22,9 @@ class _PaymentMethodsState extends State<PaymentMethods> {
         isDismissible: true,
         
         builder: (dialogContext) {
-          return const CreditCardForm();
+          return CreditCardForm(onSuccess: (){
+            Navigator.of(context).pop();
+          },);
         });
   }
 
@@ -30,6 +32,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
   Widget build(BuildContext context) {
     return Expanded(
       child: SingleChildScrollView(
+        padding: const EdgeInsets.only(bottom: 50),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -40,7 +43,6 @@ class _PaymentMethodsState extends State<PaymentMethods> {
             InkWell(
               onTap: showCreditCardForm,
               child: Container(
-                  padding: const EdgeInsets.only(bottom: 5),
                   decoration: const BoxDecoration(
                       border: Border(
                           bottom: BorderSide(

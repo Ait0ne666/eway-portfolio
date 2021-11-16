@@ -13,11 +13,12 @@ class UserModel extends Equatable {
   final bool email_confirmed;
   final bool showWelcome;
   final String? avatarUrl;
+  final bool aggreedToNews;
   
 
 
 
-  const UserModel({this.id, this.name, required this.email_confirmed, this.email, required this.phone, required this.showWelcome, this.avatarUrl});
+  const UserModel({this.id, this.name, required this.email_confirmed, this.email, required this.phone, required this.showWelcome, this.avatarUrl, required this.aggreedToNews});
 
 
 
@@ -34,7 +35,7 @@ class UserModel extends Equatable {
    bool? email_confirmed,
    bool? showWelcome,
     String? avatarurl,
-  
+    bool? aggreedToNews,
   }) {
     return UserModel(
       id: id?? this.id,
@@ -44,6 +45,7 @@ class UserModel extends Equatable {
       phone: phone ?? this.phone,
       showWelcome: showWelcome ?? this.showWelcome,
       avatarUrl: avatarUrl ?? this.avatarUrl,
+      aggreedToNews: aggreedToNews ?? this.aggreedToNews,
     );
   }
 
