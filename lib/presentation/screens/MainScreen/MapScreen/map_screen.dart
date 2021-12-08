@@ -2,7 +2,14 @@ import 'package:expandable_bottom_sheet/expandable_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lseway/presentation/bloc/booking/booking.bloc.dart';
+import 'package:lseway/presentation/bloc/booking/booking.event.dart';
 import 'package:lseway/presentation/bloc/booking/booking.state.dart';
+import 'package:lseway/presentation/bloc/history/history.bloc.dart';
+import 'package:lseway/presentation/bloc/history/history.event.dart';
+import 'package:lseway/presentation/bloc/payment/payment.bloc.dart';
+import 'package:lseway/presentation/bloc/payment/payment.event.dart';
+import 'package:lseway/presentation/bloc/points/points.bloc.dart';
+import 'package:lseway/presentation/bloc/points/points.event.dart';
 import 'package:lseway/presentation/screens/MainScreen/BookingWrapper/booking_wrapper.dart';
 import 'package:lseway/presentation/widgets/Booking/booking.dart';
 import 'package:lseway/presentation/widgets/CustomDrawer/custom_drawer.dart';
@@ -26,8 +33,12 @@ class _MapScreenState extends State<MapScreen> {
   @override
   void initState() {
     super.initState();
+    
     removeSplash();
+
   }
+
+
 
   void removeSplash() async {
     var imageService = di.sl<ImageService>();
@@ -42,6 +53,7 @@ class _MapScreenState extends State<MapScreen> {
     Future.delayed(const Duration(milliseconds: 600), () {
       setState(() {
         showMap = true;
+        
       });
     });
 

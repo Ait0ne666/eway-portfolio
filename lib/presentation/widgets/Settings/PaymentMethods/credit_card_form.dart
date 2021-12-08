@@ -1,6 +1,8 @@
 import 'dart:ui';
 
 import 'package:cloudpayments/cloudpayments.dart';
+import 'package:cloudpayments/cloudpayments_apple_pay.dart';
+import 'package:cloudpayments/cloudpayments_google_pay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,6 +17,7 @@ import 'package:lseway/presentation/bloc/payment/payment.event.dart';
 import 'package:lseway/presentation/bloc/payment/payment.state.dart';
 import 'package:lseway/presentation/widgets/Core/CustomButton/custom_button.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:sizer/sizer.dart';
 
 class CreditCardForm extends StatefulWidget {
   final double? extent;
@@ -29,13 +32,17 @@ class CreditCardForm extends StatefulWidget {
 class _CreditCardFormState extends State<CreditCardForm> {
   @override
   Widget build(BuildContext context) {
+    var h = MediaQuery.of(context).size.height / 100;
+    var w = MediaQuery.of(context).size.width / 100;
     return AnimatedContainer(
       duration: Duration(milliseconds: 200),
-      height: widget.extent != null ? widget.extent! + MediaQuery.of(context).viewInsets.bottom :
-          MediaQuery.of(context).size.height * 7 / 9 +
+      height: widget.extent != null
+          ? widget.extent! + MediaQuery.of(context).viewInsets.bottom
+          : MediaQuery.of(context).size.height * 7 / 9 +
               MediaQuery.of(context).viewInsets.bottom,
       padding: EdgeInsets.only(
-          bottom: 22 + MediaQuery.of(context).viewInsets.bottom, top: 22),
+          bottom: 2.5 * h + MediaQuery.of(context).viewInsets.bottom,
+          top: 2.5 * h),
       decoration: const BoxDecoration(
         borderRadius: BorderRadius.only(
             topLeft: Radius.circular(40), topRight: Radius.circular(40)),
@@ -50,13 +57,16 @@ class _CreditCardFormState extends State<CreditCardForm> {
             width: 34,
             height: 4,
           ),
-          const SizedBox(height: 46),
+          SizedBox(height: 5 * h),
           Text(
             'Добавить карту',
-            style: Theme.of(context).textTheme.bodyText2,
+            style: Theme.of(context)
+                .textTheme
+                .bodyText2
+                ?.copyWith(fontSize: 18.sp),
           ),
-          const SizedBox(
-            height: 45,
+          SizedBox(
+            height: 5 * h,
           ),
           CardForm(onSuccess: widget.onSuccess)
         ],
@@ -216,6 +226,7 @@ class _CardFormState extends State<CardForm> {
   }
 
   void submit() async {
+    // handleGooglePay();
     if (!validateForm()) {
       var publicId = Config.CLOUD_PAYMENTS_ID;
       var month = _monthController.value.text;
@@ -230,12 +241,12 @@ class _CardFormState extends State<CardForm> {
             publicId: publicId);
 
         if (cryptogram.cryptogram != null) {
-          BlocProvider.of<PaymentBloc>(context).add(
-            AddCard(cryptoToken: cryptogram.cryptogram!),
-          );
-          //           BlocProvider.of<PaymentBloc>(context).add(
-          //   Get3DS(cryptoToken: cryptogram.cryptogram!),
+          // BlocProvider.of<PaymentBloc>(context).add(
+          //   AddCard(cryptoToken: cryptogram.cryptogram!),
           // );
+          BlocProvider.of<PaymentBloc>(context).add(
+            Get3DS(cryptoToken: cryptogram.cryptogram!),
+          );
         }
       } on PlatformException catch (error) {
         if (error.message == 'Card number is not correct.') {
@@ -247,15 +258,11 @@ class _CardFormState extends State<CardForm> {
             dateError = true;
           });
         }
-
-        
       }
     }
   }
 
-
-  void paymentListener (BuildContext context, PaymentState state) {
-
+  void paymentListener(BuildContext context, PaymentState state) {
     var dialog = DialogBuilder();
     var isVisible = TickerMode.of(context);
 
@@ -273,31 +280,59 @@ class _CardFormState extends State<CardForm> {
       Navigator.of(context, rootNavigator: true).pop();
       handle3DS(state.threeDs);
     }
-  } 
+  }
 
   void handle3DS(ThreeDS threeDs) async {
     try {
-      var result = await Cloudpayments.show3ds(acsUrl: threeDs.acsUrl, transactionId: threeDs.transactionId, paReq: threeDs.paReq);
-      print(result);
-
+      var result = await Cloudpayments.show3ds(
+          acsUrl: threeDs.acsUrl,
+          transactionId: threeDs.transactionId,
+          paReq: threeDs.paReq);
+      if (result?.md != null && result?.paRes != null) {
+        BlocProvider.of<PaymentBloc>(context)
+            .add(Confirm3DS(md: result!.md!, paRes: result.paRes!));
+      } else {
+        Toast.showToast(context, 'Не удалось привязать карту');
+      }
     } catch (err) {
       Toast.showToast(context, 'Не удалось привязать карту');
     }
+  }
 
+  void handleGooglePay() async {
+    final googlePay = CloudpaymentsGooglePay(GooglePayEnvironment.test);
+
+    final result = await googlePay.requestGooglePayPayment(
+      price: '1',
+      currencyCode: 'RUB',
+      countryCode: 'RU',
+      merchantName: 'Cloudpayments',
+      publicId: Config.CLOUD_PAYMENTS_ID,
+    );
+
+    if (result != null) {
+      if (result.isSuccess) {
+        final paymentToken = result.token;
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    var h = MediaQuery.of(context).size.height / 100;
+    var w = MediaQuery.of(context).size.width / 100;
     return Expanded(
       child: Material(
         color: Colors.transparent,
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 25),
+          padding: EdgeInsets.symmetric(horizontal: 5 * w),
           child: Column(
             children: [
-
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                BlocListener<PaymentBloc, PaymentState>(listener: paymentListener, child: const SizedBox(),),
+                BlocListener<PaymentBloc, PaymentState>(
+                  listener: paymentListener,
+                  child: const SizedBox(),
+                ),
                 Text(
                   'Номер карты',
                   style: Theme.of(context).textTheme.bodyText1,
@@ -321,7 +356,7 @@ class _CardFormState extends State<CardForm> {
                       color: Color(0xffEAEAF2),
                       borderRadius: BorderRadius.circular(100),
                     ),
-                    padding: const EdgeInsets.only(right: 23),
+                    padding: const EdgeInsets.only(right: 8),
                     child: Stack(
                       children: [
                         Container(
@@ -329,7 +364,7 @@ class _CardFormState extends State<CardForm> {
                           child: Row(
                             children: [
                               const SizedBox(
-                                width: 72,
+                                width: 65,
                               ),
                               Expanded(
                                 child: Padding(
@@ -338,7 +373,7 @@ class _CardFormState extends State<CardForm> {
                                       TextSpan(
                                         text: filledCard,
                                         style: const TextStyle(
-                                          fontSize: 17,
+                                          fontSize: 15,
                                           fontFeatures: [
                                             FontFeature.tabularFigures()
                                           ],
@@ -352,7 +387,7 @@ class _CardFormState extends State<CardForm> {
                                       TextSpan(
                                         text: unfilledCard,
                                         style: const TextStyle(
-                                          fontSize: 17,
+                                          fontSize: 15,
                                           color: Color(0xffB6B8C2),
                                           fontWeight: FontWeight.normal,
                                           fontFamily: 'Circe',
@@ -374,6 +409,7 @@ class _CardFormState extends State<CardForm> {
                             children: [
                               Image.asset(
                                 'assets/circles.png',
+                                width: 65,
                               ),
                               Expanded(
                                 child: Padding(
@@ -386,8 +422,9 @@ class _CardFormState extends State<CardForm> {
                                     controller: _cardController,
                                     inputFormatters: [_cardFormatter],
                                     maxLength: 25,
+
                                     style: const TextStyle(
-                                        fontSize: 20,
+                                        fontSize: 18,
                                         color: Color(0xff1A1D21),
                                         fontWeight: FontWeight.bold,
                                         fontFamily: 'Circe',
@@ -472,7 +509,7 @@ class _CardFormState extends State<CardForm> {
                                         inputFormatters: [_monthFormatter],
                                         maxLength: 2,
                                         style: const TextStyle(
-                                            fontSize: 20,
+                                            fontSize: 18,
                                             color: Color(0xff1A1D21),
                                             fontWeight: FontWeight.bold,
                                             fontFamily: 'Circe',
@@ -512,7 +549,7 @@ class _CardFormState extends State<CardForm> {
                                         inputFormatters: [_monthFormatter],
                                         maxLength: 2,
                                         style: const TextStyle(
-                                            fontSize: 20,
+                                            fontSize: 18,
                                             color: Color(0xff1A1D21),
                                             fontWeight: FontWeight.bold,
                                             fontFamily: 'Circe',

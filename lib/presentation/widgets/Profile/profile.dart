@@ -57,7 +57,7 @@ class Profile extends StatelessWidget {
           InkWell(
             onTap: () {
               AppRouter.router.navigateTo(context, '/name',
-                  transition: TransitionType.cupertino);
+                  transition: TransitionType.inFromLeft);
             },
             child: Row(
               children: [
@@ -89,7 +89,7 @@ class Profile extends StatelessWidget {
           InkWell(
             onTap: () {
               AppRouter.router.navigateTo(context, '/email',
-                  transition: TransitionType.cupertino);
+                  transition: TransitionType.inFromLeft);
             },
             child: Row(
               children: [

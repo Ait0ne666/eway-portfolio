@@ -41,16 +41,17 @@ class _ChargeViewState extends State<ChargeView> {
       Navigator.of(context, rootNavigator: true).pop();
       BlocProvider.of<HistoryBloc>(context).add(FetchHistory());
     } else if (state is ChargeInProgressState) {
+
+
       if (state.progress?.progress != null &&
-          (state.progress!.progress! == 80)) {
-        showCharge80Dialog(context, widget.pointId);
+          (state.progress!.progress! == 100)) {
+        BlocProvider.of<ChargeBloc>(context)
+            .add(StopChargeAutomatic(pointId: widget.pointId));
       }
     } else if (state is ChargeEndedRemotelyState) {
       Navigator.of(context, rootNavigator: true).pop();
       BlocProvider.of<HistoryBloc>(context).add(FetchHistory());
     }
-
-
   }
 
   @override
@@ -126,7 +127,7 @@ class _ChargeViewState extends State<ChargeView> {
                             ),
                             state.progress?.timeLeft != null
                                 ? TimeLeftCounter(
-                                    time: state.progress!.timeLeft!)
+                                    time: state.progress!.timeLeft!, updatedAt: state.progress!.updatedAt,)
                                 : SizedBox(
                                     height: 20,
                                   ),

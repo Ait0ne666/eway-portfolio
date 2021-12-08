@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lseway/domain/entitites/charge/charge_ended_result.dart';
 import 'package:lseway/domain/entitites/charge/charge_progress.entity.dart';
 import 'package:lseway/domain/use-cases/charge/charge_use_case.dart';
 import 'package:lseway/presentation/bloc/activePoints/active_point_event.dart';
@@ -28,7 +29,14 @@ class ChargeBloc extends Bloc<ChargeEvent, ChargeState> {
         result.stream.listen((event) {
           progress = event;
           if (progress?.canceled == true) {
-            add(ClearCharge());
+            var chargeEndedResult = ChargeEndedResult(
+              id: progress!.chargeId,
+              voltage: progress!.powerAmount,
+              amount: progress!.paymentAmount,
+              time: DateTime.now().difference(progress!.createdAt).inMinutes,
+            );
+
+            add(ClearCharge(result: chargeEndedResult));
           } else {
             add(SetChargeProgress(progress: progress!));
           }
@@ -47,7 +55,14 @@ class ChargeBloc extends Bloc<ChargeEvent, ChargeState> {
         result.stream.listen((event) {
           progress = event;
           if (progress?.canceled == true) {
-            add(ClearCharge());
+            var chargeEndedResult = ChargeEndedResult(
+              id: progress!.chargeId,
+              voltage: progress!.powerAmount,
+              amount: progress!.paymentAmount,
+              time: DateTime.now().difference(progress!.createdAt).inMinutes,
+            );
+
+            add(ClearCharge(result: chargeEndedResult));
           } else {
             add(SetChargeProgress(progress: progress!));
           }
@@ -61,10 +76,10 @@ class ChargeBloc extends Bloc<ChargeEvent, ChargeState> {
       result.fold((failure) {
         emit(ChargeStoppingErrorState(
             progress: progress, message: failure.message));
-      }, (stream) {
+      }, (result) {
         progress = null;
         activePointsBloc.add(ClearChargingPoint());
-        emit(const ChargeEndedState());
+        emit(ChargeEndedState(result: result));
       });
     });
     on<StopChargeAutomatic>((event, emit) async {
@@ -75,7 +90,7 @@ class ChargeBloc extends Bloc<ChargeEvent, ChargeState> {
       }, (success) {
         progress = null;
         activePointsBloc.add(ClearChargingPoint());
-        emit(const ChargeEndedAutomaticState());
+        emit(ChargeEndedAutomaticState(result: success));
       });
     });
     on<SetChargeProgress>((event, emit) {
@@ -86,7 +101,15 @@ class ChargeBloc extends Bloc<ChargeEvent, ChargeState> {
     on<ClearCharge>((event, emit) {
       progress = null;
       activePointsBloc.add(ClearChargingPoint());
-      emit(const ChargeEndedRemotelyState());
+
+      emit(ChargeEndedRemotelyState(result: event.result));
+    });
+    on<FetchUnpaidCharge>((event, emit) async {
+      var result = await usecase.fetchUnpaidCharge();
+
+      if (result != null) {
+        emit(UnpaidChargeState(progress: progress, result: result));
+      }
     });
   }
 }

@@ -6,6 +6,8 @@ import 'package:intl/intl.dart';
 import 'package:lseway/config/config.dart';
 import 'package:lseway/core/Responses/failures.dart';
 import 'package:lseway/core/Responses/success.dart';
+import 'package:lseway/data/adapters/history/history.adapter.dart';
+import 'package:lseway/domain/entitites/charge/charge_ended_result.dart';
 import 'package:lseway/domain/entitites/charge/charge_progress.entity.dart';
 import 'package:lseway/domain/entitites/filter/filter.dart';
 
@@ -29,22 +31,33 @@ class ChargeRemoteDataSource {
 
       var result = response.data['result'];
 
+      var updatedAt = result['updated_at'] != null
+          ? DateFormat('DD/MM/yyyy HH:mm:ss').parse(result['updated_at'])
+          : DateTime.now();
+
       var progress = ChargeProgress(
           createdAt: result['created_at'] != null
               ? DateFormat('DD/MM/yyyy HH:mm:ss').parse(result['created_at'])
               : DateTime.now(),
+          updatedAt: updatedAt,
           paymentAmount: result['payment_amount'] ?? 0,
           pointId: result['point_number'],
           powerAmount: result['power_amount'] ?? 0,
           progress: result['battery_level'] ?? 0,
-          timeLeft: result['remaining_time']);
+          timeLeft: result['remaining_time'],
+          chargeId: result['id']);
+
       lastProgress = progress;
       return Right(progress);
     } on DioError catch (err) {
       if (err.response?.statusCode == 400) {
         if (lastProgress != null && lastProgress?.pointId == pointId) {
           return Right(
-            lastProgress!.copyWith(canceled: true),
+            lastProgress!.copyWith(
+                canceled: true,
+                paymentAmount: lastProgress!.paymentAmount == 0
+                    ? 30
+                    : lastProgress!.paymentAmount),
           );
         }
         return Left(
@@ -163,7 +176,15 @@ class ChargeRemoteDataSource {
     });
   }
 
-  Future<Either<Failure, Success>> cancelCharge(int pointId) async {
+  void stopChargeListener() {
+    timer?.cancel();
+    timer = null;
+    progressController?.close();
+    progressController = null;
+    lastProgress = null;
+  }
+
+  Future<Either<Failure, ChargeEndedResult>> cancelCharge(int pointId) async {
     var url = _apiUrl + 'point/$pointId/action';
 
     var data = {"connector": 1, "evse": 1, "action": "stop"};
@@ -171,11 +192,28 @@ class ChargeRemoteDataSource {
     try {
       timer?.cancel();
       timer = null;
+
       var response = await dio.post(url, data: data);
 
+      var result = response.data['result'];
+
       progressController?.close();
-      return Right(Success());
-    } catch (err) {
+
+      ChargeEndedResult chargeEnded = ChargeEndedResult(
+          amount: result['payment_amount'] != null
+              ? result['payment_amount'].toDouble()
+              : 30.toDouble(),
+          id: result['id'],
+          voltage: result['power_amount'] ?? 0,
+          time: DateFormat('DD/MM/yyyy HH:mm:ss')
+                  .parse(result['updated_at'])
+                  .difference(DateFormat('DD/MM/yyyy HH:mm:ss')
+                      .parse(result['created_at']))
+                  .inMinutes +
+              1);
+
+      return Right(chargeEnded);
+    } on DioError catch (err) {
       if (timer == null) {
         timer =
             Timer.periodic(const Duration(milliseconds: 10000), (timer) async {
@@ -200,6 +238,25 @@ class ChargeRemoteDataSource {
           'Произошла непредвиденная ошибка',
         ),
       );
+    }
+  }
+
+  Future<ChargeEndedResult?> fetchUnpaidCharge() async {
+    var url = _apiUrl + 'history';
+
+    try {
+      var response = await dio.get(url);
+
+      var result = response.data['result'] as List<dynamic>;
+      print(result);
+
+      return getUnpaidPointFromJson(result);
+      // return Right(filter.availability ? tempPoints.where((element) => element.availability).toList() : tempPoints);
+    } on DioError catch (err) {
+      if (err.response?.statusCode == 400 || err.response?.statusCode == 401) {
+        return null;
+      }
+      return null;
     }
   }
 }

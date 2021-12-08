@@ -167,7 +167,7 @@ class PinCodeFieldState extends State<PinCodeField>
                   textAlignVertical: TextAlignVertical.center,
                   style: Theme.of(context).textTheme.bodyText2?.copyWith(
                       fontSize: height*0.625,
-                      height: 1.2,
+                      height: 1,
                       color: widget.error == true
                           ? Theme.of(context).colorScheme.error
                           : const Color(0xff1A1D21)),

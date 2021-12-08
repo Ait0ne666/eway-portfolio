@@ -79,7 +79,7 @@ Future<void> init() async {
 
 
 
-  sl.registerLazySingleton<UserRepository>(() => UserRepositoryImpl(remoteDataSource: sl(), networkInfo: sl(), localDataSource: sl()));
+  sl.registerLazySingleton<UserRepository>(() => UserRepositoryImpl(remoteDataSource: sl(), networkInfo: sl(), localDataSource: sl(), chargeRemoteDataSource: sl()));
   sl.registerLazySingleton<PointsRepository>(() => PointsRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()));
   sl.registerLazySingleton<HistoryRepository>(() => HistoryRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()));
   sl.registerLazySingleton<TopPlacesRepository>(() => TopPlacesRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()));

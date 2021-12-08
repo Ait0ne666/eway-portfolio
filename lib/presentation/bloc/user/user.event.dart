@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:lseway/domain/entitites/user/user.entity.dart';
 
-class UserEvent extends Equatable {
+class UserEvent{
   @override
   List<Object> get props => [];
 }
@@ -52,7 +52,15 @@ class ConfirmPhone extends UserEvent {
   ConfirmPhone({required this.phone, required this.code});
 }
 
-class Toggle80Percent extends UserEvent {}
+class Toggle80Percent extends UserEvent {
+  final String phone;
+  final bool aggree;
+
+  Toggle80Percent({required this.phone, required this.aggree});
+
+  @override
+  List<Object> get props => [phone, aggree];
+}
 
 class ChangeEmail extends UserEvent {
   final String email;
@@ -64,8 +72,6 @@ class ChangeEmail extends UserEvent {
   List<Object> get props => [email];
 }
 
-
-
 class ChangeName extends UserEvent {
   final String name;
 
@@ -74,7 +80,6 @@ class ChangeName extends UserEvent {
   @override
   List<Object> get props => [name];
 }
-
 
 class ConfirmEmail extends UserEvent {
   final String email;
@@ -86,20 +91,14 @@ class ConfirmEmail extends UserEvent {
   List<Object> get props => [email, code];
 }
 
-
-
-
 class ApplyForResetWithEmail extends UserEvent {
-    final String email;
-  
+  final String email;
 
   ApplyForResetWithEmail({required this.email});
 
   @override
   List<Object> get props => [email];
 }
-
-
 
 class ConfirmResetEmail extends UserEvent {
   final String email;
@@ -110,8 +109,6 @@ class ConfirmResetEmail extends UserEvent {
   @override
   List<Object> get props => [email, code];
 }
-
-
 
 class SetNewPhoneEvent extends UserEvent {
   final String email;
@@ -128,8 +125,15 @@ class ConfirmNewPhoneEvent extends UserEvent {
   final String phone;
   final String code;
 
-  ConfirmNewPhoneEvent({required this.email, required this.phone, required this.code});
+  ConfirmNewPhoneEvent(
+      {required this.email, required this.phone, required this.code});
 
   @override
   List<Object> get props => [email, phone, code];
+}
+
+class UploadFile extends UserEvent {
+  final String filePath;
+
+  UploadFile({required this.filePath});
 }

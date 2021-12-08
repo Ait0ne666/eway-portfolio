@@ -15,7 +15,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.0+1
+version: 1.0.4+5
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
@@ -56,6 +56,7 @@ dependencies:
   uni_links: ^0.5.1
   corsac_jwt: ^1.0.0-nullsafety.1
   google_maps_flutter: ^2.0.11
+  dotted_line: ^3.1.0
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
@@ -78,9 +79,12 @@ dependencies:
   cloudpayments: 
     git:
       url: https://github.com/Ait0ne666/cloudpayments.git
-  firebase_messaging: ^11.1.0
   firebase_core: ^1.10.0
+  firebase_messaging: ^11.0.0
   flutter_local_notifications: ^9.1.0
+  sizer: ^2.0.15
+  firebase_dynamic_links: ^3.0.1
+  flutter_user_agentx: ^1.2.4
   google_maps_cluster_manager: 
     git:
       url: https://github.com/Ait0ne666/google_maps_cluster_manager.git

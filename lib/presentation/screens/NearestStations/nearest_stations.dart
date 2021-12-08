@@ -39,10 +39,11 @@ class _NearestStationsState extends State<NearestStations> {
 
 
   String getDistanceString(double distance) {
-    if (distance>1) {
-      return distance.round().toString() + ' км';
+    if (distance > 1000) {
+      
+      return (distance~/1000).toInt().toString() + ' км';
     } else {
-      return (distance*1000).round().toString() + ' м';
+      return distance.toString() + ' м';
     }
   }
 

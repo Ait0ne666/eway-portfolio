@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:lseway/config/config.dart';
 import 'package:lseway/core/Responses/failures.dart';
+import 'package:lseway/core/Responses/success.dart';
 import 'package:lseway/data/models/payment/card.model.dart';
 import 'package:lseway/domain/entitites/payment/card.entity.dart';
 import 'package:lseway/domain/entitites/payment/threeDs.entity.dart';
@@ -68,9 +69,6 @@ class PaymentRemoteDataSource {
     }
   }
 
-
-
-
   Future<Either<Failure, ThreeDS>> get3DsInfo(String cryptoToken) async {
     var url = _apiUrl + 'card';
 
@@ -90,25 +88,68 @@ class PaymentRemoteDataSource {
     }
   }
 
-
-
   Future<Either<Failure, String>> changeActiveCard(String id) async {
     const url = _apiUrl + 'cards';
 
-    var data = {
-      "card_id": id
-    };
+    var data = {"card_id": id};
 
     try {
       var response = await dio.put(url, data: data);
 
-
       return Right(id);
-
     } catch (err) {
       return Left(ServerFailure('Не удалось сменить активную карту'));
     }
+  }
+
+  Future<Either<Failure, List<CreditCardModel>>> confirm3Ds(
+      String md, String paRes) async {
+    var url = Config.PAYMENT_URL + 'payment';
+
+    var data = {'MD': md, 'PaRes': paRes};
+
+    try {
+      var response =
+          await dio.post('https://ruscharge.ru/srv/v1/payment', data: data);
+
+      return fetchCards();
+    } catch (err) {
+      return Left(ServerFailure('Не удалось привязать карту'));
+    }
+  }
+
+  Future<Either<Failure, Success>> confirmPayment(
+      int chargeId, bool confirm) async {
+    var url = _apiUrl + 'payment';
+
+    var data = {"charging_id": chargeId, "confirm_payment": confirm};
+
+    try {
+      var response = await dio.post(url, data: data);
+      var result = response.data['result'];
+
+      return Right(
+        Success()
+      );
+    } catch (err) {
+      return Left(ServerFailure('Не удалось провести оплату'));
+    }
+  }
 
 
+  Future<Either<Failure, Success>> confirm3dsForPayment(
+      String md, String paRes) async {
+    var url = Config.PAYMENT_URL + 'payment';
+
+    var data = {'MD': md, 'PaRes': paRes};
+
+    try {
+      var response =
+          await dio.post('https://ruscharge.ru/srv/v1/payment', data: data);
+
+      return Right(Success());
+    } catch (err) {
+      return Left(ServerFailure('Не удалось привязать карту'));
+    }
   }
 }

@@ -6,25 +6,21 @@ import 'package:lseway/utils/utils.dart';
 
 List<Point> mapJsonToPoints(List<dynamic> json) {
   return json.map((part) {
-
     var isAvailable = false;
 
-    if (part["evse"]!=null && part["evse"].length> 0) {
+    if (part["evse"] != null && part["evse"].length > 0) {
       if (part["evse"][0]["available"] == true) {
         var connectors = part["evse"][0]["connectors"];
 
-        if (connectors != null && connectors.length>0) {
-
+        if (connectors != null && connectors.length > 0) {
           connectors.forEach((conn) {
             if (conn["available"] == true) {
               isAvailable = true;
             }
           });
-
         }
-        
-      }     }
-    
+      }
+    }
 
     return Point(
       address: part['address'] ?? '',
@@ -84,53 +80,54 @@ List<Tariff> mapJsonToTariff(List<dynamic> json) {
 }
 
 PointInfo mapJsonToPointInfo(Map<String, dynamic> json) {
-      var isAvailable = false;
+  var isAvailable = false;
 
-    if (json["evse"]!=null && json["evse"].length> 0) {
-      if (json["evse"][0]["available"] == true) {
-        var connectors = json["evse"][0]["connectors"];
+  if (json["evse"] != null && json["evse"].length > 0) {
+    if (json["evse"][0]["available"] == true) {
+      var connectors = json["evse"][0]["connectors"];
 
-        if (connectors != null && connectors.length>0) {
-
-          connectors.forEach((conn) {
-            if (conn["available"] == true) {
-              isAvailable = true;
-            }
-          });
-
-        }
-        
-      }     }
+      if (connectors != null && connectors.length > 0) {
+        connectors.forEach((conn) {
+          if (conn["available"] == true) {
+            isAvailable = true;
+          }
+        });
+      }
+    }
+  }
   return PointInfo(
-      point: Point(
-          address: json['address'] ?? '',
-          availability: isAvailable,
-          up: json['available'] ?? false,
-          latitude: json['latitude'],
-          longitude: json['longitude'],
-          id: json['point_number']),
-      voltage: json["evse"] != null && json["evse"].length > 0
-          ? mapStringToVoltage(json["evse"][0]["power"])
-          : VoltageTypes.AC7,
-      connectors: json["evse"] != null &&
-              json["evse"].length > 0 &&
-              json["evse"][0]["connectors"] != null &&
-              json["evse"][0]["connectors"].length > 0
-          ? mapJsonToConnector(json["evse"][0]["connectors"])
-          : [],
-      price: 7.25,
-      tariffs: json["tariffs"] != null && json["tariffs"].length > 0
-          ? mapJsonToTariff(json["tariffs"])
-          : [],
-      distance: json["distance"]);
+    point: Point(
+        address: json['address'] ?? '',
+        availability: isAvailable,
+        up: json['available'] ?? false,
+        latitude: json['latitude'],
+        longitude: json['longitude'],
+        id: json['point_number']),
+    voltage: json["evse"] != null && json["evse"].length > 0
+        ? mapStringToVoltage(json["evse"][0]["power"])
+        : VoltageTypes.AC7,
+    connectors: json["evse"] != null &&
+            json["evse"].length > 0 &&
+            json["evse"][0]["connectors"] != null &&
+            json["evse"][0]["connectors"].length > 0
+        ? mapJsonToConnector(json["evse"][0]["connectors"])
+        : [],
+    price: 7.25,
+    tariffs: json["tariffs"] != null && json["tariffs"].length > 0
+        ? mapJsonToTariff(json["tariffs"])
+        : [],
+    distance: json["distance"] != null ? json["distance"].toDouble() : 0,
+    duration: json["duration"] != null ? json["duration"].toDouble() : 0,
+  );
 }
 
 List<NearestPoint> mapJsonToNearestPoints(List<dynamic> json) {
   return json.map((part) {
     return NearestPoint(
         address: part['address'] ?? '',
-        distance: part['distance'],
+        distance: part["distance"] != null ? part["distance"].toDouble() : 0,
         pointId: part['point_number'],
-        time: getDurationForDistance(part['distance']));
+        time:
+            Duration(seconds: part["duration"] != null ? part["duration"] : 0));
   }).toList();
 }

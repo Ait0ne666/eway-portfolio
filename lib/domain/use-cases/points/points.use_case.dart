@@ -10,7 +10,9 @@ import 'package:lseway/domain/entitites/point/pointInfo.entity.dart';
 import 'package:lseway/domain/repositories/points/points.repository.dart';
 
 class PointsUseCase {
-   final PointsRepository repository;
+  final PointsRepository repository;
+
+  Map<int, TravelDistance> distances = {};
 
   PointsUseCase({required this.repository});
 
@@ -24,8 +26,25 @@ class PointsUseCase {
   }
 
 
-  Future<TravelDistance?> getTravelDistance(Coordinates origin, Coordinates destination, int pointId) {
-    return repository.getTravelDistance(origin, destination, pointId);
+  Future<TravelDistance?> getTravelDistance(Coordinates origin, Coordinates destination, int pointId) async {
+    var result = await repository.getTravelDistance(origin, destination, pointId);
+
+    if (result != null) {
+      distances[pointId] = result;
+    }
+    return result;
+  }
+
+
+  TravelDistance? getExistingDistance (int pointId) {
+
+    if (distances.containsKey(pointId)) {
+      return distances[pointId];
+    }
+
+    return null;
+
+
   }
 
 

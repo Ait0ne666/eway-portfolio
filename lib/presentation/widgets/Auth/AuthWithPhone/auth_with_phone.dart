@@ -1,8 +1,10 @@
 import 'package:fluro/fluro.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:lseway/config/config.dart';
 import 'package:lseway/presentation/navigation/main_router.dart';
 import 'package:lseway/presentation/widgets/Auth/AuthWithPhone/AuthWithPhoneForm/auth_with_phone_form.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AuthWithPhone extends StatelessWidget {
   const AuthWithPhone({Key? key}) : super(key: key);
@@ -27,7 +29,9 @@ class AuthWithPhone extends StatelessWidget {
         Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(height: 50,),
+            SizedBox(
+              height: 50,
+            ),
             // InkWell(
             //   onTap: () {
             //     MainRouter.router.navigateTo(context, '/reset', transition: TransitionType.cupertino);
@@ -58,9 +62,13 @@ class AuthWithPhone extends StatelessWidget {
                       fontFamily: 'Circe'),
                 ),
                 TextSpan(
-                  recognizer: TapGestureRecognizer()..onTap = () {
-                    
-                  },
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () async {
+                      String link = Config.RULES_URL;
+                      if (await canLaunch(link)) {
+                        launch(link);
+                      }
+                    },
                   text: 'условиями',
                   style: const TextStyle(
                       color: Color(0xffB1B3BD),

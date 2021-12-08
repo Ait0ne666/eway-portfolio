@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lseway/presentation/bloc/payment/payment.bloc.dart';
+import 'package:lseway/presentation/bloc/payment/payment.event.dart';
 import 'package:lseway/presentation/bloc/payment/payment.state.dart';
 import 'package:lseway/presentation/widgets/Settings/PaymentMethods/credit_card_form.dart';
 import 'package:lseway/presentation/widgets/Settings/PaymentMethods/credit_card_list.dart';
@@ -14,6 +15,14 @@ class PaymentMethods extends StatefulWidget {
 }
 
 class _PaymentMethodsState extends State<PaymentMethods> {
+
+  @override
+  void initState() {
+    BlocProvider.of<PaymentBloc>(context).add(FetchCards());
+    super.initState();
+  }
+
+
   void showCreditCardForm() {
     showMaterialModalBottomSheet(
         context: context,

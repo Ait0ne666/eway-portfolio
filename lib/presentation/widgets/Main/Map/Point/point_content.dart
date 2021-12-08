@@ -21,10 +21,8 @@ import 'package:lseway/presentation/widgets/Core/CustomSelect/custom_select.dart
 import 'package:lseway/presentation/widgets/Core/LabeledBox/labeled_box.dart';
 import 'package:lseway/presentation/widgets/Core/SuccessModal/success_modal.dart';
 import 'package:lseway/presentation/widgets/Main/Map/Book/book_modal.dart';
-import 'package:lseway/presentation/widgets/Main/Map/Point/Charge/charge_80_dialog.dart';
 import 'package:lseway/presentation/widgets/Main/Map/Point/NoPaymentMethodsDialog/no_payment_methods_dialog.dart';
 import 'package:lseway/presentation/widgets/Main/Map/Point/RouteBuilder/route_view.dart';
-import 'package:lseway/presentation/widgets/Main/Map/Point/point.dart';
 import 'package:lseway/presentation/widgets/Main/Map/geolocation.dart';
 import 'package:lseway/presentation/widgets/global.dart';
 import 'package:lseway/utils/utils.dart';
@@ -52,10 +50,28 @@ class PointContent extends StatefulWidget {
 class _PointContentState extends State<PointContent> {
   late ConnectorTypes connector;
 
+
+
+  ConnectorTypes getFreeConnector(List<ConnectorInfo> connectors) {
+
+    var type = connectors[0].type;
+
+    for (var i=0; i<connectors.length; i++) {
+      if (connectors[i].available) {
+        type= connectors[i].type;
+        break;
+      }
+    }
+
+
+    return type;
+  }
+
   @override
   void initState() {
     if (widget.point.connectors.length > 0) {
-      connector = widget.point.connectors[0].type;
+      
+      connector = getFreeConnector(widget.point.connectors);
     } else {
       connector = ConnectorTypes.CHADEMO;
     }

@@ -1,3 +1,4 @@
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lseway/data/data-sources/user/user_local_data_source.dart';
@@ -8,7 +9,17 @@ import 'package:lseway/presentation/widgets/global.dart';
 
 import '../../../../injection_container.dart' as di;
 
-void shouldShowConfrimEmail(BuildContext context) {
+void shouldShowConfrimEmail(BuildContext context) async {
+  final PendingDynamicLinkData? data =
+      await FirebaseDynamicLinks.instance.getInitialLink();
+  final Uri? deepLink = data?.link;
+
+  if (deepLink != null) {
+    var queryParams = deepLink.queryParameters;
+    if (queryParams.containsKey("point_number")) {
+      return;
+    }
+  }
   var localDataSource = di.sl<UserLocalDataSource>();
 
   bool shown = localDataSource.getEmailConfirmationShown();

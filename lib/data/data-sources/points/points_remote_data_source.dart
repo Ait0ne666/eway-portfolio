@@ -100,7 +100,7 @@ class PointsRemoteDataSource {
       return response.fold((l) => null, (r) {
         return TravelDistance(
             distance: r.distance?.toInt() ?? 0,
-            time: getDurationForDistance(r.distance ?? 0));
+            time: Duration(seconds: r.duration?.toInt() ?? 0));
       });
     } catch (err) {
       print(err);
@@ -148,7 +148,7 @@ class PointsRemoteDataSource {
 
       var result = response.data['result'] as List<dynamic>;
       print(result);
-      var id = await compute(getChargingPointFromJson, result);
+      var id = getChargingPointFromJson(result);
       if (id != null) {
         return getPointInfo(id);
       }

@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:225518859524:android:ba4dc66aae9c669be40c51",
+        "mobilesdk_app_id": "1:225518859524:android:760af88d33943918e40c51",
         "android_client_info": {
-          "package_name": "com.example.lseway"
+          "package_name": "com.lilekov.eway"
         }
       },
       "oauth_client": [

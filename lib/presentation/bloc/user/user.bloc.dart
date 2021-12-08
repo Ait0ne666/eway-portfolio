@@ -27,7 +27,18 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         } else {
           yield const UserUnauthorizedState();
         }
-      } else  if (event is RegisterUser) {
+      } else  if (event is Toggle80Percent) {
+          
+          var result = await useCase.toggleEndAt80(event.aggree, event.phone);
+
+          yield* result.fold((failure) async* {
+            yield Toggle80ErrorState(message: failure.message, user: user);
+          }, (result) async* {
+            user = user!.copyWith(endAt80: result);
+            yield Toggle80SuccessUserState(user: user);
+          });
+      }
+       else  if (event is RegisterUser) {
           yield UserLoadingState(user: user);
 
           var result = await useCase.register(phone: event.phone, email: event.email, name: event.name, surname: event.surname, password: event.password);
@@ -77,8 +88,6 @@ class UserBloc extends Bloc<UserEvent, UserState> {
             user = result;
             yield UserAuthorizedState(user: user);
           });
-      } else if (event is Toggle80Percent) {
-        
       } else if (event is ChangeName) {
           yield UserChangingState(user: user);
           var result = await useCase.changeName(event.name);
@@ -140,7 +149,17 @@ class UserBloc extends Bloc<UserEvent, UserState> {
             
             yield UserAuthorizedState(user: user);
           });
-      }
+      } else  if (event is UploadFile) {
+          yield AvatarUploadingUserState(user: user);
+          var result = await useCase.uploadFile(event.filePath);
+
+          yield* result.fold((failure) async* {
+            yield AvatarUploadError(message: failure.message, user: user);
+          }, (result) async* {
+            user = user!.copyWith(avatarUrl: result);
+            yield AvatarUploadedUserState(user: user);
+          });
+      } 
        
 
   }

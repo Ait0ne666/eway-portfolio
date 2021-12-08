@@ -194,3 +194,38 @@ class ResetConfirmNewPhoneErrorState extends UserErrorState {
 
   const ResetConfirmNewPhoneErrorState({required String message, required User? user}): super(user: user, message: message);
 }
+
+
+
+class AvatarUploadingUserState extends UserState {
+  const AvatarUploadingUserState({required User? user}): super(user: user);
+}
+
+
+class AvatarUploadedUserState extends UserState {
+  const AvatarUploadedUserState({required User? user}): super(user: user);
+}
+
+
+class AvatarUploadError extends UserState {
+  final String message;
+
+
+  const AvatarUploadError({required this.message, required User? user}): super(user: user);
+}
+
+
+
+
+
+class Toggle80ErrorState extends UserState {
+  final User? user;
+  final String message;
+
+  const Toggle80ErrorState({required this.user, required this.message}): super(user: user);
+}
+
+
+class Toggle80SuccessUserState extends UserState {
+  const Toggle80SuccessUserState({required User? user}): super(user: user);
+}

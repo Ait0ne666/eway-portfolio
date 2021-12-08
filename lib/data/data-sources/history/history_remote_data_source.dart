@@ -20,7 +20,7 @@ class HistoryRemoteDataSource {
       var result = response.data['result'] as List<dynamic>;
       print(result);
 
-      return await  compute(mapJsonToHistory, result);
+      return mapJsonToHistory(result);
       // return Right(filter.availability ? tempPoints.where((element) => element.availability).toList() : tempPoints);
     } on DioError catch (err) {
       if (err.response?.statusCode == 400 || err.response?.statusCode == 401) {

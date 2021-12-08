@@ -6,6 +6,7 @@ import 'package:lseway/presentation/bloc/pointInfo/pointinfo.bloc.dart';
 import 'package:lseway/presentation/bloc/topplaces/top_places.bloc.dart';
 import 'package:lseway/presentation/bloc/topplaces/top_places.event.dart';
 import 'package:lseway/presentation/bloc/topplaces/top_places.state.dart';
+import 'package:lseway/presentation/widgets/global.dart';
 
 class TopPlaces extends StatefulWidget {
   const TopPlaces({Key? key}) : super(key: key);
@@ -16,22 +17,35 @@ class TopPlaces extends StatefulWidget {
 
 class _TopPlacesState extends State<TopPlaces> {
   @override
-  void initState() {  
+  void initState() {
     BlocProvider.of<TopPlacesBloc>(context).add(FetchTTopPlaces());
-    
+
     super.initState();
   }
 
-
-
   void showPoint(int pointId) {
+    // var globalCtx = NavigationService.navigatorKey.currentContext;
+    // if (globalCtx != null) {
+    //   Navigator.of(globalCtx).popUntil((route) {
+    //     print(route.settings.name);
+
+    //     return route.settings.name == '/main';
+    //   });
+    // }
+    // Navigator.of(context).popUntil((route) {
+    //   print(route.settings.name);
+
+    //   return route.settings.name == '/';
+    // });
+    Navigator.of(context).pop();
     Navigator.of(context).pop();
     BlocProvider.of<PointInfoBloc>(context).add(ShowPoint(pointId: pointId));
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<TopPlacesBloc, TopPlacesState>(builder: (context, state) {
+    return BlocBuilder<TopPlacesBloc, TopPlacesState>(
+        builder: (context, state) {
       if (state is TopPlacesInitialState) {
         return const Expanded(
           child: Center(
@@ -47,13 +61,13 @@ class _TopPlacesState extends State<TopPlaces> {
         return Expanded(
           child: Center(
               child: Container(
-                padding: const EdgeInsets.only(bottom: 80),
-                child: Text(
-            'У вас пока не было заказов',
-            style:
+            padding: const EdgeInsets.only(bottom: 80),
+            child: Text(
+              'У вас пока не было заказов',
+              style:
                   Theme.of(context).textTheme.bodyText2?.copyWith(fontSize: 16),
-          ),
-              )),
+            ),
+          )),
         );
       } else {
         return Expanded(
@@ -62,7 +76,6 @@ class _TopPlacesState extends State<TopPlaces> {
               physics: const BouncingScrollPhysics(),
               itemBuilder: (context, index) {
                 var item = state.topPlaces[index];
-                
 
                 return InkWell(
                   onTap: () => showPoint(item.id),
@@ -84,7 +97,10 @@ class _TopPlacesState extends State<TopPlaces> {
                       children: [
                         Padding(
                           padding: const EdgeInsets.only(top: 10),
-                          child: Image.asset('assets/green-star.png', width: 68,),
+                          child: Image.asset(
+                            'assets/green-star.png',
+                            width: 68,
+                          ),
                         ),
                         Expanded(
                           child: Column(
@@ -98,7 +114,6 @@ class _TopPlacesState extends State<TopPlaces> {
                                     .bodyText2
                                     ?.copyWith(fontSize: 19),
                               ),
-
                               Text(
                                 item.city,
                                 style: Theme.of(context)
@@ -110,7 +125,6 @@ class _TopPlacesState extends State<TopPlaces> {
                           ),
                         ),
                         const SizedBox(width: 5),
-                        
                       ],
                     ),
                   ),

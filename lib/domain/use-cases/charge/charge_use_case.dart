@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:lseway/core/Responses/failures.dart';
 import 'package:lseway/core/Responses/success.dart';
+import 'package:lseway/domain/entitites/charge/charge_ended_result.dart';
 import 'package:lseway/domain/entitites/charge/charge_progress.entity.dart';
 import 'package:lseway/domain/entitites/filter/filter.dart';
 import 'package:lseway/domain/repositories/charge/charge.repository.dart';
@@ -18,7 +19,11 @@ class ChargeUseCase {
     return repository.resumeCharge(pointId);
   }
 
-  Future<Either<Failure, Success>> cancelCharge(int pointId) {
+  Future<Either<Failure, ChargeEndedResult>> cancelCharge(int pointId) {
     return repository.cancelCharge(pointId);
+  }
+
+  Future<ChargeEndedResult?> fetchUnpaidCharge() {
+    return repository.fetchUnpaidCharge();
   }
 }

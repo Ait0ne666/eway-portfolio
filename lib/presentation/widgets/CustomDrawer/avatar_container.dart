@@ -21,8 +21,8 @@ class AvatarContainer extends StatelessWidget {
       var user = state.user!;
       return InkWell(
         onTap: () {
-          Navigator.of(context).pop();
-          AppRouter.router.navigateTo(context, '/profile', transition: TransitionType.cupertino);
+          // Navigator.of(context).pop();
+          AppRouter.router.navigateTo(context, '/profile', transition: TransitionType.inFromLeft);
         },
         child: Container(
           width: double.infinity,

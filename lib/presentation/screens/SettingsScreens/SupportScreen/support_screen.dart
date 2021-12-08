@@ -1,11 +1,20 @@
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
+import 'package:lseway/config/config.dart';
 import 'package:lseway/presentation/navigation/app_router.dart';
 import 'package:lseway/presentation/widgets/Core/CustomButton/custom_button.dart';
 import 'package:lseway/presentation/widgets/CustomAppBar/custom_profile_bar.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SupportScreen extends StatelessWidget {
   const SupportScreen({Key? key}) : super(key: key);
+
+  void callSupport() async {
+    String link = 'tel:' + Config.SUPPORT_PHONE;
+    if (await canLaunch(link)) {
+      launch(link);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +39,7 @@ class SupportScreen extends StatelessWidget {
               text: 'Чат с поддержкой',
               onPress: () {
                 AppRouter.router.navigateTo(context, '/support/chat',
-                    transition: TransitionType.cupertino);
+                    transition: TransitionType.inFromLeft);
               },
               icon: Image.asset(
                 'assets/chat.png',
@@ -42,7 +51,7 @@ class SupportScreen extends StatelessWidget {
             ),
             CustomButton(
               text: 'Позвонить в поддержку',
-              onPress: () {},
+              onPress: callSupport,
               icon: Image.asset(
                 'assets/phone.png',
                 width: 39,

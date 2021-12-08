@@ -109,17 +109,28 @@ bool isSameDay(DateTime date1, DateTime date2) {
 
 List<Point> combinePointLists(List<Point> first, List<Point> second) {
   
-
   
   
-  Set<Point> result = first.toSet();
+  
+  List<Point> result = [...first];
 
-  result.addAll(second);
+  
+  second.forEach((element) {
+      var exist = false;
+      for (var i=0; i<first.length; i++) {
+        if (element.id == first[i].id) {
+          result[i] = element;
+          break;
+        }
+      }
+  });
+
+  
 
 
   
 
-  return result.toList();
+  return result;
 }
 
 

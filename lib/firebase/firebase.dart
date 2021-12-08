@@ -3,21 +3,12 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hive/hive.dart';
+import 'package:lseway/data/data-sources/user/user_local_data_source.dart';
 
 class LocalFirebase {
   static Future<void> _firebaseMessagingBackgroundHandler(
       RemoteMessage message) async {
-    // If you're going to use other Firebase services in the background, such as Firestore,
-    // make sure you call `initializeApp` before using other Firebase services.
-    // if (message.data.containsKey("id") && message.data.containsKey("type")) {
-    //   bool isMain = message.data.containsKey("isMain") ? message.data["isMain"] == 'true': false;
-    //   var box = Hive.box('session');
-    //   box.put('notification', {
-    //     "id": message.data["id"],
-    //     "type": message.data["type"],
-    //     "isMain": isMain
-    //   });
-    // }
+
     await Firebase.initializeApp();
     print('Handling a background message ${message.messageId}');
   }
@@ -27,6 +18,7 @@ class LocalFirebase {
     'High Importance Notifications', // title
     description: 'Этот канал используюется для оповещений', // description
     importance: Importance.high,
+    
   );
 
   static Future<FirebaseApp> init() async {
@@ -56,6 +48,12 @@ class LocalFirebase {
       var token = await FirebaseMessaging.instance.getToken();
 
       box.put('device_token', token);
+      // box.delete("80PercentShown79859153858");
+
+
+      // var shown = UserLocalDataSource().get80PercentShown('79859153858');
+
+      // print(shown);
     } catch (err) {
       print(err);
     }

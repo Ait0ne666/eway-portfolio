@@ -14,11 +14,12 @@ class UserModel extends Equatable {
   final bool showWelcome;
   final String? avatarUrl;
   final bool aggreedToNews;
+  final bool endAt80;
   
 
 
 
-  const UserModel({this.id, this.name, required this.email_confirmed, this.email, required this.phone, required this.showWelcome, this.avatarUrl, required this.aggreedToNews});
+  const UserModel({required this.endAt80, this.id, this.name, required this.email_confirmed, this.email, required this.phone, required this.showWelcome, this.avatarUrl, required this.aggreedToNews});
 
 
 
@@ -36,6 +37,7 @@ class UserModel extends Equatable {
    bool? showWelcome,
     String? avatarurl,
     bool? aggreedToNews,
+    bool? endAt80,
   }) {
     return UserModel(
       id: id?? this.id,
@@ -46,10 +48,11 @@ class UserModel extends Equatable {
       showWelcome: showWelcome ?? this.showWelcome,
       avatarUrl: avatarUrl ?? this.avatarUrl,
       aggreedToNews: aggreedToNews ?? this.aggreedToNews,
+      endAt80: endAt80 ?? this.endAt80,
     );
   }
 
   @override
-  List<Object?> get props => [id, email_confirmed, email, name, phone, showWelcome, avatarUrl];
+  List<Object?> get props => [id, email_confirmed, email, name, phone, showWelcome, avatarUrl, endAt80];
   
 }

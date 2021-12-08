@@ -69,7 +69,9 @@ class PointsBloc extends Bloc<PointsEvent, PointsState> {
     on<FetchChargingPoint>((event, emit) async {
       var result = await usecase.getChargingPoint();
 
-      result.fold((failure) {}, (success) {
+      result.fold((failure) {
+        print(failure);
+      }, (success) {
         points = combinePointLists(points, [success.point]);
         chargeBloc.add(ResumeCharge(pointId: success.point.id));
         emit(PointsLoadedState(filter: filter, points: points));

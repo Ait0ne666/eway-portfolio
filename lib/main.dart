@@ -11,6 +11,7 @@ import 'package:lseway/presentation/bloc/activePoints/active_points_bloc.dart';
 import 'package:lseway/presentation/bloc/booking/booking.bloc.dart';
 import 'package:lseway/presentation/bloc/charge/charge.bloc.dart';
 import 'package:lseway/presentation/bloc/chat/chat.bloc.dart';
+import 'package:lseway/presentation/bloc/dialog/dialog.bloc.dart';
 import 'package:lseway/presentation/bloc/history/history.bloc.dart';
 import 'package:lseway/presentation/bloc/nearestPoints/nearest_points.bloc.dart';
 import 'package:lseway/presentation/bloc/payment/payment.bloc.dart';
@@ -22,8 +23,10 @@ import 'package:lseway/presentation/bloc/user/user.state.dart';
 import 'package:lseway/presentation/navigation/app_router.dart';
 import 'package:lseway/presentation/navigation/main_router.dart';
 import 'package:lseway/presentation/widgets/global.dart';
+import 'package:lseway/utils/UserAgent/user_agent.dart';
 import "./injection_container.dart" as di;
 import "presentation/bloc/user/user.bloc.dart";
+import 'package:sizer/sizer.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,6 +38,7 @@ void main() async {
   await Hive.openBox('session');
   await LocalFirebase.init();
   await di.init();
+
   runApp(const MyApp());
 }
 
@@ -59,8 +63,9 @@ class _MyAppState extends State<MyApp> {
         usecase: di.sl<ChargeUseCase>(), activePointsBloc: activePointsBloc);
     bookingBloc = BookingBloc(
         usecase: di.sl<BookingUseCase>(), activePointsBloc: activePointsBloc);
-    pointsBloc = PointsBloc(usecase: di.sl(), localDataSource: di.sl(), chargeBloc: chargeBloc);
-    
+    pointsBloc = PointsBloc(
+        usecase: di.sl(), localDataSource: di.sl(), chargeBloc: chargeBloc);
+    UserAgentService.initUserAgent();
     super.initState();
   }
 
@@ -101,72 +106,78 @@ class _MyAppState extends State<MyApp> {
         BlocProvider(
           create: (_) => di.sl<ChatBloc>(),
         ),
-        
+        BlocProvider(
+          create: (_) => DialogBloc(),
+        ),
       ],
-      child: MaterialApp(
-        navigatorKey: NavigationService.navigatorKey,
-        title: 'E-way',
-        theme: ThemeData(
-            primaryColor: const Color(0xffF7F7FA),
-            colorScheme: const ColorScheme(
-                primary: Color(0xffF7F7FA),
-                background: Color(0xffF7F7FA),
-                brightness: Brightness.light,
-                error: Color(0xffF41D25),
-                onBackground: Color(0xffE01E1D),
-                onError: Colors.white,
-                onPrimary: Color(0xff1A1D21),
-                onSecondary: Color(0xff1A1D21),
-                secondary: Color(0xffF0F1F6),
-                secondaryVariant: Color(0xffF0F1F6),
-                primaryVariant: Colors.white,
-                surface: Color(0xff2B2727),
-                onSurface: Color(0xff41C696)),
-            visualDensity: VisualDensity.adaptivePlatformDensity,
-            textTheme: const TextTheme(
-              headline4: TextStyle(
-                  fontSize: 27,
-                  color: Color(0xff1A1D21),
-                  fontFamily: 'URWGeometricExt'),
-              headline5: TextStyle(
-                  fontSize: 25,
-                  color: Color(0xff1A1D21),
-                  fontFamily: 'URWGeometricExt'),
-              bodyText2: TextStyle(
-                  fontSize: 24,
-                  color: Color(0xff1A1D21),
-                  fontWeight: FontWeight.normal,
-                  fontFamily: 'URWGeometricExt'),
-              button: TextStyle(
-                  fontSize: 18,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
-                  fontFamily: 'Circe'),
-              subtitle1: TextStyle(
-                  color: Color(0xffB6B8C2), fontSize: 15, fontFamily: 'Circe'),
-              overline: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 17,
-                  color: Colors.white),
-              headline6: TextStyle(
-                  color: Color(0xff1A1D21),
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                  fontFamily: 'Circe'),
-              subtitle2: TextStyle(
-                  fontSize: 18,
-                  color: Color(0xff1A1D21),
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Circe'),
-              bodyText1: TextStyle(
-                  fontSize: 16,
-                  color: Color(0xffADAFBB),
-                  fontWeight: FontWeight.normal,
-                  fontFamily: 'Circe'),
-            )),
-        onGenerateRoute: MainRouter.router.generator,
-        home: const LoadingScreen(),
-      ),
+      child: Sizer(builder: (context, orientation, deviceType) {
+        return MaterialApp(
+          navigatorKey: NavigationService.navigatorKey,
+          title: 'E-way',
+          theme: ThemeData(
+              primaryColor: const Color(0xffF7F7FA),
+              colorScheme: const ColorScheme(
+                  primary: Color(0xffF7F7FA),
+                  background: Color(0xffF7F7FA),
+                  brightness: Brightness.light,
+                  error: Color(0xffF41D25),
+                  onBackground: Color(0xffE01E1D),
+                  onError: Colors.white,
+                  onPrimary: Color(0xff1A1D21),
+                  onSecondary: Color(0xff1A1D21),
+                  secondary: Color(0xffF0F1F6),
+                  secondaryVariant: Color(0xffF0F1F6),
+                  primaryVariant: Colors.white,
+                  surface: Color(0xff2B2727),
+                  onSurface: Color(0xff41C696)),
+              visualDensity: VisualDensity.adaptivePlatformDensity,
+              textTheme: const TextTheme(
+                headline4: TextStyle(
+                    fontSize: 27,
+                    color: Color(0xff1A1D21),
+                    fontFamily: 'URWGeometricExt'),
+                headline5: TextStyle(
+                    fontSize: 25,
+                    color: Color(0xff1A1D21),
+                    fontFamily: 'URWGeometricExt'),
+                bodyText2: TextStyle(
+                    fontSize: 24,
+                    color: Color(0xff1A1D21),
+                    fontWeight: FontWeight.normal,
+                    fontFamily: 'URWGeometricExt'),
+                button: TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    fontFamily: 'Circe'),
+                subtitle1: TextStyle(
+                    color: Color(0xffB6B8C2),
+                    fontSize: 15,
+                    fontFamily: 'Circe'),
+                overline: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 17,
+                    color: Colors.white),
+                headline6: TextStyle(
+                    color: Color(0xff1A1D21),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    fontFamily: 'Circe'),
+                subtitle2: TextStyle(
+                    fontSize: 18,
+                    color: Color(0xff1A1D21),
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Circe'),
+                bodyText1: TextStyle(
+                    fontSize: 16,
+                    color: Color(0xffADAFBB),
+                    fontWeight: FontWeight.normal,
+                    fontFamily: 'Circe'),
+              )),
+          onGenerateRoute: MainRouter.router.generator,
+          home: const LoadingScreen(),
+        );
+      }),
     );
   }
 }

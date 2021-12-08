@@ -97,14 +97,16 @@ class UserRemoteDataSource {
 
       return Right(
         UserModel(
-          id: 55555555,
+            id: 55555555,
             showWelcome: true,
             email: result["email"],
             name: result["name"],
             phone: result["phone"] ?? '79859153858',
             email_confirmed: result["email_confirmed"] ?? false,
-            avatarUrl: result["avatar"],
-            aggreedToNews: result["aggree"] ?? true),
+            avatarUrl: result["avatar"]  != null ? Config.IMAGE_URL + result["avatar"] : null,
+            aggreedToNews: result["aggree"] ?? true,
+            endAt80: result["ending_at_80"] ?? false
+            ),
       );
     } on DioError catch (err) {
       print(err.response);
@@ -234,6 +236,21 @@ class UserRemoteDataSource {
     }
   }
 
+
+  Future<Either<Failure, bool>> toggleEndAt80(bool endAt80) async {
+    const url = _apiUrl + 'me';
+
+    var data = {"ending_at_80": endAt80};
+
+    try {
+      var response = await dio.post(url, data: data);
+
+      return Right(endAt80);
+    } catch (err) {
+      return Left(ServerFailure('Произошла непредвиденная ошибка'));
+    }
+  }
+
   Future<Either<Failure, String>> confirmEmail(
       String email, String code) async {
     await Future.delayed(const Duration(milliseconds: 200));
@@ -269,7 +286,6 @@ class UserRemoteDataSource {
         LoginResult(accessToken: 'asdasdasdas', refreshToken: 'ffsdsdsf'));
   }
 
-
   Future<Either<Failure, String>> saveDeviceToken(String token) async {
     const url = _apiUrl + 'me';
 
@@ -284,7 +300,6 @@ class UserRemoteDataSource {
     }
   }
 
-
   Future<Either<Failure, Success>> deleteDeviceToken() async {
     const url = _apiUrl + 'me';
 
@@ -294,6 +309,23 @@ class UserRemoteDataSource {
       var response = await dio.post(url, data: data);
 
       return Right(Success());
+    } catch (err) {
+      return Left(ServerFailure('Произошла непредвиденная ошибка'));
+    }
+  }
+
+  Future<Either<Failure, String>> uploadFile(String filePath) async {
+    var url = _apiUrl + 'me/avatar';
+
+    var data =
+        FormData.fromMap({"avatar": await MultipartFile.fromFile(filePath)});
+
+    try {
+      var response = await dio.post(url, data: data);
+
+      var result = response.data["result"];
+
+      return Right(Config.IMAGE_URL + result["avatar"]);
     } catch (err) {
       return Left(ServerFailure('Произошла непредвиденная ошибка'));
     }

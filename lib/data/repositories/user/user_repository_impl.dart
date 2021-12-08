@@ -3,6 +3,7 @@ import 'package:lseway/core/Responses/failures.dart';
 import 'package:lseway/core/Responses/success.dart';
 import 'package:lseway/core/network/network_info.dart';
 import 'package:lseway/data/adapters/user/user.adapter.dart';
+import 'package:lseway/data/data-sources/charge/charge.remote_data_source.dart';
 import 'package:lseway/data/data-sources/user/user_local_data_source.dart';
 import 'package:lseway/data/data-sources/user/user_remote_data_source.dart';
 import 'package:lseway/domain/entitites/user/reset_result.dart';
@@ -12,11 +13,13 @@ import 'package:lseway/domain/repositories/user/user.repository.dart';
 class UserRepositoryImpl implements UserRepository {
   final UserLocalDataSource localDataSource;
   final UserRemoteDataSource remoteDataSource;
+  final ChargeRemoteDataSource chargeRemoteDataSource;
   final NetworkInfo networkInfo;
 
   UserRepositoryImpl(
       {required this.localDataSource,
       required this.remoteDataSource,
+      required this.chargeRemoteDataSource,
       required this.networkInfo});
 
   @override
@@ -73,9 +76,8 @@ class UserRepositoryImpl implements UserRepository {
   void logout() async {
     try {
       await deleteDeviceToken();
-    } catch (err) {
-
-    }
+    } catch (err) {}
+    chargeRemoteDataSource.stopChargeListener();
     localDataSource.deleteJwt();
     localDataSource.deleteRefresh();
     localDataSource.deleteFilter();
@@ -317,12 +319,34 @@ class UserRepositoryImpl implements UserRepository {
   Future<void> saveDeviceToken() async {
     var deviceToken = localDataSource.getDeviceToken();
     if (deviceToken != null) {
-      // remoteDataSource.saveDeviceToken(deviceToken);
+      remoteDataSource.saveDeviceToken(deviceToken);
     }
   }
 
   Future<void> deleteDeviceToken() async {
     localDataSource.deleteDeviceToken();
     await remoteDataSource.deleteDeviceToken();
+  }
+
+  @override
+  Future<Either<Failure, String>> uploadFile(String filePath) async {
+    return remoteDataSource.uploadFile(filePath);
+  }
+
+  @override
+  Future<Either<Failure, bool>> toggleEndAt80(bool endAt80, String phone) {
+    localDataSource.save80PercentShown(phone);
+
+    return remoteDataSource.toggleEndAt80(endAt80);
+  }
+
+  @override
+  bool stopChargeAt80DialogShown(String phone) {
+    var shown = localDataSource.get80PercentShown(phone);
+    if (shown !=true) {
+      localDataSource.save80PercentShown(phone);
+    }
+    return shown?? false;
+    // return false;
   }
 }

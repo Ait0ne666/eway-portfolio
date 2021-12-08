@@ -20,6 +20,8 @@
 		<string>????</string>
 		<key>LSApplicationQueriesSchemes</key>
 		<array>
+			<string>https</string>
+			<string>http</string>
 			<string>comgooglemaps</string>
 			<string>baidumap</string>
 			<string>iosamap</string>

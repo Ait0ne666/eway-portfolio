@@ -202,46 +202,52 @@ class _BookModalContentState extends State<BookModalContent> {
 
   List<DateTime> getAvailableDates(List<DateTime> busyDates) {
     List<DateTime> result = [];
-    var currentTime = DateTime.now().add(const Duration(minutes: 15));
-    var minute = currentTime.minute;
-    Duration thresholdDuration = const Duration(hours: 1);
+    // var currentTime = DateTime.now().subtract(Duration(minutes: 5)).add(const Duration(minutes: 15));
+    // var minute = currentTime.minute;
+    // Duration thresholdDuration = const Duration(hours: 1);
 
-    if (minute < 15) {
-      minute = 15;
-    } else if (minute < 30) {
-      minute = 30;
-    } else if (minute < 45) {
-      minute = 45;
-    } else {
-      currentTime = currentTime.add(const Duration(hours: 1));
-      minute = 0;
-    }
+    // if (minute < 15) {
+    //   minute = 15;
+    // } else if (minute < 30) {
+    //   minute = 30;
+    // } else if (minute < 45) {
+    //   minute = 45;
+    // } else {
+    //   currentTime = currentTime.add(const Duration(hours: 1));
+    //   minute = 0;
+    // }
 
-    var newTime = DateTime(currentTime.year, currentTime.month, currentTime.day,
-        currentTime.hour, minute);
+    // var newTime = DateTime(currentTime.year, currentTime.month, currentTime.day,
+    //     currentTime.hour, minute);
 
-    var time = newTime;
-    var threshold = currentTime.add(thresholdDuration);
+    // var time = newTime;
+    // var threshold = currentTime.add(thresholdDuration);
 
-    while (time.isBefore(threshold)) {
-      var isTaken = false;
+    // while (time.isBefore(threshold)) {
+    //   var isTaken = false;
 
-      for (var i = 0; i < busyDates.length; i++) {
-        var diff = time.difference(busyDates[i]).inMinutes;
-        if (diff < 60 && diff > -60) {
-          isTaken = true;
-          break;
-        }
-      }
+    //   for (var i = 0; i < busyDates.length; i++) {
+    //     var diff = time.difference(busyDates[i]).inMinutes;
+    //     if (diff < 60 && diff > -60) {
+    //       isTaken = true;
+    //       break;
+    //     }
+    //   }
 
-      if (!isTaken) {
-        result.add(time);
-      }
+    //   if (!isTaken) {
+    //     result.add(time);
+    //   }
 
-      time = time.add(
-        const Duration(minutes: 15),
-      );
-    }
+    //   time = time.add(
+    //     const Duration(minutes: 15),
+    //   );
+    // }
+    var currentTime = DateTime.now();
+    result.add(currentTime.add(const Duration(minutes: 15)));
+    result.add(currentTime.add(const Duration(minutes: 30)));
+    result.add(currentTime.add(const Duration(minutes: 45)));
+    result.add(currentTime.add(const Duration(minutes: 60)));
+
 
     if (result.isNotEmpty) {
       setState(() {

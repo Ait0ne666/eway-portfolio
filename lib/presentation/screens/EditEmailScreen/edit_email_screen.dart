@@ -33,7 +33,7 @@ class EditEmailScreen extends StatelessWidget {
       if (ModalRoute.of(context) != null && ModalRoute.of(context)!.isActive) {
         Navigator.of(context, rootNavigator: true).pop();
         AppRouter.router.navigateTo(context, '/email/code',
-            transition: TransitionType.cupertino, replace: true);
+            transition: TransitionType.inFromLeft, replace: true);
       }
     }
   }

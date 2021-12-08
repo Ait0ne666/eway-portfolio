@@ -134,6 +134,19 @@ class UserLocalDataSource {
     box.delete("device_token");
   }
 
+
+
+  void save80PercentShown(String phone) {
+    box.put( '80PercentShown' + phone, true);
+  }
+
+  bool? get80PercentShown(String phone) {
+    var shown = box.get( '80PercentShown' + phone);
+
+    return shown;
+  }
+
+
 }
 
 class CoordResult {

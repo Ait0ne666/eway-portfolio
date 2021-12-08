@@ -5,7 +5,8 @@ import 'package:lseway/utils/utils.dart';
 
 class TimeLeftCounter extends StatefulWidget {
   final double time;
-  const TimeLeftCounter({Key? key, required this.time}) : super(key: key);
+  final DateTime updatedAt;
+  const TimeLeftCounter({Key? key, required this.time, required this.updatedAt}) : super(key: key);
 
   @override
   _TimeLeftCounterState createState() => _TimeLeftCounterState();
@@ -20,10 +21,18 @@ class _TimeLeftCounterState extends State<TimeLeftCounter> {
   @override
   void initState() {
 
-    timeLeft = widget.time;
+    timeLeft = _calculateTimeLeft(widget.updatedAt, widget.time);
 
     updateTimer();
     super.initState();
+  }
+
+  double _calculateTimeLeft(DateTime updatedAt, double timeleft) {
+
+    var diff = DateTime.now().difference(updatedAt).inSeconds;
+
+
+    return (timeleft - diff)>0 ? (timeleft - diff) : 0;
   }
 
 
@@ -32,7 +41,7 @@ class _TimeLeftCounterState extends State<TimeLeftCounter> {
 
     if (oldWidget.time != widget.time) {
       setState(() {
-        timeLeft = widget.time;
+        _calculateTimeLeft(widget.updatedAt, widget.time);
       });
     }
     super.didUpdateWidget(oldWidget);

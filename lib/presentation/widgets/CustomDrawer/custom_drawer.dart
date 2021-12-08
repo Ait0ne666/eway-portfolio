@@ -1,15 +1,26 @@
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lseway/config/config.dart';
 import 'package:lseway/presentation/bloc/user/user.bloc.dart';
 import 'package:lseway/presentation/bloc/user/user.event.dart';
 import 'package:lseway/presentation/navigation/app_router.dart';
 import 'package:lseway/presentation/navigation/main_router.dart';
 import 'package:lseway/presentation/widgets/CustomDrawer/avatar_container.dart';
 import 'package:lseway/presentation/widgets/CustomDrawer/drawer_item.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({Key? key}) : super(key: key);
+
+
+  void showRules() async {
+    String link = Config.RULES_URL;
+    if (await canLaunch(link)) {
+      launch(link);
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -34,9 +45,9 @@ class CustomDrawer extends StatelessWidget {
                     DrawerItem(
                       icon: Image.asset('assets/wallet-grey.png'),
                       onTap: () {
-                        Navigator.of(context).pop();
+                        // Navigator.of(context).pop();
                         AppRouter.router.navigateTo(context, '/paymentMethods',
-                            transition: TransitionType.cupertino);
+                            transition: TransitionType.inFromLeft);
                       },
                       title: 'Способы оплаты',
                     ),
@@ -46,9 +57,9 @@ class CustomDrawer extends StatelessWidget {
                     DrawerItem(
                       icon: Image.asset('assets/calendar-grey.png'),
                       onTap: () {
-                        Navigator.of(context).pop();
+                        // Navigator.of(context).pop();
                         AppRouter.router.navigateTo(context, '/history',
-                            transition: TransitionType.cupertino);
+                            transition: TransitionType.inFromLeft);
                       },
                       title: 'История заказов',
                     ),
@@ -58,9 +69,9 @@ class CustomDrawer extends StatelessWidget {
                     DrawerItem(
                       icon: Image.asset('assets/star-grey.png'),
                       onTap: () {
-                        Navigator.of(context).pop();
+                        // Navigator.of(context).pop();
                         AppRouter.router.navigateTo(context, '/topPlaces',
-                            transition: TransitionType.cupertino);
+                            transition: TransitionType.inFromLeft);
                       },
                       title: 'Топ мест',
                     ),
@@ -70,9 +81,9 @@ class CustomDrawer extends StatelessWidget {
                     DrawerItem(
                       icon: Image.asset('assets/message-grey.png'),
                       onTap: () {
-                        Navigator.of(context).pop();
+                        // Navigator.of(context).pop();
                         AppRouter.router.navigateTo(context, '/support',
-                            transition: TransitionType.cupertino);
+                            transition: TransitionType.inFromLeft);
                       },
                       title: 'Служба поддержки',
                     ),
@@ -81,12 +92,12 @@ class CustomDrawer extends StatelessWidget {
                     ),
                     DrawerItem(
                       icon: Image.asset('assets/info.png', width: 24,),
-                      onTap: () {},
+                      onTap: showRules,
                       title: 'Условия пользования ',
                     ),
                   ],
                 ),
-                SizedBox(height: 40,),
+                const SizedBox(height: 40,),
                 InkWell(
                   onTap: () {
                     MainRouter.router.navigateTo(context, '/login',
@@ -97,13 +108,13 @@ class CustomDrawer extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Transform.translate(
-                          offset: Offset(0, -2),
+                          offset: const Offset(0, -2),
                           child: Image.asset(
                             'assets/arrow-left.png',
                             width: 45 / 3,
                             height: 33 / 3,
                           )),
-                      SizedBox(
+                      const SizedBox(
                         width: 12,
                       ),
                       Text(
@@ -112,10 +123,10 @@ class CustomDrawer extends StatelessWidget {
                             fontSize: 17,
                             fontFamily: 'URWGeometricExt',
                             foreground: Paint()
-                              ..shader = LinearGradient(colors: [
+                              ..shader = const LinearGradient(colors: [
                                 Color(0xffE01E1D),
                                 Color(0xffF41D25)
-                              ]).createShader(Rect.fromLTWH(0, 0, 163, 31)),
+                              ]).createShader( const Rect.fromLTWH(0, 0, 163, 31)),
                             shadows: const [
                               Shadow(
                                 blurRadius: 26,

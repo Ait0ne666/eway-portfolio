@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-class ActivePointsState extends Equatable {
+class ActivePointsState{
 
   final int? chargingPoint;
   final int? reservedPoint;

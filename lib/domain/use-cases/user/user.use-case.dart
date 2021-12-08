@@ -17,14 +17,13 @@ class UserUseCase {
       required String surname,
       String? password}) {
     return repository.register(
-        password: password,
-        phone: phone,
-        name: name,
-        surname: surname,
-        email: email,
-        );
+      password: password,
+      phone: phone,
+      name: name,
+      surname: surname,
+      email: email,
+    );
   }
-
 
   Future<User?> checkAuthorization() async {
     return repository.checkAuthorization();
@@ -38,26 +37,21 @@ class UserUseCase {
     return repository.loginWithEmail(email, password);
   }
 
-
   void refreshToken() {
     repository.refreshToken();
   }
 
-
-    Future<Either<Failure, Success>> requestPhoneConfirmation(String phone) {
-      return repository.requestPhoneConfirmation(phone);
-    }
+  Future<Either<Failure, Success>> requestPhoneConfirmation(String phone) {
+    return repository.requestPhoneConfirmation(phone);
+  }
 
   Future<Either<Failure, User>> confirmPhone(String phone, String code) {
     return repository.confirmPhone(phone, code);
   }
 
-
-
-    Future<Either<Failure, String>> changeName(String name) {
-      return repository.changeName(name);
-    }
-
+  Future<Either<Failure, String>> changeName(String name) {
+    return repository.changeName(name);
+  }
 
   Future<Either<Failure, String>> changeEmail(String email, bool aggree) {
     return repository.changeEmail(email, aggree);
@@ -67,22 +61,34 @@ class UserUseCase {
     return repository.confirmEmail(email, code);
   }
 
+  Future<Either<Failure, String>> resetAccess({required String email}) {
+    return repository.resetAccess(email: email);
+  }
 
-
-    Future<Either<Failure, String>> resetAccess({required String email}) {
-      return repository.resetAccess(email: email);
-    }
-  Future<Either<Failure, String>> confirmReset({required String email, required String code}) {
+  Future<Either<Failure, String>> confirmReset(
+      {required String email, required String code}) {
     return repository.confirmReset(email: email, code: code);
   }
 
-  Future<Either<Failure, ResetResult>> setNewPhone({required String email, required String phone}) {
+  Future<Either<Failure, ResetResult>> setNewPhone(
+      {required String email, required String phone}) {
     return repository.setNewPhone(email: email, phone: phone);
   }
 
-
-  Future<Either<Failure, User>> confirmNewPhone({required String email, required String phone, required String code}) {
+  Future<Either<Failure, User>> confirmNewPhone(
+      {required String email, required String phone, required String code}) {
     return repository.confirmNewPhone(email: email, phone: phone, code: code);
   }
 
+  Future<Either<Failure, String>> uploadFile(String filePath) {
+    return repository.uploadFile(filePath);
+  }
+
+  Future<Either<Failure, bool>> toggleEndAt80(bool endAt80, String phone) {
+    return repository.toggleEndAt80(endAt80, phone);
+  }
+
+  bool stopChargeAt80DialogShown(String phone) {
+    return repository.stopChargeAt80DialogShown(phone);
+  }
 }

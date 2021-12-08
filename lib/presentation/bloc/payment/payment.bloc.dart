@@ -40,7 +40,6 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       result.fold((failure) {
         emit(CreditCardAddErrorState(cards: cards, message: failure.message));
       }, (success) {
-        
         emit(CreditCard3DSState(cards: cards, threeDs: success));
       });
     });
@@ -57,7 +56,39 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       emit(CreditCardsLoadedState(cards: cards));
 
       usecase.changeActiveCard(event.id);
+    });
+    on<Confirm3DS>((event, emit) async {
+      emit(CreditCardAddingState(cards: cards));
+      var result = await usecase.confirm3Ds(event.md, event.paRes);
 
+      result.fold((failure) {
+        emit(CreditCardAddErrorState(cards: cards, message: failure.message));
+      }, (success) {
+        cards = success;
+        emit(CreditCardAddedState(cards: cards));
+      });
+    });
+    on<ConfirmPayment>((event, emit) async {
+      emit(PaymentProcessingState(cards: cards));
+      var result =
+          await usecase.confirmPayment(event.chargeId, event.confirmation);
+
+      result.fold((failure) {
+        emit(PaymentErrorState(cards: cards, message: failure.message));
+      }, (success) {
+        emit(PaymentDoneState(cards: cards));
+      });
+    });
+    on<Confirm3DSForPayment>((event, emit) async {
+      emit(PaymentProcessingState(cards: cards));
+      var result =
+          await usecase.confirm3dsForPayment(event.md, event.paRes);
+
+      result.fold((failure) {
+        emit(PaymentErrorState(cards: cards, message: failure.message));
+      }, (success) {
+        emit(PaymentDoneState(cards: cards));
+      });
     });
   }
 }

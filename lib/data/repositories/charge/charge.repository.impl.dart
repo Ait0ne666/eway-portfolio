@@ -3,6 +3,7 @@ import 'package:lseway/core/Responses/failures.dart';
 import 'package:lseway/core/Responses/success.dart';
 import 'package:lseway/core/network/network_info.dart';
 import 'package:lseway/data/data-sources/charge/charge.remote_data_source.dart';
+import 'package:lseway/domain/entitites/charge/charge_ended_result.dart';
 import 'package:lseway/domain/entitites/charge/charge_progress.entity.dart';
 import 'package:lseway/domain/entitites/filter/filter.dart';
 import 'package:lseway/domain/repositories/charge/charge.repository.dart';
@@ -42,7 +43,7 @@ class ChargeRepositoryImpl implements ChargeRepository {
   }
 
   @override
-  Future<Either<Failure, Success>> cancelCharge(int pointId) async {
+  Future<Either<Failure, ChargeEndedResult>> cancelCharge(int pointId) async {
     bool isConnected = await networkInfo.isConnected;
 
     if (!isConnected) {
@@ -52,5 +53,11 @@ class ChargeRepositoryImpl implements ChargeRepository {
     }
 
     return remoteDataSource.cancelCharge(pointId);
+  }
+
+
+  @override 
+  Future<ChargeEndedResult?> fetchUnpaidCharge() {
+    return remoteDataSource.fetchUnpaidCharge();
   }
 }

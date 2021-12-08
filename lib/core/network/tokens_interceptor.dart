@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:hive/hive.dart';
 import 'package:lseway/config/config.dart';
 import 'package:lseway/core/network/retry_interceptor.dart';
 import 'package:lseway/data/data-sources/user/user_local_data_source.dart';
@@ -36,8 +37,6 @@ bool isExpired(String token) {
   } catch (err) {
     return false;
   }
-
-  
 }
 
 Dio initDioClient() {
@@ -46,6 +45,7 @@ Dio initDioClient() {
   var localDataSource = UserLocalDataSource();
   var apiUrl = Config.API_URL;
   var dio = Dio();
+  var box = Hive.box('session');
 
   var tokenInterceptor =
       InterceptorsWrapper(onRequest: (options, handler) async {
@@ -63,17 +63,21 @@ Dio initDioClient() {
 
           dio.interceptors.requestLock.lock();
 
-          tokenDio.post(url, data: {"refresh_token": refresh}, options: Options(
-            headers: {
-              "Authorization": "Bearer " + jwt
-            }
-          )).then((response) {
+          tokenDio
+              .post(url,
+                  data: {"refresh_token": refresh},
+                  options: Options(headers: {"Authorization": "Bearer " + jwt}))
+              .then((response) {
             var data = response.data;
             var access = data["result"]["access_token"];
             var refresh = data["result"]["refresh_token"];
 
             localDataSource.saveJwt(access);
             localDataSource.saveRefresh(refresh);
+            var userAgent = box.get('userAgent');
+            if (userAgent != null) {
+              options.headers['User-Agent'] = userAgent;
+            }
             options.headers['Authorization'] = 'Bearer ' + access;
             handler.next(options);
           }).catchError((err) {
@@ -81,6 +85,10 @@ Dio initDioClient() {
           }).whenComplete(() => dio.interceptors.requestLock.unlock());
         }
       } else {
+        var userAgent = box.get('userAgent');
+        if (userAgent != null) {
+          options.headers['User-Agent'] = userAgent;
+        }
         options.headers['Authorization'] = 'Bearer ' + jwt;
         handler.next(options);
       }

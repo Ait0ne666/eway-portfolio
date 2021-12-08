@@ -59,3 +59,27 @@ class CreditCard3DSState extends PaymentState {
   final ThreeDS threeDs;
   const CreditCard3DSState({required List<CreditCard> cards, required this.threeDs}):super(cards: cards);
 }
+
+
+class PaymentDoneState extends PaymentState {
+  const PaymentDoneState({required List<CreditCard> cards}):super(cards: cards);
+}
+
+
+class PaymentProcessingState extends PaymentState {
+  const PaymentProcessingState({required List<CreditCard> cards}):super(cards: cards);
+}
+
+
+class PaymentErrorState extends PaymentState {
+
+  final String message;
+
+  const PaymentErrorState({required List<CreditCard> cards, required this.message}):super(cards: cards);
+}
+
+
+class Payment3DSState extends PaymentState {
+  final ThreeDS threeDs;
+  const Payment3DSState({required List<CreditCard> cards, required this.threeDs}):super(cards: cards);
+}

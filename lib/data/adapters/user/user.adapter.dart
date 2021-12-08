@@ -10,6 +10,7 @@ User mapModelToUser(UserModel model) {
       email: model.email,
       id: model.id,
       avatarUrl: model.avatarUrl,
-      aggreedToNews: model.aggreedToNews
+      aggreedToNews: model.aggreedToNews,
+      endAt80: model.endAt80
       );
 }

@@ -16,6 +16,12 @@ import 'package:lseway/domain/entitites/point/point.entity.dart';
 import 'package:lseway/presentation/bloc/activePoints/active_point_event.dart';
 import 'package:lseway/presentation/bloc/activePoints/active_point_state.dart';
 import 'package:lseway/presentation/bloc/activePoints/active_points_bloc.dart';
+import 'package:lseway/presentation/bloc/booking/booking.bloc.dart';
+import 'package:lseway/presentation/bloc/booking/booking.event.dart';
+import 'package:lseway/presentation/bloc/history/history.bloc.dart';
+import 'package:lseway/presentation/bloc/history/history.event.dart';
+import 'package:lseway/presentation/bloc/payment/payment.bloc.dart';
+import 'package:lseway/presentation/bloc/payment/payment.event.dart';
 import 'package:lseway/presentation/bloc/pointInfo/pointInfo.event.dart';
 import 'package:lseway/presentation/bloc/pointInfo/pointInfo.state.dart';
 import 'package:lseway/presentation/bloc/pointInfo/pointinfo.bloc.dart';
@@ -50,15 +56,16 @@ class MapView extends StatefulWidget {
 
   @override
   _MapViewState createState() => _MapViewState();
-
-
 }
 
 Set<Marker> constantAmarkers = {};
 Timer? timer;
+Timer? updateTimer;
+DateTime? lastUpdate;
 
 class _MapViewState extends State<MapView> with WidgetsBindingObserver {
-  final ValueNotifier<Set<Marker>?> _myLocationMarkerNotifier = ValueNotifier<Set<Marker>?>(null);
+  final ValueNotifier<Set<Marker>?> _myLocationMarkerNotifier =
+      ValueNotifier<Set<Marker>?>(null);
   Completer<GoogleMapController> _controller = Completer();
   GlobalKey<AnimarkerState> animarkerKey = GlobalKey<AnimarkerState>();
   late Stream<ServiceStatus> serviceStatusStream;
@@ -80,9 +87,6 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
   late StreamSubscription<Position> myPositionStream;
   Set<Marker> myLocationMarker = {};
   double zoom = 15;
-
-
-
 
   late CameraPosition _kGooglePlex;
 
@@ -199,6 +203,15 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
     myPositionStream =
         geolocatorService.getPositionStream().listen(myLocationListener);
     // geolocatorService.startBackgroundLocation(myPositionListener);
+    loadData();
+    setupPointUpdate();
+  }
+
+  void loadData() {
+    BlocProvider.of<PointsBloc>(context).add(FetchChargingPoint());
+    BlocProvider.of<BookingBloc>(context).add(CheckBookings());
+    BlocProvider.of<PaymentBloc>(context).add(FetchCards());
+    BlocProvider.of<HistoryBloc>(context).add(FetchHistory());
   }
 
   @override
@@ -207,7 +220,20 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
     myPositionStream.cancel();
     // geolocatorService.stopBackgroundLocation();
     timer?.cancel();
+    updateTimer?.cancel();
     super.dispose();
+  }
+
+  void setupPointUpdate() {
+    updateTimer = Timer.periodic(Duration(milliseconds: 30000), (timer) {
+      if (lastUpdate != null) {
+        var time = DateTime.now();
+        if (time.difference(lastUpdate!).inSeconds > 10) {
+          loadMorePoints();
+          lastUpdate = time;
+        }
+      }
+    });
   }
 
   ClusterManager initClusterManager() {
@@ -216,7 +242,6 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
         markers = constantAmarkers;
       });
       constantAmarkers = {};
-      
     },
         clusterAlgorithm: ClusterAlgorithm.MAX_DIST,
         maxDistParams: MaxDistParams(3),
@@ -285,7 +310,6 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
     });
 
     places.items.toList().asMap().forEach((index, place) => {
-
           constantAmarkers.add(Marker(
             markerId: MarkerId(
               place.point.id.toString(),
@@ -338,6 +362,7 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
                   Coordinates(lat: position.latitude, long: position.longitude),
               range: range));
         }
+        lastUpdate = DateTime.now();
       });
     }).catchError((err) async {
       if (err == 'enableLocation') {
@@ -363,14 +388,13 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
             lat: position.target.latitude, long: position.target.longitude),
         range: range));
     geolocatorService.saveCameraPosition(position);
-
+    lastUpdate = DateTime.now();
     if ((camera.zoom < 13 && position.zoom >= 13) ||
         (camera.zoom > 13 && position.zoom <= 13)) {
       var points = BlocProvider.of<PointsBloc>(context).state.points;
 
       _buildMarkersSet(points);
     }
-
   }
 
   void loadMorePoints() async {
@@ -389,6 +413,7 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
             long:
                 (bounds.northeast.longitude + bounds.southwest.longitude) / 2),
         range: range));
+    lastUpdate = DateTime.now();
   }
 
   BitmapDescriptor getImageForPoint(Point point, CameraPosition camera,
@@ -416,12 +441,19 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
   BitmapDescriptor getImageForSingularCluster(Point point,
       {int? reservedPoint, int? chargingPoint}) {
     var imageTitle = (reservedPoint == point.id || chargingPoint == point.id)
-        ? 'icons/active' + mapVoltageToNumber(point.voltage!).toString()
+        ? 'icons/active' +
+            mapVoltageToNumber(point.voltage ?? VoltageTypes.AC7).toString()
         : point.up
             ? point.availability
-                ? 'icons/free' + mapVoltageToNumber(point.voltage!).toString()
-                : 'icons/busy' + mapVoltageToNumber(point.voltage!).toString()
-            : 'icons/inactive' + mapVoltageToNumber(point.voltage!).toString();
+                ? 'icons/free' +
+                    mapVoltageToNumber(point.voltage ?? VoltageTypes.AC7)
+                        .toString()
+                : 'icons/busy' +
+                    mapVoltageToNumber(point.voltage ?? VoltageTypes.AC7)
+                        .toString()
+            : 'icons/inactive' +
+                mapVoltageToNumber(point.voltage ?? VoltageTypes.AC7)
+                    .toString();
 
     return imageService.getDescriptor(imageTitle)!;
   }
@@ -576,7 +608,6 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
         position: LatLng(position.latitude, position.longitude),
         icon: myLocationBitmap!,
         anchor: const Offset(0.5, 0.5),
-        
         rotation: position.heading + camera.bearing));
 
     setState(() {
@@ -595,7 +626,7 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    print(_clusterManager.items);
+    print(lastUpdate);
     return MultiBlocListener(
       listeners: [
         BlocListener<PointInfoBloc, PointInfoState>(
@@ -611,34 +642,33 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
             key: animarkerKey,
             mapId: _controller.future.then<int>((value) => value.mapId),
             markers: markers,
-            
             shouldAnimateCamera: false,
-            
             useRotation: false,
             duration: Duration(milliseconds: 400),
             curve: Curves.easeInOut,
             child: ValueListenableBuilder<Set<Marker>?>(
-              valueListenable: _myLocationMarkerNotifier,
-              builder: (context, value, child) {
-                return Map(
-                    manager: _clusterManager,
-                    controller: _controller,
-                    markers: value ?? {},
-                    kGooglePlex: _kGooglePlex,
-                    pointsListener: pointsListener,
-                    showMyLocation: false,
-                    onCameraMove: onCameraMove);
-              }
-            ),
+                valueListenable: _myLocationMarkerNotifier,
+                builder: (context, value, child) {
+                  return Map(
+                      manager: _clusterManager,
+                      controller: _controller,
+                      markers: value ?? {},
+                      kGooglePlex: _kGooglePlex,
+                      pointsListener: pointsListener,
+                      showMyLocation: false,
+                      onCameraMove: onCameraMove);
+                }),
           ),
-          CustomAppBar(reload: () {
-            // if (animarkerKey.currentState != null) {
-            //   animarkerKey.currentState?.widget.updateMarkers(animarkerKey.currentState!.widget.markers, markers);
-            // }
-            // setState(() {
-            //   markers= {...markers};
-            // });
-          },),
+          CustomAppBar(
+            reload: () {
+              // if (animarkerKey.currentState != null) {
+              //   animarkerKey.currentState?.widget.updateMarkers(animarkerKey.currentState!.widget.markers, markers);
+              // }
+              // setState(() {
+              //   markers= {...markers};
+              // });
+            },
+          ),
           BlocBuilder<ActivePointsBloc, ActivePointsState>(
               builder: (context, state) {
             if (state.reservedPoint != null) {

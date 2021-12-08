@@ -30,3 +30,29 @@ class ChangeActiveCard extends PaymentEvent {
 
   ChangeActiveCard({required this.id});
 }
+
+
+class Confirm3DS extends PaymentEvent {
+  final String md;
+  final String paRes;
+
+  Confirm3DS({required this.md, required this.paRes});
+}
+
+
+class Confirm3DSForPayment extends PaymentEvent {
+  final String md;
+  final String paRes;
+
+  Confirm3DSForPayment({required this.md, required this.paRes});
+}
+
+class ConfirmPayment extends PaymentEvent {
+  final bool confirmation;
+  final int chargeId;
+
+  ConfirmPayment({required this.confirmation, required this.chargeId});
+}
+
+
+

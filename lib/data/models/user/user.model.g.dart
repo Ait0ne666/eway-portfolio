@@ -8,6 +8,7 @@ part of 'user.model.dart';
 
 UserModel _$UserModelFromJson(Map<String, dynamic> json) {
   return UserModel(
+    endAt80: json['endAt80'] as bool,
     id: json['id'] as int?,
     name: json['name'] as String?,
     email_confirmed: json['email_confirmed'] as bool,
@@ -28,4 +29,5 @@ Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
       'showWelcome': instance.showWelcome,
       'avatarUrl': instance.avatarUrl,
       'aggreedToNews': instance.aggreedToNews,
+      'endAt80': instance.endAt80,
     };

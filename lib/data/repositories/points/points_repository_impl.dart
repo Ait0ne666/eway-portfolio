@@ -71,6 +71,7 @@ class PointsRepositoryImpl implements PointsRepository {
 
   @override
   Future<Either<Failure, PointInfo>> getChargingPoint() async {
-    return remoteDataSource.getChargingPoint();
+    var result = await remoteDataSource.getChargingPoint();
+    return result;
   }
 }
