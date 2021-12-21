@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:background_location/background_location.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
@@ -16,12 +16,12 @@ class GeolocatorService {
 
   void init() {
     if (Platform.isAndroid) {
-      BackgroundLocation.setAndroidNotification(
-        title: "Location",
-        message: "location",
-        icon: "@mipmap/ic_launcher",
-      );
-      BackgroundLocation.setAndroidConfiguration(1000);
+      // BackgroundLocation.setAndroidNotification(
+      //   title: "Location",
+      //   message: "location",
+      //   icon: "@mipmap/ic_launcher",
+      // );
+      // BackgroundLocation.setAndroidConfiguration(1000);
     }
   }
 
@@ -168,13 +168,13 @@ class GeolocatorService {
         intervalDuration: const Duration(milliseconds: 2000));
   }
 
-  void startBackgroundLocation(void Function(Location location) callback) {
-    BackgroundLocation.startLocationService();
+  // void startBackgroundLocation(void Function(Location location) callback) {
+  //   BackgroundLocation.startLocationService();
 
-    BackgroundLocation.getLocationUpdates(callback);
-  }
+  //   BackgroundLocation.getLocationUpdates(callback);
+  // }
 
-  void stopBackgroundLocation() {
-    BackgroundLocation.stopLocationService();
-  }
+  // void stopBackgroundLocation() {
+  //   BackgroundLocation.stopLocationService();
+  // }
 }

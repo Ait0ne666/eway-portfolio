@@ -73,7 +73,6 @@ dependencies:
   flutter_animarker: 
     git:
       url: https://github.com/Ait0ne666/flutter_animarker.git
-  background_location: ^0.8.1
   fluttertoast: ^8.0.8
   rainbow_color: ^2.0.1
   cloudpayments: 
