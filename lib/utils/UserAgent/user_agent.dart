@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:flutter_user_agentx/flutter_user_agent.dart';
+import 'package:fk_user_agent/fk_user_agent.dart';
 import 'package:hive/hive.dart';
 
 class UserAgentService {
@@ -9,16 +9,16 @@ class UserAgentService {
   static Future initUserAgent() async {
     var box = Hive.box('session');
 
-    await FlutterUserAgent.init();
-    String userAgent = FlutterUserAgent.userAgent ?? '';
-    String name = await FlutterUserAgent.getPropertyAsync('applicationName') ?? '';
-    String version = await FlutterUserAgent.getPropertyAsync('applicationVersion')  ?? '';
+    await FkUserAgent.init();
+    String userAgent = FkUserAgent.userAgent ?? '';
+    String name = await FkUserAgent.getPropertyAsync('applicationName') ?? '';
+    String version = await FkUserAgent.getPropertyAsync('applicationVersion')  ?? '';
     dynamic build;
 
     if (Platform.isAndroid) {
-      build = await FlutterUserAgent.getPropertyAsync('applicationBuildNumber');
+      build = await FkUserAgent.getPropertyAsync('applicationBuildNumber');
     } else if (Platform.isIOS) {
-      build = await FlutterUserAgent.getPropertyAsync('buildNumber');
+      build = await FkUserAgent.getPropertyAsync('buildNumber');
     }
     
 
