@@ -58,7 +58,7 @@ void showNoPaymentMethodsDialog(void Function() onSuccess) {
                             child: Center(
                               child: Text(
                                 // 'Добавьте платежную карту или настройте оплату с ${Platform.isIOS ? "Apple Pay" : "Google Pay"}',
-                                'Добавьте платежную карту"}',
+                                'Добавьте платежную карту',
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodyText2

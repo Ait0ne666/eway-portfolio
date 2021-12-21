@@ -3,7 +3,7 @@ description: A new Flutter project.
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -70,12 +70,12 @@ dependencies:
   map_launcher: ^2.1.1
   outline_gradient_button: ^2.0.0+1
   flutter_multi_formatter: ^2.4.1
-  flutter_animarker: 
+  flutter_animarker:
     git:
       url: https://github.com/Ait0ne666/flutter_animarker.git
   fluttertoast: ^8.0.8
   rainbow_color: ^2.0.1
-  cloudpayments: 
+  cloudpayments:
     git:
       url: https://github.com/Ait0ne666/cloudpayments.git
   firebase_core: ^1.10.0
@@ -84,17 +84,16 @@ dependencies:
   sizer: ^2.0.15
   firebase_dynamic_links: ^3.0.1
   fk_user_agent: ^2.0.1
-  google_maps_cluster_manager: 
+  google_maps_cluster_manager:
     git:
       url: https://github.com/Ait0ne666/google_maps_cluster_manager.git
-  rubber: 
+  rubber:
     git:
       url: https://github.com/Ait0ne666/rubber.git
-      
+
   flutter_neumorphic:
     git:
       url: https://github.com/tsvillain/Flutter-Neumorphic.git
-  
 
 dev_dependencies:
   flutter_test:
@@ -112,7 +111,6 @@ dev_dependencies:
 
 # The following section is specific to Flutter.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
@@ -150,7 +148,7 @@ flutter:
           weight: 700
         - asset: fonts/Circe/Circe-ExtraBold.ttf
           weight: 800
-        
+
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages

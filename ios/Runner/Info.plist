@@ -18,6 +18,21 @@
 		<string>$(FLUTTER_BUILD_NAME)</string>
 		<key>CFBundleSignature</key>
 		<string>????</string>
+		<key>CFBundleURLTypes</key>
+		<array>
+			<dict>
+				<key>CFBundleTypeRole</key>
+				<string>Editor</string>
+				<key>CFBundleURLName</key>
+				<string>lseway</string>
+				<key>CFBundleURLSchemes</key>
+				<array>
+					<string>lseway</string>
+				</array>
+			</dict>
+		</array>
+		<key>CFBundleVersion</key>
+		<string>$(FLUTTER_BUILD_NUMBER)</string>
 		<key>LSApplicationQueriesSchemes</key>
 		<array>
 			<string>https</string>
@@ -35,47 +50,35 @@
 			<string>qqmap</string>
 			<string>here-location</string>
 		</array>
-		<key>CFBundleVersion</key>
-		<string>$(FLUTTER_BUILD_NUMBER)</string>
 		<key>LSRequiresIPhoneOS</key>
 		<true/>
-		<key>CFBundleURLTypes</key>
-		<array>
-			<dict>
-				<key>CFBundleTypeRole</key>
-				<string>Editor</string>
-				<key>CFBundleURLName</key>
-				<string>lseway</string>
-				<key>CFBundleURLSchemes</key>
-				<array>
-					<string>lseway</string>
-				</array>
-			</dict>
-		</array>
-		<key>io.flutter.embedded_views_preview</key>
-		<true/>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>This app needs camera access to photo library</string>
 		<key>NSCameraUsageDescription</key>
 		<string>This app needs camera access to scan QR codes</string>
-		<key>UILaunchStoryboardName</key>
-		<string>LaunchScreen</string>
 		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 		<string>This app needs access to location.</string>
 		<key>NSLocationAlwaysUsageDescription</key>
 		<string>This app needs access to location.</string>
+		<key>NSLocationTemporaryUsageDescriptionDictionary</key>
+		<dict>
+			<key>Fine location</key>
+			<string>The example App requires temporary access to the device's precise location.</string>
+		</dict>
 		<key>NSLocationWhenInUseUsageDescription</key>
 		<string>This app needs access to location.</string>
 		<key>UIBackgroundModes</key>
 		<array>
 			<string>fetch</string>
 			<string>location</string>
+			<string>remote-notification</string>
 		</array>
-		<key>NSLocationTemporaryUsageDescriptionDictionary</key>
-		<dict>
-			<key>Fine location</key>
-			<string>The example App requires temporary access to the device's precise location.</string>
-		</dict>
+		<key>UILaunchStoryboardName</key>
+		<string>LaunchScreen</string>
 		<key>UIMainStoryboardFile</key>
 		<string>Main</string>
+		<key>UIStatusBarHidden</key>
+		<false/>
 		<key>UISupportedInterfaceOrientations</key>
 		<array>
 			<string>UIInterfaceOrientationPortrait</string>
@@ -91,7 +94,7 @@
 		</array>
 		<key>UIViewControllerBasedStatusBarAppearance</key>
 		<false/>
-		<key>UIStatusBarHidden</key>
-		<false/>
+		<key>io.flutter.embedded_views_preview</key>
+		<true/>
 	</dict>
 </plist>

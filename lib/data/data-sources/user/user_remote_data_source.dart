@@ -103,10 +103,11 @@ class UserRemoteDataSource {
             name: result["name"],
             phone: result["phone"] ?? '79859153858',
             email_confirmed: result["email_confirmed"] ?? false,
-            avatarUrl: result["avatar"]  != null ? Config.IMAGE_URL + result["avatar"] : null,
+            avatarUrl: result["avatar"] != null
+                ? Config.IMAGE_URL + result["avatar"]
+                : null,
             aggreedToNews: result["aggree"] ?? true,
-            endAt80: result["ending_at_80"] ?? false
-            ),
+            endAt80: result["ending_at_80"] ?? false),
       );
     } on DioError catch (err) {
       print(err.response);
@@ -236,7 +237,6 @@ class UserRemoteDataSource {
     }
   }
 
-
   Future<Either<Failure, bool>> toggleEndAt80(bool endAt80) async {
     const url = _apiUrl + 'me';
 
@@ -327,7 +327,9 @@ class UserRemoteDataSource {
 
       return Right(Config.IMAGE_URL + result["avatar"]);
     } catch (err) {
-      return Left(ServerFailure('Произошла непредвиденная ошибка'));
+      return err is DioError && err.response?.statusCode == 413
+          ? Left(ServerFailure('Файл слишком большой'))
+          : Left(ServerFailure('Произошла непредвиденная ошибка'));
     }
   }
 }

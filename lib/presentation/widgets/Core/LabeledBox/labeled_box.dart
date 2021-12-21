@@ -15,19 +15,16 @@ class LabeledBox extends StatelessWidget {
       this.height,
       this.width,
       required this.icon,
-      this.paddingRight
-      })
+      this.paddingRight})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      
       width: width ?? double.infinity,
       height: height ?? 68,
-      padding: EdgeInsets.only(left: 0, right: paddingRight ?? 28),
+      padding: EdgeInsets.only(left: 0, right: paddingRight ?? 22),
       decoration: BoxDecoration(
-        
         color: Color(0xffF6F6FA),
         borderRadius: BorderRadius.circular(15),
       ),

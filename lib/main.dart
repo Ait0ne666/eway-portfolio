@@ -113,6 +113,7 @@ class _MyAppState extends State<MyApp> {
       child: Sizer(builder: (context, orientation, deviceType) {
         return MaterialApp(
           navigatorKey: NavigationService.navigatorKey,
+          debugShowCheckedModeBanner: false,
           title: 'E-way',
           theme: ThemeData(
               primaryColor: const Color(0xffF7F7FA),
