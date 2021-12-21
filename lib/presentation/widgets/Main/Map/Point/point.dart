@@ -34,6 +34,9 @@ void showPoint(BuildContext context, int pointId, bool isActive) {
         backgroundColor: Colors.transparent,
         useRootNavigator: true,
         builder: (dialogContext) {
+          // return ChargeView(
+          //         pointId: pointId,
+          //       );
           return isActive
               ? ChargeView(
                   pointId: pointId,

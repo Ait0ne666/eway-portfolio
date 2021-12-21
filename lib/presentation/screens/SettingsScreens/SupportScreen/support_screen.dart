@@ -35,20 +35,20 @@ class SupportScreen extends StatelessWidget {
             const SizedBox(
               height: 77,
             ),
-            CustomButton(
-              text: 'Чат с поддержкой',
-              onPress: () {
-                AppRouter.router.navigateTo(context, '/support/chat',
-                    transition: TransitionType.inFromLeft);
-              },
-              icon: Image.asset(
-                'assets/chat.png',
-                width: 39,
-              ),
-            ),
-            const SizedBox(
-              height: 23,
-            ),
+            // CustomButton(
+            //   text: 'Чат с поддержкой',
+            //   onPress: () {
+            //     AppRouter.router.navigateTo(context, '/support/chat',
+            //         transition: TransitionType.inFromLeft);
+            //   },
+            //   icon: Image.asset(
+            //     'assets/chat.png',
+            //     width: 39,
+            //   ),
+            // ),
+            // const SizedBox(
+            //   height: 23,
+            // ),
             CustomButton(
               text: 'Позвонить в поддержку',
               onPress: callSupport,

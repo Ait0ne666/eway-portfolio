@@ -4,10 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:lseway/core/toast/toast.dart';
+import 'package:lseway/domain/entitites/history/history.entity.dart';
 import 'package:lseway/presentation/bloc/history/history.bloc.dart';
 import 'package:lseway/presentation/bloc/history/history.event.dart';
 import 'package:lseway/presentation/bloc/history/history.state.dart';
 import 'package:lseway/presentation/widgets/Core/GreenContainer/green_container.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class OrderHistory extends StatefulWidget {
   const OrderHistory({Key? key}) : super(key: key);
@@ -23,10 +26,19 @@ class _OrderHistoryState extends State<OrderHistory> {
     super.initState();
   }
 
+  void handleBill(HistoryItem item) async {
+    var link = item.refundReceiptUrl ?? item.receiptUrl;
+    print(link);
+    if (link != null) {
 
-
-  void handleBill() {
-    
+      if (await canLaunch(link)) {
+        launch(link);
+      } else {
+        Toast.showToast(context, 'Невозможно открыть ссылку');
+      }
+    } else {
+      Toast.showToast(context, 'Чек станет доступен позднее');
+    }
   }
 
   @override
@@ -99,7 +111,6 @@ class _OrderHistoryState extends State<OrderHistory> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              
                               item.address,
                               style: Theme.of(context)
                                   .textTheme
@@ -151,16 +162,17 @@ class _OrderHistoryState extends State<OrderHistory> {
                       ),
                       const SizedBox(width: 5),
                       InkWell(
-                        onTap: handleBill,
+                        onTap: () => handleBill(item),
                         child: Container(
                           padding: EdgeInsets.symmetric(horizontal: 5),
                           height: 62,
                           width: 72,
                           decoration: BoxDecoration(
-                            color: const Color(0xffEDEDF3),
-                            borderRadius: BorderRadius.circular(11)
+                              color: const Color(0xffEDEDF3),
+                              borderRadius: BorderRadius.circular(11)),
+                          child: Center(
+                            child: Image.asset('assets/bill.png', width: 24),
                           ),
-                          child: Center(child: Image.asset('assets/bill.png', width: 24),),
                         ),
                       ),
                       const SizedBox(width: 7),

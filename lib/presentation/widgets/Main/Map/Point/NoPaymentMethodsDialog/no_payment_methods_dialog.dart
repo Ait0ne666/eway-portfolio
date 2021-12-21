@@ -57,7 +57,8 @@ void showNoPaymentMethodsDialog(void Function() onSuccess) {
                             padding: const EdgeInsets.symmetric(horizontal: 30),
                             child: Center(
                               child: Text(
-                                'Добавьте платежную карту или настройте оплату с ${Platform.isIOS ? "Apple Pay" : "Google Pay"}',
+                                // 'Добавьте платежную карту или настройте оплату с ${Platform.isIOS ? "Apple Pay" : "Google Pay"}',
+                                'Добавьте платежную карту"}',
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodyText2
@@ -86,17 +87,17 @@ void showNoPaymentMethodsDialog(void Function() onSuccess) {
                               type: ButtonTypes.SECONDARY,
                             ),
                           ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 30),
-                            child: CustomButton(
-                              onPress: () {},
-                              text: Platform.isIOS ? 'Аpple Pay' : 'Google Pay',
-                              type: ButtonTypes.DARK,
-                            ),
-                          )
+                          // const SizedBox(
+                          //   height: 20,
+                          // ),
+                          // Padding(
+                          //   padding: const EdgeInsets.symmetric(horizontal: 30),
+                          //   child: CustomButton(
+                          //     onPress: () {},
+                          //     text: Platform.isIOS ? 'Аpple Pay' : 'Google Pay',
+                          //     type: ButtonTypes.DARK,
+                          //   ),
+                          // )
                         ],
                       ),
                     ),

@@ -45,7 +45,9 @@ class ChargeRemoteDataSource {
           powerAmount: result['power_amount'] ?? 0,
           progress: result['battery_level'] ?? 0,
           timeLeft: result['remaining_time'],
-          chargeId: result['id']);
+          chargeId: result['id'],
+          chargePower: result['charge_power']
+          );
 
       lastProgress = progress;
       return Right(progress);

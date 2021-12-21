@@ -3,6 +3,7 @@ class ChargeProgress {
   final double? progress;
   final double paymentAmount;
   final double powerAmount;
+  final double chargePower;
   final DateTime createdAt;
   final DateTime updatedAt;
   final double? timeLeft;
@@ -15,6 +16,7 @@ class ChargeProgress {
       required this.paymentAmount,
       required this.powerAmount,
       required this.updatedAt,
+      required this.chargePower,
       this.progress,
       this.timeLeft,
       this.canceled,
@@ -30,7 +32,8 @@ class ChargeProgress {
     double? timeLeft,
     bool? canceled,
     int? chargeId,
-    DateTime? updatedAt
+    DateTime? updatedAt,
+    double? chargePower,
   }) {
     return ChargeProgress(
       createdAt: createdAt ?? this.createdAt,
@@ -42,6 +45,7 @@ class ChargeProgress {
       canceled: canceled ?? this.canceled,
       pointId: pointId ?? this.pointId,
       chargeId: chargeId ?? this.chargeId,
+      chargePower: chargePower ?? this.chargePower
     );
   }
 }

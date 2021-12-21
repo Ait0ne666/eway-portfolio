@@ -20,7 +20,10 @@ List<HistoryItemModel> mapJsonToHistory(List<dynamic> json) {
         id: element['id'],
         pointId: element['point_number'],
         amount: payment,
-        date: format.parse(element['created_at']),
+        receiptUrl: element['receipt_url'],
+        refundReceiptUrl: element['refunded'] == true ? element['refund_receipt_url'] : null,
+        date: format.parse(element['created_at'],
+        ),
       ));
     }
   });

@@ -110,7 +110,7 @@ class PaymentRemoteDataSource {
 
     try {
       var response =
-          await dio.post('https://ruscharge.ru/srv/v1/payment', data: data);
+          await dio.post(url, data: data);
 
       return fetchCards();
     } catch (err) {

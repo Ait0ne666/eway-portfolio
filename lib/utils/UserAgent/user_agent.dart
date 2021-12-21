@@ -22,7 +22,8 @@ class UserAgentService {
     }
     
 
-    box.put('userAgent', name + '/' + version + '/' + (build.toString()) + ' ' + userAgent);
+    // box.put('userAgent', name + '/' + version + 'rc' + '/' + (build.toString()) + ' ' + userAgent);
+    box.put('userAgent', name + '/' + version  + '/' + (build.toString()) + ' ' + userAgent);
   }
 
 
