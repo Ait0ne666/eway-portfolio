@@ -115,7 +115,7 @@ class _MyAppState extends State<MyApp> {
           navigatorKey: NavigationService.navigatorKey,
           debugShowCheckedModeBanner: false,
           title: 'E-way',
-          debugShowCheckedModeBanner: false,
+          
           theme: ThemeData(
               primaryColor: const Color(0xffF7F7FA),
               colorScheme: const ColorScheme(
