@@ -327,6 +327,7 @@ class UserRemoteDataSource {
 
       return Right(Config.IMAGE_URL + result["avatar"]);
     } catch (err) {
+      
       return Left(ServerFailure('Произошла непредвиденная ошибка'));
     }
   }
