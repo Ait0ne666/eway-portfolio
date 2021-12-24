@@ -8,7 +8,6 @@ import 'package:lseway/data/data-sources/user/user_local_data_source.dart';
 class LocalFirebase {
   static Future<void> _firebaseMessagingBackgroundHandler(
       RemoteMessage message) async {
-
     await Firebase.initializeApp();
     print('Handling a background message ${message.messageId}');
   }
@@ -18,7 +17,6 @@ class LocalFirebase {
     'High Importance Notifications', // title
     description: 'Этот канал используюется для оповещений', // description
     importance: Importance.high,
-    
   );
 
   static Future<FirebaseApp> init() async {
@@ -49,7 +47,6 @@ class LocalFirebase {
 
       box.put('device_token', token);
       // box.delete("80PercentShown79859153858");
-
 
       // var shown = UserLocalDataSource().get80PercentShown('79859153858');
 

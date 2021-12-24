@@ -97,8 +97,7 @@ class _BookingViewState extends State<BookingView>
       });
       if (currentTime.isAfter(bookingEnd)) {
         timer?.cancel();
-        BlocProvider.of<BookingBloc>(context)
-            .add(ClearBooking());
+        BlocProvider.of<BookingBloc>(context).add(ClearBooking());
       }
     } else {
       timer?.cancel();
