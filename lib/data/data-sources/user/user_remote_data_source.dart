@@ -144,7 +144,7 @@ class UserRemoteDataSource {
     try {
       var data = {"phone": phone};
 
-      await dio.post(url, data: data);
+      var result = await dio.post(url, data: data);
 
       return Right(Success(message: phone));
     } on DioError catch (err) {
@@ -175,7 +175,7 @@ class UserRemoteDataSource {
     try {
       var response = dio.post(url, data: data);
 
-      return Right(Success(message: phone));
+      return requestPhoneConfirmation(phone);
     } catch (err) {
       return Left(ServerFailure('Произошла непредвиденная ошибка'));
     }

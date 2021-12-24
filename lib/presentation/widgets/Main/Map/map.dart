@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:ui' as ui;
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animarker/flutter_map_marker_animation.dart';
@@ -201,7 +200,7 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
     });
     myPositionStream =
         geolocatorService.getPositionStream().listen(myLocationListener);
-    // geolocatorService.startBackgroundLocation(myPositionListener);
+
     loadData();
     setupPointUpdate();
   }
