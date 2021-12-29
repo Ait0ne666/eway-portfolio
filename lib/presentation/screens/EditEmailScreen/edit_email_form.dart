@@ -58,7 +58,7 @@ class _EditEmailFormState extends State<EditEmailForm> {
     return Column(
       children: [
         CustomInput(
-          type: CustomInputTypes.TEXT,
+          type: CustomInputTypes.EMAIL,
           controller: _emailController,
           label: 'Ваш электронный адрес',
           isCentered: true,

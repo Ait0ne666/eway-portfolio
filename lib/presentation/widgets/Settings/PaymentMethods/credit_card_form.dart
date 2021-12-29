@@ -83,15 +83,22 @@ class CardForm extends StatefulWidget {
   _CardFormState createState() => _CardFormState();
 }
 
+
+bool changedFocus = false;
+
 class _CardFormState extends State<CardForm> {
   FocusNode cardFocusNode = FocusNode();
   FocusNode monthFocusNode = FocusNode();
   FocusNode yearFocusNode = FocusNode();
   FocusNode codeFocusNode = FocusNode();
+  FocusNode rawmonthFocusNode = FocusNode();
+  FocusNode rawyearFocusNode = FocusNode();
+  FocusNode rawcodeFocusNode = FocusNode();
   final TextEditingController _cardController = TextEditingController();
   final TextEditingController _monthController = TextEditingController();
   final TextEditingController _yearController = TextEditingController();
   final TextEditingController _codeController = TextEditingController();
+  
   String filledCard = '';
   String unfilledCard = 'XXXX - XXXX - XXXX - XXXX';
 
@@ -130,8 +137,12 @@ class _CardFormState extends State<CardForm> {
 
     _yearController.addListener(() {
       if (_yearController.value.text.length == 2 &&
-          _yearController.selection.end == 2) {
-        codeFocusNode.requestFocus();
+          _yearController.selection.end == 2 ) {
+        if (changedFocus) {
+          changedFocus = false;
+        } else {
+          codeFocusNode.requestFocus();
+        }
       }
     });
 
@@ -317,6 +328,26 @@ class _CardFormState extends State<CardForm> {
       }
     }
   }
+
+
+
+    void onKeyPress(RawKeyEvent? event, FocusNode node, FocusNode currentNode, TextEditingController controller, String type) {
+    //   var currentValue = controller.value.text;
+    // if (event?.logicalKey == LogicalKeyboardKey.backspace) {
+
+    //   if (currentValue == "") {
+    //     changedFocus = true;
+    //     node.requestFocus();
+        
+
+    //   }
+    // } else {
+    //   if (type=='year' && currentValue.length == 2) {
+    //     codeFocusNode.requestFocus();
+    //   }
+    // }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -540,38 +571,42 @@ class _CardFormState extends State<CardForm> {
                                       height: 32,
                                     ),
                                     Expanded(
-                                      child: TextFormField(
-                                        focusNode: yearFocusNode,
-                                        // keyboardType: widget.type == NeumorphInputTypes.PHONE ? TextInputType.number: null,
-                                        autofocus: false,
-                                        autocorrect: false,
-                                        controller: _yearController,
-                                        textAlign: TextAlign.center,
-                                        inputFormatters: [_monthFormatter],
-                                        maxLength: 2,
-                                        style: const TextStyle(
-                                            fontSize: 18,
-                                            color: Color(0xff1A1D21),
-                                            fontWeight: FontWeight.bold,
-                                            fontFamily: 'Circe',
-                                            decoration: TextDecoration.none,
-                                            fontFeatures: [
-                                              FontFeature.tabularFigures()
-                                            ],
-                                            height: 1),
-                                        maxLines: 1,
-                                        decoration: InputDecoration(
-                                          border: InputBorder.none,
-                                          hintText: '',
-                                          hintStyle: Theme.of(context)
-                                              .textTheme
-                                              .headline6,
-                                          counterText: '',
-                                          focusedBorder: InputBorder.none,
-                                          enabledBorder: InputBorder.none,
+                                      child: RawKeyboardListener(
+                                        focusNode: rawyearFocusNode,
+                                        onKey: (event) => onKeyPress(event, monthFocusNode, yearFocusNode, _yearController, 'year'),
+                                        child: TextFormField(
+                                          focusNode: yearFocusNode,
+                                          // keyboardType: widget.type == NeumorphInputTypes.PHONE ? TextInputType.number: null,
+                                          autofocus: false,
+                                          autocorrect: false,
+                                          controller: _yearController,
+                                          textAlign: TextAlign.center,
+                                          inputFormatters: [_monthFormatter],
+                                          maxLength: 2,
+                                          style: const TextStyle(
+                                              fontSize: 18,
+                                              color: Color(0xff1A1D21),
+                                              fontWeight: FontWeight.bold,
+                                              fontFamily: 'Circe',
+                                              decoration: TextDecoration.none,
+                                              fontFeatures: [
+                                                FontFeature.tabularFigures()
+                                              ],
+                                              height: 1),
+                                          maxLines: 1,
+                                          decoration: InputDecoration(
+                                            border: InputBorder.none,
+                                            hintText: '',
+                                            hintStyle: Theme.of(context)
+                                                .textTheme
+                                                .headline6,
+                                            counterText: '',
+                                            focusedBorder: InputBorder.none,
+                                            enabledBorder: InputBorder.none,
+                                          ),
+                                          keyboardType: TextInputType.number,
+                                          cursorColor: const Color(0xff1A1D21),
                                         ),
-                                        keyboardType: TextInputType.number,
-                                        cursorColor: const Color(0xff1A1D21),
                                       ),
                                     ),
                                   ],
@@ -616,38 +651,42 @@ class _CardFormState extends State<CardForm> {
                               child: Container(
                                 alignment: Alignment.center,
                                 // color: Colors.red,
-                                child: TextFormField(
-                                  focusNode: codeFocusNode,
-                                  // keyboardType: widget.type == NeumorphInputTypes.PHONE ? TextInputType.number: null,
-                                  autofocus: false,
-                                  autocorrect: false,
-                                  controller: _codeController,
-                                  textAlign: TextAlign.center,
-                                  textAlignVertical: TextAlignVertical.center,
-                                  inputFormatters: [_monthFormatter],
-                                  maxLength: 3,
-                                  style: const TextStyle(
-                                      fontSize: 20,
-                                      color: Color(0xff1A1D21),
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: 'Circe',
-                                      decoration: TextDecoration.none,
-                                      fontFeatures: [
-                                        FontFeature.tabularFigures()
-                                      ],
-                                      height: 1),
-                                  maxLines: 1,
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: '',
-                                    hintStyle:
-                                        Theme.of(context).textTheme.headline6,
-                                    counterText: '',
-                                    focusedBorder: InputBorder.none,
-                                    enabledBorder: InputBorder.none,
+                                child: RawKeyboardListener(
+                                  focusNode: rawcodeFocusNode,
+                                  onKey: (event) => onKeyPress(event, yearFocusNode, codeFocusNode, _codeController, 'code'),
+                                  child: TextFormField(
+                                    focusNode: codeFocusNode,
+                                    // keyboardType: widget.type == NeumorphInputTypes.PHONE ? TextInputType.number: null,
+                                    autofocus: false,
+                                    autocorrect: false,
+                                    controller: _codeController,
+                                    textAlign: TextAlign.center,
+                                    textAlignVertical: TextAlignVertical.center,
+                                    inputFormatters: [_monthFormatter],
+                                    maxLength: 3,
+                                    style: const TextStyle(
+                                        fontSize: 20,
+                                        color: Color(0xff1A1D21),
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'Circe',
+                                        decoration: TextDecoration.none,
+                                        fontFeatures: [
+                                          FontFeature.tabularFigures()
+                                        ],
+                                        height: 1),
+                                    maxLines: 1,
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      hintText: '',
+                                      hintStyle:
+                                          Theme.of(context).textTheme.headline6,
+                                      counterText: '',
+                                      focusedBorder: InputBorder.none,
+                                      enabledBorder: InputBorder.none,
+                                    ),
+                                    keyboardType: TextInputType.number,
+                                    cursorColor: const Color(0xff1A1D21),
                                   ),
-                                  keyboardType: TextInputType.number,
-                                  cursorColor: const Color(0xff1A1D21),
                                 ),
                               ),
                             ),

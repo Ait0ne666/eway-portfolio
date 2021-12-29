@@ -15,6 +15,7 @@ class CustomButton extends StatelessWidget {
   final void Function() onPress;
   final bool? sharpAngle;
   final Widget? postfix;
+  final bool? disabled;
 
   const CustomButton(
       {Key? key,
@@ -27,13 +28,15 @@ class CustomButton extends StatelessWidget {
       this.bgColor,
       this.icon,
       this.sharpAngle,
+      this.disabled,
       this.postfix})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onPress,
+      onTap: disabled == true ? null : onPress,
+      
       // borderRadius: BorderRadius.circular(100),
       borderRadius: sharpAngle == true
           ? BorderRadius.only(
@@ -51,10 +54,10 @@ class CustomButton extends StatelessWidget {
                     bottomRight: Radius.circular(100))
                 : BorderRadius.circular(100),
             gradient: type == ButtonTypes.PRIMARY
-                ? const LinearGradient(
+                ? LinearGradient(
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
-                    colors: [Color(0xffE01E1D), Color(0xffF41D25)])
+                    colors: [Color(0xffE01E1D).withOpacity(disabled == true ? 0.7 : 1), Color(0xffF41D25).withOpacity(disabled == true ? 0.7 : 1)])
                 : type == ButtonTypes.DARK
                     ? const LinearGradient(
                         begin: Alignment.centerLeft,

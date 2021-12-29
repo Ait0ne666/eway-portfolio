@@ -424,9 +424,10 @@ class _PointContentState extends State<PointContent> {
           ),
           CustomButton(
             text: 'Начать зарядку',
-            onPress: () => charge(context),
+            onPress: () => charge(context) ,
             type: ButtonTypes.PRIMARY,
             icon: SvgPicture.asset('assets/QR.svg'),
+            disabled:  !isAvailable(widget.point, connector),
           ),
         ],
       ),

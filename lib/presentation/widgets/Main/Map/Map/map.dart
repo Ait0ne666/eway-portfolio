@@ -48,7 +48,8 @@ class Map extends StatelessWidget {
               onCameraMove(camera);
               manager.onCameraMove(camera);
             } ,
-            
+            compassEnabled: false,
+            liteModeEnabled: true,
             onCameraIdle: manager.updateMap,
             markers: markers,
             onMapCreated: (GoogleMapController _controller) {
