@@ -36,6 +36,15 @@ List<String> imageNames = [
   'icons/inactive120',
   'icons/inactive150',
   'icons/inactive180',
+  'icons/stations/2',
+  'icons/stations/3',
+  'icons/stations/4',
+  'icons/stations/5',
+  'icons/stations/6',
+  'icons/stations/7',
+  'icons/stations/8',
+  'icons/stations/9',
+  'icons/stations/10',
   'active_far',
   'inactive_far',
   'down_far'
@@ -60,7 +69,7 @@ class ImageService {
     final ByteData data = await rootBundle.load(asset);
 
     ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(),
-        targetWidth: width ?? 186);
+        targetWidth: width ?? 130);
     ui.FrameInfo fi = await codec.getNextFrame();
     var buffer = await fi.image.toByteData(format: ui.ImageByteFormat.png);
     if (buffer != null) {
@@ -72,6 +81,10 @@ class ImageService {
   }
 
   BitmapDescriptor? getDescriptor(String title) {
-    return images[title];
+    var result = images[title];
+
+    if (result != null) return result;
+
+    return images['active_far'];
   }
 }

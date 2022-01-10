@@ -36,6 +36,7 @@ import 'package:lseway/presentation/widgets/Main/Map/Point/point.dart';
 import 'package:lseway/presentation/widgets/Main/Map/geolocation.dart';
 import 'package:lseway/presentation/widgets/QrScanner/qr_scanner.dart';
 import 'package:lseway/utils/ImageService/image_service.dart';
+import 'package:uuid/uuid.dart';
 import '../../../../injection_container.dart' as di;
 import 'package:permission_handler/permission_handler.dart' as Permission;
 
@@ -268,7 +269,7 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
               anchor: (reservedPoint == cluster.items.toList()[0].point.id ||
                       chargingPoint == cluster.items.toList()[0].point.id)
                   ? const Offset(0.5, 0.7)
-                  : const Offset(0.5, 0.4),
+                  : const Offset(0.5, 0.7),
               onTap: () =>
                   onMarkerClick(context, cluster.items.toList()[0].point.id),
             ),
@@ -289,7 +290,7 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
                 anchor: (reservedPoint == cluster.items.toList()[0].point.id ||
                         chargingPoint == cluster.items.toList()[0].point.id)
                     ? const Offset(0.5, 0.7)
-                    : const Offset(0.5, 0.4),
+                    : const Offset(0.5, 0.7),
                 onTap: () =>
                     onMarkerClick(context, cluster.items.toList()[0].point.id));
       };
@@ -313,7 +314,7 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
               place.point.id.toString(),
             ),
             position: places.location,
-            icon: getImageForCluster(available, up),
+            icon: getImageForCluster(available, up, places.items.length),
             anchor: const Offset(0.5, 0.7),
             // visible: index == 0
           ))
@@ -324,7 +325,7 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
         places.items.toList()[0].point.id.toString(),
       ),
       position: places.location,
-      icon: getImageForCluster(available, up),
+      icon: getImageForCluster(available, up, places.items.length),
       anchor: const Offset(0.5, 0.7),
     );
   }
@@ -420,18 +421,9 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
         ? 'icons/active' + mapVoltageToNumber(point.voltage!).toString()
         : point.up
             ? point.availability
-                ? camera.zoom < 13
-                    ? 'active_far'
-                    : 'icons/free' +
-                        mapVoltageToNumber(point.voltage!).toString()
-                : camera.zoom < 13
-                    ? 'inactive_far'
-                    : 'icons/busy' +
-                        mapVoltageToNumber(point.voltage!).toString()
-            : camera.zoom < 13
-                ? 'down_far'
-                : 'icons/inactive' +
-                    mapVoltageToNumber(point.voltage!).toString();
+                ? 'icons/free' + mapVoltageToNumber(point.voltage!).toString()
+                : 'icons/busy' + mapVoltageToNumber(point.voltage!).toString()
+            : 'icons/inactive' + mapVoltageToNumber(point.voltage!).toString();
 
     return imageService.getDescriptor(imageTitle)!;
   }
@@ -456,14 +448,15 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
     return imageService.getDescriptor(imageTitle)!;
   }
 
-  BitmapDescriptor getImageForCluster(bool available, bool up) {
-    var imageTitle = up
-        ? available
-            ? 'active_far'
-            : 'inactive_far'
-        : 'down_far';
+  BitmapDescriptor getImageForCluster(bool available, bool up, int amount) {
+    // var imageTitle = up
+    //     ? available
+    //         ? 'active_far'
+    //         : 'inactive_far'
+    //     : 'down_far';
 
-    return imageService.getDescriptor(imageTitle)!;
+    return imageService
+        .getDescriptor('icons/stations/${amount > 10 ? 10 : amount}')!;
   }
 
   void _buildMarkersSet(List<Point> points, {bool? near}) async {
@@ -551,6 +544,7 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
   }
 
   void pointListener(BuildContext context, PointInfoState state) {
+    print(state.points.length);
     if (state is ShowPointState) {
       var reservedPoint =
           BlocProvider.of<ActivePointsBloc>(context).state.reservedPoint;
@@ -624,7 +618,9 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    print(lastUpdate);
+    
+    
+
     return MultiBlocListener(
       listeners: [
         BlocListener<PointInfoBloc, PointInfoState>(
