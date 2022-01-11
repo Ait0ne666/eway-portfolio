@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "225518859524",
+    "project_id": "e-way-2acfa",
+    "storage_bucket": "e-way-2acfa.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:225518859524:android:760af88d33943918e40c51",
+        "android_client_info": {
+          "package_name": "com.lilekov.eway"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "225518859524-42tf9gp1jcqbr89ue9qj47t0jlpl7meh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCu3NUccyeRi7SsZUquno3rSRJDYI7FalU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "225518859524-42tf9gp1jcqbr89ue9qj47t0jlpl7meh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
