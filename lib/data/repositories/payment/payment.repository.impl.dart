@@ -39,7 +39,8 @@ class PaymentRepositoryImpl implements PaymentRepository {
               month: model.month,
               year: model.year,
               id: model.id,
-              isActive: model.isActive))
+              isActive: model.isActive,
+              type: model.type))
           .toList();
       return Right(cards);
     });
@@ -66,7 +67,8 @@ class PaymentRepositoryImpl implements PaymentRepository {
               month: model.month,
               year: model.year,
               id: model.id,
-              isActive: model.isActive))
+              isActive: model.isActive,
+              type: model.type))
           .toList();
       return Right(cards);
     });
@@ -107,7 +109,8 @@ class PaymentRepositoryImpl implements PaymentRepository {
               month: model.month,
               year: model.year,
               id: model.id,
-              isActive: model.isActive))
+              isActive: model.isActive,
+              type: model.type))
           .toList();
       return Right(cards);
     });

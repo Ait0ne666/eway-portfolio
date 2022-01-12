@@ -1,5 +1,9 @@
+
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lseway/domain/entitites/payment/card.entity.dart';
 import 'package:lseway/presentation/bloc/payment/payment.bloc.dart';
 import 'package:lseway/presentation/bloc/payment/payment.event.dart';
 import 'package:lseway/presentation/bloc/payment/payment.state.dart';
@@ -13,6 +17,11 @@ class PaymentMethods extends StatefulWidget {
   @override
   _PaymentMethodsState createState() => _PaymentMethodsState();
 }
+
+
+
+var googleCard = CreditCard(mask: '', month: '', year: '', id: '', isActive: false, type: PaymentTypes.GOOGLE_PAY); 
+var appleCard = CreditCard(mask: '', month: '', year: '', id: '', isActive: false, type: PaymentTypes.APPLE_PAY); 
 
 class _PaymentMethodsState extends State<PaymentMethods> {
 
@@ -46,7 +55,19 @@ class _PaymentMethodsState extends State<PaymentMethods> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             BlocBuilder<PaymentBloc, PaymentState>(builder: (context, state) {
-              return CreditCardList(cards: state.cards,);
+              print(state.cards);
+              var currentType = Platform.isIOS ? PaymentTypes.APPLE_PAY : PaymentTypes.GOOGLE_PAY;
+
+              var paymentSystemActivated = state.cards.where((card) => card.type == currentType).isNotEmpty;
+
+              var cards = [...state.cards];
+
+              if (!paymentSystemActivated) {
+                cards.add(Platform.isAndroid ? googleCard : appleCard);
+              }
+
+
+              return CreditCardList(cards: cards,);
             }),
             const SizedBox(height: 77,),
             InkWell(

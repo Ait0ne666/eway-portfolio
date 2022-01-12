@@ -31,7 +31,9 @@ class PaymentRemoteDataSource {
               month: card["expiration_date_month"],
               year: card["expiration_date_year"],
               id: card["card_id"],
-              isActive: card["active"] ?? false));
+              isActive: card["active"] ?? false,
+              type: card["type"] ?? PaymentTypes.CARD
+              ));
         });
       } else if (result != null) {
         cards.add(CreditCardModel(
@@ -39,7 +41,10 @@ class PaymentRemoteDataSource {
             month: result["expiration_date_month"],
             year: result["expiration_date_year"],
             id: result["card_id"],
-            isActive: result["active"] ?? false));
+            isActive: result["active"] ?? false,
+            type: result["type"] ?? PaymentTypes.CARD
+            
+            ));
       }
 
       return Right(cards);
