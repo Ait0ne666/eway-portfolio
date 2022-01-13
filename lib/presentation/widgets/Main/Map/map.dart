@@ -561,7 +561,7 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
         showPoint(context, state.pointid, state.pointid == activePoint);
       }
       BlocProvider.of<PointInfoBloc>(context).add(ClearPoint());
-    }
+    } 
   }
 
   void myLocationListener(Position position) {
@@ -617,6 +617,15 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
     }
   }
 
+
+  void filterListener(BuildContext context, PointsState state) async {
+    if (state is FilterChangedState) {
+      await Future.delayed(Duration(milliseconds: 500));
+      (animarkerKey.currentState as dynamic).forceMarkersUpdate();
+
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     
@@ -624,6 +633,7 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
     print(markers.length);
     return MultiBlocListener(
       listeners: [
+        BlocListener<PointsBloc, PointsState>(listener: filterListener),
         BlocListener<PointInfoBloc, PointInfoState>(
           listener: pointListener,
         ),

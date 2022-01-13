@@ -15,7 +15,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.11+12
+version: 1.0.12+13
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
@@ -70,6 +70,7 @@ dependencies:
   map_launcher: ^2.1.1
   outline_gradient_button: ^2.0.0+1
   flutter_multi_formatter: ^2.4.1
+  # flutter_animarker: ^3.3.1-beta.4
   flutter_animarker:
     git:
       url: https://github.com/Ait0ne666/flutter_animarker.git
