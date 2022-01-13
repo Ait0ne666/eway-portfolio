@@ -11,7 +11,7 @@ class Map extends StatelessWidget {
   final Completer<GoogleMapController> controller;
   final BitmapDescriptor? activeIcon;
   final BitmapDescriptor? inActiveIcon;
-  final Set<Marker> markers;
+  final Set<Marker>? markers;
   final bool showMyLocation;
   final CameraPosition kGooglePlex;
   final ClusterManager manager;
@@ -21,7 +21,7 @@ class Map extends StatelessWidget {
   const Map(
       {Key? key,
       required this.controller,
-      required this.markers,
+      this.markers,
       required this.kGooglePlex,
       required this.pointsListener,
       required this.showMyLocation,
@@ -51,7 +51,7 @@ class Map extends StatelessWidget {
             compassEnabled: false,
             // liteModeEnabled: true,
             onCameraIdle: manager.updateMap,
-            markers: markers,
+            markers: markers ?? const <Marker>{},
             onMapCreated: (GoogleMapController _controller) {
               if (!controller.isCompleted) {
                 controller.complete(_controller);

@@ -18,7 +18,7 @@ class HistoryRemoteDataSource {
       var response = await dio.get(url);
 
       var result = response.data['result'] as List<dynamic>;
-      print(result);
+     
 
       return mapJsonToHistory(result);
       // return Right(filter.availability ? tempPoints.where((element) => element.availability).toList() : tempPoints);

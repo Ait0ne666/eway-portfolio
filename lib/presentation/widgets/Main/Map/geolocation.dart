@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
@@ -15,6 +14,7 @@ class GeolocatorService {
   Position? myLastPosition;
 
   void init() {
+    myLastPosition = localDataSource.getUserLocation();
     if (Platform.isAndroid) {
       // BackgroundLocation.setAndroidNotification(
       //   title: "Location",
@@ -27,7 +27,12 @@ class GeolocatorService {
 
   Position? get getLastViewerPosition => lastPosition;
   Position? get getMyLastPosition => myLastPosition;
-  set  setMyLastPosition(Position? position) => myLastPosition = position;
+  set setMyLastPosition(Position? position) {
+    myLastPosition = position;
+    if (position != null) {
+      localDataSource.saveUserLocation(position);
+    }
+  }
 
   GeolocatorService({required this.localDataSource});
 
@@ -148,19 +153,22 @@ class GeolocatorService {
 
   CameraPosition getLastKnownPosition() {
     var coords = localDataSource.getCoordinates();
-    if (coords == null || coords.target == null ) {
+    if (coords == null || coords.target == null) {
       return const CameraPosition(
         target: LatLng(55.751244, 37.618423),
         zoom: 14.4746,
       );
     } else {
       return CameraPosition(
-          target: coords.target!, zoom: coords.zoom ?? 14.4746, bearing: coords.bearing ?? 0);
+          target: coords.target!,
+          zoom: coords.zoom ?? 14.4746,
+          bearing: coords.bearing ?? 0);
     }
   }
 
   void saveCameraPosition(CameraPosition position) async {
-    localDataSource.saveCoordinates(position.target, position.bearing, position.zoom);
+    localDataSource.saveCoordinates(
+        position.target, position.bearing, position.zoom);
   }
 
   Stream<Position> getPositionStream() {

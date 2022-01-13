@@ -266,8 +266,6 @@ class _MainScreenState extends State<MainScreen> {
 
     if (!shown) {
       Navigator.of(context).popUntil((route) {
-        print(route.settings.name);
-
         return route.settings.name == '/main';
       });
       showCharge80Dialog(context, pointId, dontPop: true);

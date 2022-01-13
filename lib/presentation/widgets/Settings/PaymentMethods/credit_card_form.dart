@@ -123,7 +123,7 @@ class _CardFormState extends State<CardForm> {
       });
       if (_cardController.value.text.length == 25 &&
           _cardController.selection.end == 25) {
-        print(_cardController.selection.end);
+        
         monthFocusNode.requestFocus();
       }
     });

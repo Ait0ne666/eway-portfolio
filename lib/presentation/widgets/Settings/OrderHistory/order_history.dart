@@ -28,7 +28,7 @@ class _OrderHistoryState extends State<OrderHistory> {
 
   void handleBill(HistoryItem item) async {
     var link = item.refundReceiptUrl ?? item.receiptUrl;
-    print(link);
+   
     if (link != null) {
 
       if (await canLaunch(link)) {

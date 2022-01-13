@@ -79,8 +79,7 @@ class PinCodeFieldState extends State<PinCodeField>
   void animate() {
     _controller!.forward();
     _controller!.addListener(() {
-      print('animation');
-      print(_animation?.value);
+
       if (_controller?.status == AnimationStatus.completed) {
         _controller?.reset();
       }

@@ -74,8 +74,7 @@ class _TimerViewState extends State<TimerView>
 
   @override
   Widget build(BuildContext context) {
-    print('PERCENT');
-    print(widget.currentPercent);
+
     return CustomPaint(
       painter: TimerLinesPainter(currentHighlight: currentLine),
       child: Container(

@@ -42,7 +42,7 @@ class _ConfirmationFormState extends State<ConfirmationForm> {
   }
 
   void authListener(BuildContext context, UserState state) {
-    print(state);
+   
     var dialog = DialogBuilder();
 
     if (state is UserConfirmingState) {

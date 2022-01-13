@@ -33,7 +33,7 @@ class _PushNotificationsProviderState extends State<PushNotificationsProvider> {
       if (value?.didNotificationLaunchApp ?? false) {
         var payload = value!.payload;
 
-        print(payload);
+        
       }
     });
 
@@ -78,7 +78,7 @@ class _PushNotificationsProviderState extends State<PushNotificationsProvider> {
     });
 
     String createMessagePayload(RemoteMessage value) {
-      print(value);
+     
 
       if (value.data['message'] == "Charge reached 80 percent") {
         return '80%';
@@ -116,7 +116,7 @@ class _PushNotificationsProviderState extends State<PushNotificationsProvider> {
     RemoteNotification? notification = message.notification;
 
     if (notification != null) {
-      print(message);
+     
       return true;
     }
 

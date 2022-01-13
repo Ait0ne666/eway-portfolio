@@ -70,8 +70,7 @@ class _ChargeViewState extends State<ChargeView> {
       var point = state.points[widget.pointId];
       var lowVoltage = point?.voltage == VoltageTypes.AC7 ||
           point?.voltage == VoltageTypes.AC22;
-      print('POINT');
-      print(point);
+
       return BlocBuilder<ChargeBloc, ChargeState>(builder: (context, state) {
         return ConstrainedBox(
           constraints:

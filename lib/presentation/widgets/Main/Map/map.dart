@@ -122,6 +122,7 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
     WidgetsBinding.instance?.addObserver(this);
     geolocatorService = di.sl<GeolocatorService>();
     imageService = di.sl<ImageService>();
+    geolocatorService.init();
     _kGooglePlex = geolocatorService.getLastKnownPosition();
     _clusterManager = initClusterManager();
     var permissionStatus = Permission.Permission.locationWhenInUse.status;
@@ -620,7 +621,7 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     
     
-
+    print(markers.length);
     return MultiBlocListener(
       listeners: [
         BlocListener<PointInfoBloc, PointInfoState>(

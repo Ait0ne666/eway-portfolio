@@ -65,7 +65,7 @@ class _AuthWithPhoneFormState extends State<AuthWithPhoneForm> {
   }
 
   void authListener(BuildContext context, UserState state) {
-    print(state);
+    
     var dialog = DialogBuilder();
     var isVisible = TickerMode.of(context);
 

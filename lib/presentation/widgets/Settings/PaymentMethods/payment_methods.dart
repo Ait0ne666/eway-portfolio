@@ -55,7 +55,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             BlocBuilder<PaymentBloc, PaymentState>(builder: (context, state) {
-              print(state.cards);
+              
               var currentType = Platform.isIOS ? PaymentTypes.APPLE_PAY : PaymentTypes.GOOGLE_PAY;
 
               var paymentSystemActivated = state.cards.where((card) => card.type == currentType).isNotEmpty;
@@ -63,7 +63,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
               var cards = [...state.cards];
 
               if (!paymentSystemActivated) {
-                cards.add(Platform.isAndroid ? googleCard : appleCard);
+                // cards.add(Platform.isAndroid ? googleCard : appleCard);
               }
 
 
