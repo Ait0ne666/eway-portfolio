@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hive/hive.dart';
 import 'package:lseway/data/models/user/user.model.dart';
@@ -144,6 +145,27 @@ class UserLocalDataSource {
     var shown = box.get( '80PercentShown' + phone);
 
     return shown;
+  }
+
+  void saveUserLocation(Position position) {
+
+    box.put('userLocation', jsonEncode(position.toJson()));
+
+  }
+
+
+  Position? getUserLocation() {
+
+
+    var locationJsonString = box.get('userLocation');
+
+
+    if (locationJsonString != null) {
+      return Position.fromMap(jsonDecode(locationJsonString));
+    }
+
+
+    return null;
   }
 
 

@@ -52,7 +52,7 @@ class BookingRepositoryImpl implements BookingRepository {
         });
       });
 
-      print(bookings);
+      
       return bookings;
     } catch (err) {
       print(err);

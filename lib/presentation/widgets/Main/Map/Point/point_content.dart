@@ -104,15 +104,24 @@ class _PointContentState extends State<PointContent> {
   }
 
   void buildRoute(BuildContext context, Coords destination) {
-    widget.geolocatorService.determinePosition().then((value) {
-      Coords coords = Coords(value.latitude, value.longitude);
-      openMapsSheet(context, coords, destination);
-    }).catchError((err) {
-      print(err);
-    });
+    // var position = widget.geolocatorService.myLastPosition; 
+      openMapsSheet(context, destination);
+
+
+    // if (position != null) {
+    //   Coords coords = Coords(position.latitude, position.longitude);
+    // } else {
+
+    // }
+    // widget.geolocatorService.determinePosition().then((value) {
+    //   Coords coords = Coords(value.latitude, value.longitude);
+    //   openMapsSheet(context, coords, destination);
+    // }).catchError((err) {
+    //   print(err);
+    // });
   }
 
-  openMapsSheet(BuildContext context, Coords coords, Coords destination) async {
+  openMapsSheet(BuildContext context, Coords destination) async {
     try {
       final title = "Маршрут";
       final availableMaps = await MapLauncher.installedMaps;
@@ -130,7 +139,7 @@ class _PointContentState extends State<PointContent> {
                     for (var map in availableMaps)
                       ListTile(
                         onTap: () => map.showDirections(
-                            destination: destination, origin: coords),
+                            destination: destination),
                         title: Text(
                           map.mapName,
                           style: Theme.of(context).textTheme.headline6,

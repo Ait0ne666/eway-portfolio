@@ -51,7 +51,7 @@ class _AuthWithEmailFormState extends State<AuthWithEmailForm> {
   }
 
   void authListener(BuildContext context, UserState state) {
-    print(state);
+    
     var dialog = DialogBuilder();
 
     if (state is UserLoadingState) {

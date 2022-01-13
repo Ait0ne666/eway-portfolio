@@ -47,7 +47,7 @@ class PointsRemoteDataSource {
       var response = await dio.get(url);
 
       var result = response.data['result'];
-      print(result);
+      
 
       // await Future.delayed(Duration(milliseconds: 50));
 
@@ -103,7 +103,7 @@ class PointsRemoteDataSource {
             time: Duration(seconds: r.duration?.toInt() ?? 0));
       });
     } catch (err) {
-      print(err);
+      
       return null;
     }
   }
@@ -125,7 +125,7 @@ class PointsRemoteDataSource {
       var response = await dio.get(url);
 
       var result = response.data['result'];
-      print(result);
+      
 
       // await Future.delayed(Duration(milliseconds: 50));
 
@@ -147,7 +147,7 @@ class PointsRemoteDataSource {
       var response = await dio.get(url);
 
       var result = response.data['result'] as List<dynamic>;
-      print(result);
+      
       var id = getChargingPointFromJson(result);
       if (id != null) {
         return getPointInfo(id);

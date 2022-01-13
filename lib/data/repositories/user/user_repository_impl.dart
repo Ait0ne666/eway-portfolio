@@ -102,7 +102,7 @@ class UserRepositoryImpl implements UserRepository {
     }, (result) async {
       localDataSource.saveJwt(result.accessToken);
       localDataSource.saveRefresh(result.refreshToken);
-      print(result);
+      
       var profileResult = await remoteDataSource.getProfile();
 
       return profileResult.fold((l) {
@@ -160,7 +160,7 @@ class UserRepositoryImpl implements UserRepository {
     }, (result) async {
       localDataSource.saveJwt(result.accessToken);
       localDataSource.saveRefresh(result.refreshToken);
-      print(result);
+      
       var profileResult = await remoteDataSource.getProfile();
 
       return profileResult.fold((l) {
@@ -299,7 +299,7 @@ class UserRepositoryImpl implements UserRepository {
     }, (result) async {
       localDataSource.saveJwt(result.accessToken);
       localDataSource.saveRefresh(result.refreshToken);
-      print(result);
+      
       var profileResult = await remoteDataSource.getProfile();
 
       return profileResult.fold((l) {

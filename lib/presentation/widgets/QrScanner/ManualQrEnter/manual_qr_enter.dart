@@ -48,7 +48,7 @@ class _ManualQrEnterState extends State<ManualQrEnter> {
     } else if (state is PointInfoExistState && isVisible) {
       Navigator.of(context, rootNavigator: true).pop();
       Navigator.of(context, rootNavigator: true).popUntil((route) {
-        print(route.settings.name);
+        
 
         return route.settings.name == '/main';
       });

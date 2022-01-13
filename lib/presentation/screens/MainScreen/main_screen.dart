@@ -151,7 +151,9 @@ class _MainScreenState extends State<MainScreen> {
           context: context,
           useRootNavigator: true,
           // useSafeArea: false,
-          barrierDismissible: false,
+          barrierDismissible: true,
+          // barrierLabel: 'label',
+          
           barrierColor: Color(0x00ffffff),
 
           transitionDuration: Duration(milliseconds: 300),
@@ -268,7 +270,7 @@ class _MainScreenState extends State<MainScreen> {
 
       if (!shown) {
         Navigator.of(context).popUntil((route) {
-          print(route.settings.name);
+          
 
           return route.settings.name == '/main';
         });
