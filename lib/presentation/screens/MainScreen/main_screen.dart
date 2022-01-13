@@ -151,7 +151,7 @@ class _MainScreenState extends State<MainScreen> {
           context: context,
           useRootNavigator: true,
           // useSafeArea: false,
-          barrierDismissible: false,
+          barrierDismissible: true,
           barrierColor: Color(0x00ffffff),
 
           transitionDuration: Duration(milliseconds: 300),
@@ -253,28 +253,25 @@ class _MainScreenState extends State<MainScreen> {
 
       showChargeResultScreen(result);
     } else if (state is ChargeInProgressState) {
-      
       if (state.progress?.progress != null &&
-          (state.progress!.progress! >= 80) 
-          ) {
+          (state.progress!.progress! >= 80)) {
         show80Dialog(state.progress!.pointId);
       }
     }
   }
 
   void show80Dialog(int pointId) {
-      var phone = BlocProvider.of<UserBloc>(context).state.user!.phone;
-      var shown = userRepository.stopChargeAt80DialogShown(phone);
+    var phone = BlocProvider.of<UserBloc>(context).state.user!.phone;
+    var shown = userRepository.stopChargeAt80DialogShown(phone);
 
-      if (!shown) {
-        Navigator.of(context).popUntil((route) {
-          print(route.settings.name);
+    if (!shown) {
+      Navigator.of(context).popUntil((route) {
+        print(route.settings.name);
 
-          return route.settings.name == '/main';
-        });
-        showCharge80Dialog(context, pointId, dontPop: true);
-      }
-
+        return route.settings.name == '/main';
+      });
+      showCharge80Dialog(context, pointId, dontPop: true);
+    }
   }
 
   @override
