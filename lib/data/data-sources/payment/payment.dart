@@ -32,8 +32,7 @@ class PaymentRemoteDataSource {
               year: card["expiration_date_year"],
               id: card["card_id"],
               isActive: card["active"] ?? false,
-              type: card["type"] ?? PaymentTypes.CARD
-              ));
+              type: card["type"] ?? PaymentTypes.CARD));
         });
       } else if (result != null) {
         cards.add(CreditCardModel(
@@ -42,9 +41,7 @@ class PaymentRemoteDataSource {
             year: result["expiration_date_year"],
             id: result["card_id"],
             isActive: result["active"] ?? false,
-            type: result["type"] ?? PaymentTypes.CARD
-            
-            ));
+            type: result["type"] ?? PaymentTypes.CARD));
       }
 
       return Right(cards);
@@ -89,6 +86,16 @@ class PaymentRemoteDataSource {
           transactionId: result['TransactionId'].toString(),
           paReq: result["PaReq"].toString()));
     } catch (err) {
+            if (err is DioError) {
+        print(err);
+        if (err.response?.statusCode == 400 &&
+            err.response?.data['errors'] != null &&
+            err.response?.data['errors'].length > 0) {
+          var message = err.response?.data['errors'][0]['message'];
+          return Left(ServerFailure(message));
+        }
+        return Left(ServerFailure('Произошла непредвиденная ошибка'));
+      }
       return Left(ServerFailure('Произошла непредвиденная ошибка'));
     }
   }
@@ -114,8 +121,7 @@ class PaymentRemoteDataSource {
     var data = {'MD': md, 'PaRes': paRes};
 
     try {
-      var response =
-          await dio.post(url, data: data);
+      var response = await dio.post(url, data: data);
 
       return fetchCards();
     } catch (err) {
@@ -133,14 +139,25 @@ class PaymentRemoteDataSource {
       var response = await dio.post(url, data: data);
       var result = response.data['result'];
 
-      return Right(
-        Success()
-      );
+      return Right(Success());
     } catch (err) {
+      if (err is DioError) {
+        print(err);
+        if (err.response?.statusCode == 400 &&
+            err.response?.data['errors'] != null &&
+            err.response?.data['errors'].length > 0) {
+          var message = err.response?.data['errors'][0]['message'];
+          if (message == '400 Client don`t have cards') {
+            return Left(
+                ServerFailure('У вас не привязан ни один способ платежа'));
+          }
+          return Left(ServerFailure(message));
+        }
+        return Left(ServerFailure('Не удалось провести оплату'));
+      }
       return Left(ServerFailure('Не удалось провести оплату'));
     }
   }
-
 
   Future<Either<Failure, Success>> confirm3dsForPayment(
       String md, String paRes) async {

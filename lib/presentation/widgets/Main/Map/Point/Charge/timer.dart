@@ -117,7 +117,7 @@ class _TimerViewState extends State<TimerView>
                       // color: Colors.red,
                       constraints: BoxConstraints(maxWidth: 150),
                       child: FittedBox(
-                        child: Text('Передаваемый заряд',
+                        child: Text('Переданный заряд',
                             style: Theme.of(context).textTheme.bodyText1?.copyWith(
                                 fontSize: 15, color: const Color(0xffB6B8C2))),
                       ),

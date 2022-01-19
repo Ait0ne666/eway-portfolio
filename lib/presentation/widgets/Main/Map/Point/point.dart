@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lseway/domain/entitites/charge/charge_progress.entity.dart';
 import 'package:lseway/domain/entitites/filter/filter.dart';
 import 'package:lseway/presentation/bloc/charge/charge.bloc.dart';
 import 'package:lseway/presentation/bloc/charge/charge.event.dart';
@@ -14,6 +15,7 @@ import 'package:lseway/presentation/widgets/AnimatedBattery/animated_battery.dar
 import 'package:lseway/presentation/widgets/Main/Map/Point/Charge/charge_80_dialog.dart';
 import 'package:lseway/presentation/widgets/Main/Map/Point/Charge/charge_view.dart';
 import 'package:lseway/presentation/widgets/Main/Map/Point/NoPaymentMethodsDialog/no_payment_methods_dialog.dart';
+import 'package:lseway/presentation/widgets/Main/Map/Point/PrepareToChargeDialog/prepare_to_charge_dialog.dart';
 import 'package:lseway/presentation/widgets/Main/Map/Point/point_content.dart';
 import 'package:lseway/presentation/widgets/Main/Map/geolocation.dart';
 import 'package:lseway/presentation/widgets/global.dart';
@@ -28,34 +30,45 @@ void showPoint(BuildContext context, int pointId, bool isActive) {
       Navigator.of(context).pop();
     }
     currentPointShown = pointId;
-    showMaterialModalBottomSheet(
-        context: context,
-        barrierColor: const Color.fromRGBO(38, 38, 50, 0.2),
-        backgroundColor: Colors.transparent,
-        useRootNavigator: true,
-        builder: (dialogContext) {
-          // return ChargeView(
-          //         pointId: pointId,
-          //       );
-          return isActive
-              ? ChargeView(
-                  pointId: pointId,
-                )
-              : PointView(
-                  pointId: pointId,
-                  parentCtx: context,
-                );
-        }).then((value) {
-          currentPointShown = null;
-      if (isActive) {
-        var currentPercent =
-            BlocProvider.of<ChargeBloc>(context).state.progress?.progress;
-        if (currentPercent == 100) {
-          BlocProvider.of<ChargeBloc>(context)
-              .add(StopChargeAutomatic(pointId: pointId));
-        }
-      }
-    });
+
+    if (isActive && BlocProvider.of<ChargeBloc>(context).state.progress?.status == ChargeStatus.PREPARING) {
+
+
+      showPreparationDialog(pointId, (BuildContext ctx, bool shouldDismiss) {
+        BlocProvider.of<PointInfoBloc>(ctx).add(ShowPoint(pointId: pointId));
+      });
+    } else {
+        showMaterialModalBottomSheet(
+            context: context,
+            barrierColor: const Color.fromRGBO(38, 38, 50, 0.2),
+            backgroundColor: Colors.transparent,
+            useRootNavigator: true,
+            builder: (dialogContext) {
+              // return ChargeView(
+              //         pointId: pointId,
+              //       );
+              return isActive
+                  ? ChargeView(
+                      pointId: pointId,
+                    )
+                  : PointView(
+                      pointId: pointId,
+                      parentCtx: context,
+                    );
+            }).then((value) {
+              currentPointShown = null;
+          if (isActive) {
+            var currentPercent =
+                BlocProvider.of<ChargeBloc>(context).state.progress?.progress;
+            if (currentPercent == 100) {
+              BlocProvider.of<ChargeBloc>(context)
+                  .add(StopChargeAutomatic(pointId: pointId));
+            }
+          }
+        });
+    }
+
+
   }
   // showCharge80Dialog(context, pointId);
 }
@@ -88,7 +101,7 @@ class _PointViewState extends State<PointView> {
           .popUntil((route) => route.settings.name == '/main');
     }
     showMaterialModalBottomSheet(
-        context: context,
+        context: ctx,
         barrierColor: const Color.fromRGBO(38, 38, 50, 0.2),
         backgroundColor: Colors.transparent,
         builder: (dialogContext) {

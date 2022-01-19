@@ -16,6 +16,8 @@ import 'package:lseway/presentation/bloc/activePoints/active_point_state.dart';
 import 'package:lseway/presentation/bloc/activePoints/active_points_bloc.dart';
 import 'package:lseway/presentation/bloc/booking/booking.bloc.dart';
 import 'package:lseway/presentation/bloc/booking/booking.event.dart';
+import 'package:lseway/presentation/bloc/charge/charge.bloc.dart';
+import 'package:lseway/presentation/bloc/charge/charge.state.dart';
 import 'package:lseway/presentation/bloc/history/history.bloc.dart';
 import 'package:lseway/presentation/bloc/history/history.event.dart';
 import 'package:lseway/presentation/bloc/payment/payment.bloc.dart';
@@ -561,7 +563,7 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
         showPoint(context, state.pointid, state.pointid == activePoint);
       }
       BlocProvider.of<PointInfoBloc>(context).add(ClearPoint());
-    } 
+    }
   }
 
   void myLocationListener(Position position) {
@@ -617,20 +619,24 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
     }
   }
 
-
   void filterListener(BuildContext context, PointsState state) async {
     if (state is FilterChangedState) {
       await Future.delayed(Duration(milliseconds: 500));
       (animarkerKey.currentState as dynamic).forceMarkersUpdate();
+    }
+  }
 
+  void chargeListener(BuildContext context, ChargeState state) {
+    if (state is ChargeEndedRemotelyState ||
+        state is ChargeEndedState ||
+        state is ChargeEndedAutomaticState) {
+      loadMorePoints();
     }
   }
 
   @override
   Widget build(BuildContext context) {
     
-    
-    print(markers.length);
     return MultiBlocListener(
       listeners: [
         BlocListener<PointsBloc, PointsState>(listener: filterListener),
@@ -638,7 +644,9 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
           listener: pointListener,
         ),
         BlocListener<ActivePointsBloc, ActivePointsState>(
-            listener: activePointsListener)
+          listener: activePointsListener,
+        ),
+        BlocListener<ChargeBloc, ChargeState>(listener: chargeListener)
       ],
       child: Container(
           child: Stack(

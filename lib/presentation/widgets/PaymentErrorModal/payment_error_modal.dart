@@ -3,7 +3,7 @@ import 'package:lseway/presentation/navigation/app_router.dart';
 import 'package:lseway/presentation/widgets/Core/CustomButton/custom_button.dart';
 import 'package:lseway/presentation/widgets/global.dart';
 
-void showPaymentErrorodal(void Function() repeat) {
+void showPaymentErrorodal(void Function() repeat, String errorMessage) {
   var globalCtx = NavigationService.navigatorKey.currentContext;
 
   if (globalCtx != null) {
@@ -38,7 +38,7 @@ void showPaymentErrorodal(void Function() repeat) {
                           ),
                           ConstrainedBox(
                             constraints: const BoxConstraints(maxWidth: 280),
-                            child: Text('Не удалось провести оплату', style: Theme.of(dialogContext)
+                            child: Text(errorMessage, style: Theme.of(dialogContext)
                                       .textTheme
                                       .bodyText2
                                       ?.copyWith(fontSize: 22),

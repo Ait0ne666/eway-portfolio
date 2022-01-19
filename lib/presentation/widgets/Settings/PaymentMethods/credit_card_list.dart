@@ -54,7 +54,7 @@ class _CreditCardListState extends State<CreditCardList> {
                     children: [
                       Image.asset(
                         'assets/google.png',
-                        width: 30,
+                        width: 60,
                       ),
                       SizedBox(
                         width: 10,
@@ -104,7 +104,7 @@ class _CreditCardListState extends State<CreditCardList> {
               children: [
                 Image.asset(
                   'assets/google.png',
-                  width: 28,
+                  width: 60,
                 ),
                 const SizedBox(
                   width: 15,

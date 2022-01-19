@@ -75,7 +75,9 @@ List<Tariff> mapJsonToTariff(List<dynamic> json) {
     return Tariff(
         from: part["operates_from"] ?? '',
         to: part["operates_to"] ?? '',
-        price: part["cost"] ?? 0);
+        price: part["cost"] ?? 0,
+        isFixed: part["fixed"] ?? false
+        );
   }).toList();
 }
 

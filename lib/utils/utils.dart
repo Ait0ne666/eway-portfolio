@@ -33,6 +33,34 @@ double getCurrentPriceFromTariffs(List<Tariff> tariffs) {
   return price;
 }
 
+
+bool isCurrentTariffFixed(List<Tariff> tariffs) {
+  bool isFixed = false;
+  DateTime currentTime = DateTime.now();
+
+  DateFormat format = DateFormat("HH:mm");
+
+  var time = format.format(currentTime);
+  var date = format.parse(time);
+
+  tariffs.forEach((element) {
+    var start = format.parse(element.from);
+    var end = format.parse(element.to);
+
+    if ((date.isAfter(
+              start,
+            ) &&
+            date.isBefore(end) ||
+        (date.isAtSameMomentAs(start)) ||
+        date.isAtSameMomentAs(end))) {
+        isFixed = element.isFixed;
+    }
+  });
+
+  return isFixed;
+  // return true;
+}
+
 String convertPhoneToString(String phone) {
   var mask = '9 (999) 999-99-99';
   var currentIndex = 0;
@@ -145,4 +173,17 @@ Duration getDurationForDistance(double distance) {
   
 
   return Duration(minutes: minutes);
+}
+
+
+
+
+int getTimeZoneOffset() {
+  var offset = DateTime.now().timeZoneOffset.inMilliseconds;
+
+  var serverOffset = 3 * 60 * 60 * 1000;
+
+  var timezoneOffset = offset - serverOffset;
+
+  return timezoneOffset;
 }

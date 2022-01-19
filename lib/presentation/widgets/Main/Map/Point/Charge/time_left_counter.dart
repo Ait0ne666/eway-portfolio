@@ -29,10 +29,10 @@ class _TimeLeftCounterState extends State<TimeLeftCounter> {
 
   double _calculateTimeLeft(DateTime updatedAt, double timeleft) {
 
-    var diff = DateTime.now().difference(updatedAt).inSeconds;
+    var diff = DateTime.now().difference(updatedAt.toLocal()).inSeconds;
 
 
-    return (timeleft - diff)>0 ? (timeleft - diff) : 0;
+    return (timeleft - diff) >0 ? (timeleft - diff) : 0;
   }
 
 
@@ -41,7 +41,7 @@ class _TimeLeftCounterState extends State<TimeLeftCounter> {
 
     if (oldWidget.time != widget.time) {
       setState(() {
-        _calculateTimeLeft(widget.updatedAt, widget.time);
+        timeLeft = _calculateTimeLeft(widget.updatedAt, widget.time);
       });
     }
     super.didUpdateWidget(oldWidget);
@@ -57,7 +57,7 @@ class _TimeLeftCounterState extends State<TimeLeftCounter> {
     // timer?.cancel();
     timer = Timer.periodic(Duration(milliseconds: 1000), (timer) { 
       setState(() {
-        timeLeft = timeLeft - 1;
+        timeLeft = timeLeft>1 ? timeLeft - 1 : 0;
       });
     });
   }
@@ -69,6 +69,7 @@ class _TimeLeftCounterState extends State<TimeLeftCounter> {
 
   @override
   Widget build(BuildContext context) {
+    print(timeLeft);
     return Text(
       'Осталось: '+ hoursString(timeLeft),
       style: Theme.of(context).textTheme.bodyText1?.copyWith(

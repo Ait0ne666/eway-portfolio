@@ -63,6 +63,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
               var cards = [...state.cards];
 
               if (!paymentSystemActivated) {
+                // cards = [Platform.isAndroid ? googleCard : appleCard, ...cards];
                 // cards.add(Platform.isAndroid ? googleCard : appleCard);
               }
 

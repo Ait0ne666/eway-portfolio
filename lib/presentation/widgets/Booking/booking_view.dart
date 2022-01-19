@@ -8,6 +8,7 @@ import 'package:lseway/core/painter/timer_painter.dart';
 import 'package:lseway/core/toast/toast.dart';
 import 'package:lseway/domain/entitites/booking/booking.entity.dart';
 import 'package:lseway/domain/entitites/filter/filter.dart';
+import 'package:lseway/presentation/bloc/activePoints/active_points_bloc.dart';
 import 'package:lseway/presentation/bloc/booking/booking.bloc.dart';
 import 'package:lseway/presentation/bloc/booking/booking.event.dart';
 import 'package:lseway/presentation/bloc/booking/booking.state.dart';
@@ -19,6 +20,7 @@ import 'package:lseway/presentation/bloc/pointInfo/pointinfo.bloc.dart';
 import 'package:lseway/presentation/widgets/Core/CustomButton/custom_button.dart';
 import 'package:lseway/presentation/widgets/Core/GreenContainer/green_container.dart';
 import 'package:lseway/presentation/widgets/Core/LabeledBox/labeled_box.dart';
+import 'package:lseway/presentation/widgets/Main/Map/Point/PrepareToChargeDialog/prepare_to_charge_dialog.dart';
 import 'package:lseway/presentation/widgets/Main/Map/geolocation.dart';
 import 'package:lseway/utils/utils.dart';
 import 'package:map_launcher/map_launcher.dart';
@@ -172,21 +174,24 @@ class _BookingViewState extends State<BookingView>
     var dialog = DialogBuilder();
     var isVisible = TickerMode.of(context);
 
+
+
     if (state is ChargeConnectingState) {
-      dialog.showLoadingDialog(
-        context,
-      );
-    } else if (state is ChargeErrorState) {
-      Navigator.of(context, rootNavigator: true).pop();
-      Toast.showToast(context, state.message);
-    } else if (state is ChargeStartedState &&
-        booking != null &&
-        state.progress?.pointId == booking!.pointId) {
-      Navigator.of(context, rootNavigator: true).pop();
-      // widget.hideBooking();
+      if (BlocProvider.of<ActivePointsBloc>(context).reservedPoint == null ||
+          state.progress?.pointId ==
+              BlocProvider.of<ActivePointsBloc>(context).reservedPoint) return;
+
+
+      if (isVisible) {
+        widget.hideBooking();
+        showPreparationDialog(widget.booking!.pointId,
+            (BuildContext ctx, bool shouldDismiss) {
+          BlocProvider.of<PointInfoBloc>(ctx)
+              .add(ShowPoint(pointId: booking!.pointId));
+        });
+      }
+    } else if (state is ChargeStartedState) {
       BlocProvider.of<BookingBloc>(context).add(ClearBooking());
-      BlocProvider.of<PointInfoBloc>(context)
-          .add(ShowPoint(pointId: booking!.pointId));
     }
   }
 
@@ -357,65 +362,164 @@ class _BookingViewState extends State<BookingView>
                                       const SizedBox(
                                         height: 20,
                                       ),
-                                      GreenContainer(
-                                        borderRadius: 15,
-                                        child: Container(
-                                          padding: const EdgeInsets.only(
-                                              top: 20,
-                                              left: 20,
-                                              right: 20,
-                                              bottom: 12),
-                                          child: FittedBox(
-                                            child: Row(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.end,
+                                      booking != null &&
+                                              isCurrentTariffFixed(
+                                                  booking!.tariffs)
+                                          ? Stack(
                                               children: [
-                                                Row(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      booking == null
-                                                          ? ''
-                                                          : (getCurrentPriceFromTariffs(
-                                                                  booking!
-                                                                      .tariffs))
-                                                              .toString()
-                                                              .replaceAll(
-                                                                  '.', ','),
-                                                      style: Theme.of(context)
-                                                          .textTheme
-                                                          .bodyText2
-                                                          ?.copyWith(
-                                                              color:
-                                                                  Colors.white,
-                                                              fontSize: 25,
-                                                              height: 1.1),
+                                                GreenContainer(
+                                                  borderRadius: 15,
+                                                  child: Container(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            top: 20,
+                                                            left: 20,
+                                                            right: 20,
+                                                            bottom: 12),
+                                                    child: FittedBox(
+                                                      child: Row(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .end,
+                                                        children: [
+                                                          Row(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Text(
+                                                                booking == null
+                                                                    ? ''
+                                                                    : (getCurrentPriceFromTariffs(booking!
+                                                                            .tariffs))
+                                                                        .toString()
+                                                                        .replaceAll(
+                                                                            '.',
+                                                                            ','),
+                                                                style: Theme.of(
+                                                                        context)
+                                                                    .textTheme
+                                                                    .bodyText2
+                                                                    ?.copyWith(
+                                                                        color: Colors
+                                                                            .white,
+                                                                        fontSize:
+                                                                            25,
+                                                                        height:
+                                                                            1.1),
+                                                              ),
+                                                              const Text('₽',
+                                                                  style: TextStyle(
+                                                                      fontSize:
+                                                                          16,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w700,
+                                                                      color: Colors
+                                                                          .white,
+                                                                      fontFamily:
+                                                                          'Circe')),
+                                                            ],
+                                                          ),
+                                                        ],
+                                                      ),
                                                     ),
-                                                    const Text('₽',
-                                                        style: TextStyle(
-                                                            fontSize: 16,
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                            color: Colors.white,
-                                                            fontFamily:
-                                                                'Circe')),
-                                                  ],
+                                                  ),
                                                 ),
-                                                const Text(
-                                                  '/ 1 кВт',
-                                                  style: TextStyle(
-                                                      color: Color(0xffA8FFA7),
-                                                      fontSize: 18,
-                                                      fontWeight:
-                                                          FontWeight.normal,
-                                                      fontFamily: 'Circe'),
-                                                )
+                                                Positioned(
+                                                  right: 5,
+                                                  top: 5,
+                                                  child: Tooltip(
+                                                      message:
+                                                          'Фиксированная цена за одну зарядку',
+                                                      triggerMode:
+                                                          TooltipTriggerMode
+                                                              .tap,
+                                                      verticalOffset: 0,
+                                                      child: Container(
+                                                        alignment:
+                                                            Alignment.topRight,
+                                                        width: 80,
+                                                        height: 40,
+                                                        child: const Icon(
+                                                          Icons
+                                                              .info_outline_rounded,
+                                                          size: 20,
+                                                          color: Colors.white,
+                                                        ),
+                                                      )),
+                                                ),
                                               ],
-                                            ),
-                                          ),
-                                        ),
-                                      )
+                                            )
+                                          : GreenContainer(
+                                              borderRadius: 15,
+                                              child: Container(
+                                                padding: const EdgeInsets.only(
+                                                    top: 20,
+                                                    left: 20,
+                                                    right: 20,
+                                                    bottom: 12),
+                                                child: FittedBox(
+                                                  child: Row(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment.end,
+                                                    children: [
+                                                      Row(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            booking == null
+                                                                ? ''
+                                                                : (getCurrentPriceFromTariffs(
+                                                                        booking!
+                                                                            .tariffs))
+                                                                    .toString()
+                                                                    .replaceAll(
+                                                                        '.',
+                                                                        ','),
+                                                            style: Theme.of(
+                                                                    context)
+                                                                .textTheme
+                                                                .bodyText2
+                                                                ?.copyWith(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontSize:
+                                                                        25,
+                                                                    height:
+                                                                        1.1),
+                                                          ),
+                                                          const Text('₽',
+                                                              style: TextStyle(
+                                                                  fontSize: 16,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontFamily:
+                                                                      'Circe')),
+                                                        ],
+                                                      ),
+                                                      const Text(
+                                                        '/ 1 кВт',
+                                                        style: TextStyle(
+                                                            color: Color(
+                                                                0xffA8FFA7),
+                                                            fontSize: 18,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .normal,
+                                                            fontFamily:
+                                                                'Circe'),
+                                                      )
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            )
                                     ],
                                   ),
                                 ),

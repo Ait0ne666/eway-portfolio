@@ -146,12 +146,16 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
+  
   void showChargeResultScreen(ChargeEndedResult result) {
+    // return;
+    if (result.amount == 0) return;
+
     Future(() => showGeneralDialog(
           context: context,
           useRootNavigator: true,
           // useSafeArea: false,
-          barrierDismissible: true,
+          barrierDismissible: false,
           // barrierLabel: 'label',
           
           barrierColor: Color(0x00ffffff),
@@ -238,6 +242,9 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void chargeListener(BuildContext context, ChargeState state) {
+
+    
+
     if (state is ChargeEndedState) {
       var result = state.result;
 

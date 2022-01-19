@@ -85,7 +85,10 @@ class _MapScreenState extends State<MapScreen> {
         children: [
           showMap
               ? BlocBuilder<BookingBloc, BookingState>(
+
                   builder: (context, state) {
+                    print('booking');
+                  print(state.booking);
                   return BookingWrapper(
                     booking: state.booking,
                   );

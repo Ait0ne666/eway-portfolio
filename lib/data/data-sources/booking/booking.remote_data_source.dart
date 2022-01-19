@@ -25,7 +25,7 @@ class BookingRemoteDataSource {
 
       var result = response.data['result'] as List<dynamic>;
 
-      return await compute(getBookingsFromJson, result);
+      return getBookingsFromJson(result);
     } on DioError catch (err) {
       return [];
     }

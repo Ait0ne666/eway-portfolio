@@ -38,7 +38,7 @@ class CustomAppBar extends StatelessWidget {
                   const SizedBox(
                     width: 12,
                   ),
-                  const CustomFilter(),
+                  Center(child: const CustomFilter()),
                 ],
               ),
             ],
