@@ -27,8 +27,9 @@ class _CreditCardListState extends State<CreditCardList> {
       price: '1',
       currencyCode: 'RUB',
       countryCode: 'RU',
-      merchantName: 'Cloudpayments',
+      merchantName: 'E-WAY',
       publicId: Config.CLOUD_PAYMENTS_ID,
+    
     );
 
     if (result != null) {
