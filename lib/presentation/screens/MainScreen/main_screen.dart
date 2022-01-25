@@ -147,6 +147,9 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void showChargeResultScreen(ChargeEndedResult result) {
+    // return;
+    if (result.amount == 0) return;
+
     Future(() => showGeneralDialog(
           context: context,
           useRootNavigator: true,
@@ -154,7 +157,6 @@ class _MainScreenState extends State<MainScreen> {
           barrierDismissible: false,
           barrierColor: Color(0x00ffffff),
 
-          transitionDuration: Duration(milliseconds: 300),
           pageBuilder: (context, anim1, anim2) {
             return Dialog(
                 insetPadding: EdgeInsets.zero,

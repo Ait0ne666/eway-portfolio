@@ -1,4 +1,4 @@
-import 'dart:async';
+
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lseway/domain/entitites/charge/charge_ended_result.dart';
@@ -28,7 +28,7 @@ class ChargeBloc extends Bloc<ChargeEvent, ChargeState> {
         emit(ChargeStartedState(progress: result.initialValue));
         result.stream.listen((event) {
           progress = event;
-          if (progress?.canceled == true) {
+          if (progress?.status == ChargeStatus.CANCELED) {
             var chargeEndedResult = ChargeEndedResult(
               id: progress!.chargeId,
               voltage: progress!.powerAmount,
@@ -54,7 +54,7 @@ class ChargeBloc extends Bloc<ChargeEvent, ChargeState> {
         emit(ChargeInProgressState(progress: progress!));
         result.stream.listen((event) {
           progress = event;
-          if (progress?.canceled == true) {
+          if (progress?.status == ChargeStatus.CANCELED) {
             var chargeEndedResult = ChargeEndedResult(
               id: progress!.chargeId,
               voltage: progress!.powerAmount,

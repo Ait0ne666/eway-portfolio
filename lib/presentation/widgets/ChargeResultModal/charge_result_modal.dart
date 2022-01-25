@@ -41,7 +41,8 @@ class _ChargeResultModalState extends State<ChargeResultModal> {
     } else if (state is PaymentErrorState) {
       Navigator.of(context, rootNavigator: true).pop();
       // Toast.showToast(context, state.message);
-      showPaymentErrorodal(handlePayment);
+      var errorMessage = state.message;
+      showPaymentErrorodal(handlePayment, errorMessage);
     } else if (state is PaymentDoneState) {
       Navigator.of(context, rootNavigator: true).pop();
       Navigator.of(context, rootNavigator: true).pop();
@@ -206,7 +207,7 @@ class _ChargeResultModalState extends State<ChargeResultModal> {
                                     FittedBox(
                                       fit: BoxFit.scaleDown,
                                       child: Text(
-                                        'Передаваемый заряд',
+                                        'Переданный заряд',
                                         style: Theme.of(context)
                                             .textTheme
                                             .bodyText1

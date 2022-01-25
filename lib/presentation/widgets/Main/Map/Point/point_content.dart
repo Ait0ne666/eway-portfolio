@@ -22,6 +22,7 @@ import 'package:lseway/presentation/widgets/Core/LabeledBox/labeled_box.dart';
 import 'package:lseway/presentation/widgets/Core/SuccessModal/success_modal.dart';
 import 'package:lseway/presentation/widgets/Main/Map/Book/book_modal.dart';
 import 'package:lseway/presentation/widgets/Main/Map/Point/NoPaymentMethodsDialog/no_payment_methods_dialog.dart';
+import 'package:lseway/presentation/widgets/Main/Map/Point/PrepareToChargeDialog/prepare_to_charge_dialog.dart';
 import 'package:lseway/presentation/widgets/Main/Map/Point/RouteBuilder/route_view.dart';
 import 'package:lseway/presentation/widgets/Main/Map/geolocation.dart';
 import 'package:lseway/presentation/widgets/global.dart';
@@ -50,19 +51,15 @@ class PointContent extends StatefulWidget {
 class _PointContentState extends State<PointContent> {
   late ConnectorTypes connector;
 
-
-
   ConnectorTypes getFreeConnector(List<ConnectorInfo> connectors) {
-
     var type = connectors[0].type;
 
-    for (var i=0; i<connectors.length; i++) {
+    for (var i = 0; i < connectors.length; i++) {
       if (connectors[i].available) {
-        type= connectors[i].type;
+        type = connectors[i].type;
         break;
       }
     }
-
 
     return type;
   }
@@ -70,7 +67,6 @@ class _PointContentState extends State<PointContent> {
   @override
   void initState() {
     if (widget.point.connectors.length > 0) {
-      
       connector = getFreeConnector(widget.point.connectors);
     } else {
       connector = ConnectorTypes.CHADEMO;
@@ -104,9 +100,8 @@ class _PointContentState extends State<PointContent> {
   }
 
   void buildRoute(BuildContext context, Coords destination) {
-    // var position = widget.geolocatorService.myLastPosition; 
-      openMapsSheet(context, destination);
-
+    // var position = widget.geolocatorService.myLastPosition;
+    openMapsSheet(context, destination);
 
     // if (position != null) {
     //   Coords coords = Coords(position.latitude, position.longitude);
@@ -138,8 +133,8 @@ class _PointContentState extends State<PointContent> {
                   children: <Widget>[
                     for (var map in availableMaps)
                       ListTile(
-                        onTap: () => map.showDirections(
-                            destination: destination),
+                        onTap: () =>
+                            map.showDirections(destination: destination),
                         title: Text(
                           map.mapName,
                           style: Theme.of(context).textTheme.headline6,
@@ -163,6 +158,7 @@ class _PointContentState extends State<PointContent> {
   }
 
   void charge(BuildContext context) {
+    // showPreparationDialog(widget.point.point.id, widget.charge);
     if (!isAvailable(widget.point, connector)) {
       return;
     }
@@ -180,17 +176,13 @@ class _PointContentState extends State<PointContent> {
               .firstWhere((element) => element.type == connector);
           BlocProvider.of<ChargeBloc>(context).add(
               StartCharge(pointId: widget.point.point.id, connector: conn.id));
-        },
-            () {
-              Navigator.of(context, rootNavigator: true).pop();
-            },
-            [
-              'Вами забронирована другая станция.',
-              'При начале зарядки бронирование будет отменено.'
-            ],
-            'Продолжить?');
+        }, () {
+          Navigator.of(context, rootNavigator: true).pop();
+        }, [
+          'Вами забронирована другая станция.',
+          'При начале зарядки бронирование будет отменено.'
+        ], 'Продолжить?');
       } else {
-        
         var conn = widget.point.connectors
             .firstWhere((element) => element.type == connector);
         BlocProvider.of<ChargeBloc>(context).add(
@@ -244,17 +236,19 @@ class _PointContentState extends State<PointContent> {
     var isVisible = TickerMode.of(context);
 
     if (state is ChargeConnectingState) {
-      dialog.showLoadingDialog(
-        context,
-      );
-    } else if (state is ChargeErrorState) {
-      Navigator.of(context, rootNavigator: true).pop();
-      Toast.showToast(context, state.message);
-    } else if (state is ChargeStartedState &&
-        state.progress?.pointId == widget.point.point.id) {
-      Navigator.of(context, rootNavigator: true).pop();
-      widget.charge(context, true);
-    }
+      Navigator.of(context).pop();
+      showPreparationDialog(widget.point.point.id, widget.charge);
+
+
+      // dialog.showLoadingDialog(
+      //   context,
+      // );
+    } 
+    // else if (state is ChargeStartedState &&
+    //     state.progress?.pointId == widget.point.point.id) {
+    //     Navigator.of(context, rootNavigator: true).pop();
+    //     widget.charge(context, true);
+    // }
   }
 
   @override
@@ -333,46 +327,108 @@ class _PointContentState extends State<PointContent> {
                 maxWidth: MediaQuery.of(context).size.width - 80),
             child: Row(
               children: [
-                LabeledBox(
-                    label: 'Цена',
-                    width: (MediaQuery.of(context).size.width - 94) / 2,
-                    text: FittedBox(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                isCurrentTariffFixed(point.tariffs)
+                    ? Stack(
                         children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          LabeledBox(
+                            label: 'Цена',
+                            width: (MediaQuery.of(context).size.width - 94) / 2,
+                            text: Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      (getCurrentPriceFromTariffs(
+                                              point.tariffs))
+                                          .toString()
+                                          .replaceAll('.', ','),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headline4
+                                          ?.copyWith(fontSize: 20),
+                                    ),
+                                    const Text('₽',
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w700,
+                                            color: Color(0xff1A1D21),
+                                            fontFamily: 'Circe')),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            icon: Image.asset(
+                              'assets/wallet.png',
+                              width: 82 / 2.5,
+                              height: 95 / 2.5,
+                            ),
+                          ),
+                          Positioned(
+                            right: 10,
+                            top: 10,
+                            child: Tooltip(
+                                message: 'Фиксированная цена за одну зарядку',
+                                triggerMode: TooltipTriggerMode.tap,
+                                verticalOffset: 0,
+                                child: Container(
+                                  alignment: Alignment.topRight,
+                                  width: 40,
+                                  height: 40,
+                                  child: Icon(
+                                    Icons.info_outline_rounded,
+                                    size: 20,
+                                    color: Theme.of(context)
+                                        .textTheme
+                                        .subtitle1
+                                        ?.color,
+                                  ),
+                                )),
+                          ),
+                        ],
+                      )
+                    : LabeledBox(
+                        label: 'Цена',
+                        width: (MediaQuery.of(context).size.width - 94) / 2,
+                        text: FittedBox(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              Text(
-                                (getCurrentPriceFromTariffs(point.tariffs))
-                                    .toString()
-                                    .replaceAll('.', ','),
-                                style: Theme.of(context).textTheme.headline4,
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    (getCurrentPriceFromTariffs(point.tariffs))
+                                        .toString()
+                                        .replaceAll('.', ','),
+                                    style:
+                                        Theme.of(context).textTheme.headline4,
+                                  ),
+                                  const Text('₽',
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w700,
+                                          color: Color(0xff1A1D21),
+                                          fontFamily: 'Circe')),
+                                ],
                               ),
-                              const Text('₽',
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700,
-                                      color: Color(0xff1A1D21),
-                                      fontFamily: 'Circe')),
+                              const Text(
+                                '/ 1 кВт',
+                                style: TextStyle(
+                                    color: Color(0xff272A2E),
+                                    fontSize: 25,
+                                    fontWeight: FontWeight.w700,
+                                    fontFamily: 'Circe'),
+                              )
                             ],
                           ),
-                          const Text(
-                            '/ 1 кВт',
-                            style: TextStyle(
-                                color: Color(0xff272A2E),
-                                fontSize: 25,
-                                fontWeight: FontWeight.w700,
-                                fontFamily: 'Circe'),
-                          )
-                        ],
-                      ),
-                    ),
-                    icon: Image.asset(
-                      'assets/wallet.png',
-                      width: 82 / 2.5,
-                      height: 95 / 2.5,
-                    )),
+                        ),
+                        icon: Image.asset(
+                          'assets/wallet.png',
+                          width: 82 / 2.5,
+                          height: 95 / 2.5,
+                        )),
                 const SizedBox(width: 14),
                 LabeledBox(
                     label: 'Мощность',
@@ -433,10 +489,10 @@ class _PointContentState extends State<PointContent> {
           ),
           CustomButton(
             text: 'Начать зарядку',
-            onPress: () => charge(context) ,
+            onPress: () => charge(context),
             type: ButtonTypes.PRIMARY,
             icon: SvgPicture.asset('assets/QR.svg'),
-            disabled:  !isAvailable(widget.point, connector),
+            disabled: !isAvailable(widget.point, connector),
           ),
         ],
       ),

@@ -55,8 +55,8 @@ class CustomFilter extends StatelessWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Image.asset('assets/graphRed.png', width: 226/3, height: 80),
-                          
+                          Image.asset('assets/graphRed.png',
+                              width: 226 / 3, height: 80),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 40),
                             child: Center(
@@ -113,10 +113,10 @@ class CustomFilter extends StatelessWidget {
             ],
           );
         })).then((value) {
-          if (value == true) {
-            BlocProvider.of<PointsBloc>(context).add(SaveCurrentFilter());
-          }
-        });
+      if (value == true) {
+        BlocProvider.of<PointsBloc>(context).add(SaveCurrentFilter());
+      }
+    });
   }
 
   @override

@@ -34,15 +34,18 @@ class _ChargeViewState extends State<ChargeView> {
     var isVisible = TickerMode.of(context);
 
     if (state is ChargeStoppingState) {
-      dialog.showLoadingDialog(
-        context,
-      );
+      if (isVisible) {
+        dialog.showLoadingDialog(
+          context,
+        );
+
+      }
     } else if (state is ChargeErrorState) {
       Navigator.of(context, rootNavigator: true).pop();
       Toast.showToast(context, state.message);
     } else if (state is ChargeEndedState) {
-      Navigator.of(context, rootNavigator: true).pop();
-      Navigator.of(context, rootNavigator: true).pop();
+      Navigator.of(context, rootNavigator: true)
+          .popUntil((route) => route.settings.name == '/main');
       BlocProvider.of<HistoryBloc>(context).add(FetchHistory());
     } else if (state is ChargeInProgressState) {
       if (state.progress?.progress != null &&
@@ -232,7 +235,7 @@ class _ChargeViewState extends State<ChargeView> {
                                                       const SizedBox(
                                                         width: 5,
                                                       ),
-                                                      Text('Передаваемый заряд',
+                                                      Text('Переданный заряд',
                                                           style: Theme.of(
                                                                   context)
                                                               .textTheme
@@ -254,7 +257,7 @@ class _ChargeViewState extends State<ChargeView> {
                                         constraints:
                                             const BoxConstraints(maxWidth: 220),
                                         child: CustomButton(
-                                          text: 'Отключить',
+                                          text: 'Завершить',
                                           onPress: () {
                                             BlocProvider.of<ChargeBloc>(context)
                                                 .add(

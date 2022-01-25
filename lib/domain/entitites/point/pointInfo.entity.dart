@@ -16,9 +16,10 @@ class Tariff {
   double price;
   String from;
   String to;
+  bool isFixed;
 
 
-  Tariff({required this.from, required this.to, required this.price});
+  Tariff({required this.isFixed, required this.from, required this.to, required this.price});
 }
 
 

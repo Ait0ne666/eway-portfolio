@@ -1,3 +1,11 @@
+enum ChargeStatus {
+  PREPARING,
+  CHARGING,
+  CANCELED
+}
+
+
+
 class ChargeProgress {
   final int pointId;
   final double? progress;
@@ -7,7 +15,8 @@ class ChargeProgress {
   final DateTime createdAt;
   final DateTime updatedAt;
   final double? timeLeft;
-  final bool? canceled;
+  
+  final ChargeStatus status;
   final int? chargeId;
 
   const ChargeProgress(
@@ -19,8 +28,9 @@ class ChargeProgress {
       required this.chargePower,
       this.progress,
       this.timeLeft,
-      this.canceled,
-      this.chargeId
+      
+      this.chargeId,
+      required this.status
       });
 
   ChargeProgress copyWith({
@@ -30,10 +40,11 @@ class ChargeProgress {
     double? powerAmount,
     DateTime? createdAt,
     double? timeLeft,
-    bool? canceled,
+    // bool? canceled,
     int? chargeId,
     DateTime? updatedAt,
     double? chargePower,
+    ChargeStatus? status,
   }) {
     return ChargeProgress(
       createdAt: createdAt ?? this.createdAt,
@@ -42,10 +53,11 @@ class ChargeProgress {
       paymentAmount: paymentAmount ?? this.paymentAmount,
       powerAmount: powerAmount ?? this.powerAmount,
       timeLeft: timeLeft ?? this.timeLeft,
-      canceled: canceled ?? this.canceled,
+      
       pointId: pointId ?? this.pointId,
       chargeId: chargeId ?? this.chargeId,
-      chargePower: chargePower ?? this.chargePower
+      chargePower: chargePower ?? this.chargePower,
+      status: status ?? this.status
     );
   }
 }

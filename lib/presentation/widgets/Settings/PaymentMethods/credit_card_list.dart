@@ -27,8 +27,9 @@ class _CreditCardListState extends State<CreditCardList> {
       price: '1',
       currencyCode: 'RUB',
       countryCode: 'RU',
-      merchantName: 'Cloudpayments',
+      merchantName: 'E-WAY',
       publicId: Config.CLOUD_PAYMENTS_ID,
+    
     );
 
     if (result != null) {
@@ -54,7 +55,7 @@ class _CreditCardListState extends State<CreditCardList> {
                     children: [
                       Image.asset(
                         'assets/google.png',
-                        width: 30,
+                        width: 60,
                       ),
                       SizedBox(
                         width: 10,
@@ -104,7 +105,7 @@ class _CreditCardListState extends State<CreditCardList> {
               children: [
                 Image.asset(
                   'assets/google.png',
-                  width: 28,
+                  width: 60,
                 ),
                 const SizedBox(
                   width: 15,

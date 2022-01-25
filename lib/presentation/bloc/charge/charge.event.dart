@@ -3,7 +3,7 @@ import 'package:lseway/domain/entitites/charge/charge_ended_result.dart';
 import 'package:lseway/domain/entitites/charge/charge_progress.entity.dart';
 import 'package:lseway/domain/entitites/filter/filter.dart';
 
-class ChargeEvent extends Equatable {
+class ChargeEvent  {
 
 
   @override
