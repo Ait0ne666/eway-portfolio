@@ -151,7 +151,7 @@ class _MainScreenState extends State<MainScreen> {
           context: context,
           useRootNavigator: true,
           // useSafeArea: false,
-          barrierDismissible: true,
+          barrierDismissible: false,
           barrierColor: Color(0x00ffffff),
 
           transitionDuration: Duration(milliseconds: 300),

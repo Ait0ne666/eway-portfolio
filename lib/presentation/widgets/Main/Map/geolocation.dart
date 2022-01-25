@@ -45,13 +45,16 @@ class GeolocatorService {
     if (!serviceEnabled) {
       return Future.error('enableLocation');
     }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
+    try {
+      permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
-        return Future.error('denied');
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          return Future.error('denied');
+        }
       }
+    } catch (err) {
+      return Future.error('inprogress');
     }
 
     var position = await Geolocator.getCurrentPosition();
