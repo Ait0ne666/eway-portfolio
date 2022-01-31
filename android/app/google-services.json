@@ -29,49 +29,6 @@
             {
               "client_id": "225518859524-42tf9gp1jcqbr89ue9qj47t0jlpl7meh.apps.googleusercontent.com",
               "client_type": 3
-            },
-            {
-              "client_id": "225518859524-dq64r7mh3craohfeg6si17k8025is8no.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.lilekov.lseway"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:225518859524:android:57701e4f42b52abce40c51",
-        "android_client_info": {
-          "package_name": "com.lseway"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "225518859524-42tf9gp1jcqbr89ue9qj47t0jlpl7meh.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyCu3NUccyeRi7SsZUquno3rSRJDYI7FalU"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "225518859524-42tf9gp1jcqbr89ue9qj47t0jlpl7meh.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "225518859524-dq64r7mh3craohfeg6si17k8025is8no.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.lilekov.lseway"
-              }
             }
           ]
         }

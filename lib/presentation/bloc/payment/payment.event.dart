@@ -31,14 +31,12 @@ class ChangeActiveCard extends PaymentEvent {
   ChangeActiveCard({required this.id});
 }
 
-
 class Confirm3DS extends PaymentEvent {
   final String md;
   final String paRes;
 
   Confirm3DS({required this.md, required this.paRes});
 }
-
 
 class Confirm3DSForPayment extends PaymentEvent {
   final String md;
@@ -52,6 +50,24 @@ class ConfirmPayment extends PaymentEvent {
   final int chargeId;
 
   ConfirmPayment({required this.confirmation, required this.chargeId});
+}
+
+class AddWalletPayment extends PaymentEvent {
+  final String cryptoToken;
+  final String type;
+
+  AddWalletPayment({required this.cryptoToken, required this.type});
+
+  @override
+  List<Object> get props => [cryptoToken, type];
+}
+
+
+class ConfirmWallet3DS extends PaymentEvent {
+  final String md;
+  final String paRes;
+
+  ConfirmWallet3DS({required this.md, required this.paRes});
 }
 
 

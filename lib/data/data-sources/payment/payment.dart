@@ -1,8 +1,12 @@
+import 'dart:io';
+
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:lseway/config/config.dart';
 import 'package:lseway/core/Responses/failures.dart';
 import 'package:lseway/core/Responses/success.dart';
+import 'package:lseway/core/toast/toast.dart';
 import 'package:lseway/data/models/payment/card.model.dart';
 import 'package:lseway/domain/entitites/payment/card.entity.dart';
 import 'package:lseway/domain/entitites/payment/threeDs.entity.dart';
@@ -26,22 +30,33 @@ class PaymentRemoteDataSource {
 
       if (result != null && result is List) {
         result.forEach((card) {
-          cards.add(CreditCardModel(
-              mask: card["card_mask"],
-              month: card["expiration_date_month"],
-              year: card["expiration_date_year"],
-              id: card["card_id"],
-              isActive: card["active"] ?? false,
-              type: card["type"] ?? PaymentTypes.CARD));
+          if (card["card_id"] != (Platform.isIOS ? 'GooglePay' : 'ApplePay')) {
+            cards.add(CreditCardModel(
+                mask: card["card_mask"],
+                month: card["expiration_date_month"],
+                year: card["expiration_date_year"],
+                id: card["card_id"],
+                isActive: card["active"] ?? false,
+                type: card["card_id"] == 'GooglePay'
+                    ? PaymentTypes.GOOGLE_PAY
+                    : card["card_id"] == 'ApplePay'
+                        ? PaymentTypes.APPLE_PAY
+                        : PaymentTypes.CARD));
+          }
         });
-      } else if (result != null) {
+      } else if (result != null &&
+          result["card_id"] != (Platform.isIOS ? 'GooglePay' : 'ApplePay')) {
         cards.add(CreditCardModel(
             mask: result["card_mask"],
             month: result["expiration_date_month"],
             year: result["expiration_date_year"],
             id: result["card_id"],
             isActive: result["active"] ?? false,
-            type: result["type"] ?? PaymentTypes.CARD));
+            type: result["card_id"] == 'GooglePay'
+                ? PaymentTypes.GOOGLE_PAY
+                : result["card_id"] == 'ApplePay'
+                    ? PaymentTypes.APPLE_PAY
+                    : PaymentTypes.CARD));
       }
 
       return Right(cards);
@@ -86,7 +101,7 @@ class PaymentRemoteDataSource {
           transactionId: result['TransactionId'].toString(),
           paReq: result["PaReq"].toString()));
     } catch (err) {
-            if (err is DioError) {
+      if (err is DioError) {
         print(err);
         if (err.response?.statusCode == 400 &&
             err.response?.data['errors'] != null &&
@@ -172,6 +187,91 @@ class PaymentRemoteDataSource {
       return Right(Success());
     } catch (err) {
       return Left(ServerFailure('Не удалось привязать карту'));
+    }
+  }
+
+  Future<Either<Failure, WalletPaymentResult>> addWalletPayment(
+      String cryptoToken, String type) async {
+    var url = _apiUrl + 'card';
+
+    var data = {"card_crypto_token": cryptoToken, "cardholder_name": type};
+
+    try {
+      var response = await dio.post(url, data: data);
+
+      var result = response.data['result'];
+
+      ThreeDS? threeDS = null;
+
+      print(result);
+
+      if (result == "Оплата успешно проведена") {
+        var cardResult = await fetchCards();
+
+        return cardResult.fold((failure) {
+          return Left(failure);
+        }, (cards) {
+          return Right(WalletPaymentResult(
+              cards: cards
+                  .map((model) => CreditCard(
+                      mask: model.mask,
+                      month: model.month,
+                      year: model.year,
+                      id: model.id,
+                      isActive: model.isActive,
+                      type: model.type))
+                  .toList(),
+              threeDS: null,
+              show3DS: false));
+        });
+      }
+
+      if (result != null && 
+          result['AcsUrl'] != null &&
+          result['TransactionId'] != null &&
+          result["PaReq"] != null) {
+        threeDS = ThreeDS(
+            acsUrl: result['AcsUrl'].toString(),
+            transactionId: result['TransactionId'].toString(),
+            paReq: result["PaReq"].toString());
+      }
+
+      if (threeDS != null) {
+        return Right(
+            WalletPaymentResult(cards: [], threeDS: threeDS, show3DS: true));
+      } else {
+        var cardResult = await fetchCards();
+
+        return cardResult.fold((failure) {
+          return Left(failure);
+        }, (cards) {
+          return Right(WalletPaymentResult(
+              cards: cards
+                  .map((model) => CreditCard(
+                      mask: model.mask,
+                      month: model.month,
+                      year: model.year,
+                      id: model.id,
+                      isActive: model.isActive,
+                      type: model.type))
+                  .toList(),
+              threeDS: null,
+              show3DS: false));
+        });
+      }
+    } catch (err) {
+      if (err is DioError) {
+        print(err);
+        if (err.response?.statusCode == 400 &&
+            err.response?.data['errors'] != null &&
+            err.response?.data['errors'].length > 0) {
+          var message = err.response?.data['errors'][0]['message'];
+          return Left(ServerFailure(message));
+        }
+        return Left(ServerFailure('Произошла непредвиденная ошибка'));
+      }
+      print(err);
+      return Left(ServerFailure('Произошла непредвиденная ошибка'));
     }
   }
 }

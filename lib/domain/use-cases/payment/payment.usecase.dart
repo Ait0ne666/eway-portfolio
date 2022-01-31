@@ -39,4 +39,9 @@ class PaymentUsecase {
       String md, String paRes) {
     return repository.confirm3dsForPayment(md, paRes);
   }
+
+    Future<Either<Failure, WalletPaymentResult>> addWalletPayment(
+      String cryptoToken, String type) async {
+    return repository.addWalletPayment(cryptoToken, type);
+  }
 }

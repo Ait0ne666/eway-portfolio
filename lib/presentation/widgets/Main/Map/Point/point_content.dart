@@ -25,6 +25,7 @@ import 'package:lseway/presentation/widgets/Main/Map/Point/NoPaymentMethodsDialo
 import 'package:lseway/presentation/widgets/Main/Map/Point/PrepareToChargeDialog/prepare_to_charge_dialog.dart';
 import 'package:lseway/presentation/widgets/Main/Map/Point/RouteBuilder/route_view.dart';
 import 'package:lseway/presentation/widgets/Main/Map/geolocation.dart';
+import 'package:lseway/presentation/widgets/Settings/PaymentMethods/credit_card_list.dart';
 import 'package:lseway/presentation/widgets/global.dart';
 import 'package:lseway/utils/utils.dart';
 import 'package:map_launcher/map_launcher.dart';
@@ -190,7 +191,18 @@ class _PointContentState extends State<PointContent> {
       }
     } else {
       Navigator.of(context).pop();
-      showNoPaymentMethodsDialog(showSuccess);
+      showNoPaymentMethodsDialog(showSuccess, handleWalletPayment);
+    }
+  }
+
+  void handleWalletPayment() {
+    var ctx = NavigationService.navigatorKey.currentContext;
+
+    if (ctx == null) return;
+
+    if (Platform.isIOS) {
+    } else {
+      handleGooglePay(ctx);
     }
   }
 
@@ -239,11 +251,10 @@ class _PointContentState extends State<PointContent> {
       Navigator.of(context).pop();
       showPreparationDialog(widget.point.point.id, widget.charge);
 
-
       // dialog.showLoadingDialog(
       //   context,
       // );
-    } 
+    }
     // else if (state is ChargeStartedState &&
     //     state.progress?.pointId == widget.point.point.id) {
     //     Navigator.of(context, rootNavigator: true).pop();

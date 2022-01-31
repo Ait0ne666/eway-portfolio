@@ -20,6 +20,6 @@ abstract class PaymentRepository {
   Future<Either<Failure, Success>> confirm3dsForPayment(
       String md, String paRes);
 
-
-  
+  Future<Either<Failure, WalletPaymentResult>> addWalletPayment(
+      String cryptoToken, String type);
 }

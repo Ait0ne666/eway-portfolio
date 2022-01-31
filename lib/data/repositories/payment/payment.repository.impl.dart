@@ -132,4 +132,20 @@ class PaymentRepositoryImpl implements PaymentRepository {
       String md, String paRes) async {
     return remoteDataSource.confirm3dsForPayment(md, paRes);
   }
+
+  @override
+  Future<Either<Failure, WalletPaymentResult>> addWalletPayment(
+      String cryptoToken, String type) async {
+    bool isConnected = await networkInfo.isConnected;
+
+    if (!isConnected) {
+      return Left(
+        NetworkFailure("Отсутствует подключение к интернету"),
+      );
+    }
+
+    var result = await remoteDataSource.addWalletPayment(cryptoToken, type);
+
+    return result;
+  }
 }

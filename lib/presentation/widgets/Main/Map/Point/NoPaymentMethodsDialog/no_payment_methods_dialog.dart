@@ -7,7 +7,8 @@ import 'package:lseway/presentation/widgets/Settings/PaymentMethods/credit_card_
 import 'package:lseway/presentation/widgets/global.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
-void showNoPaymentMethodsDialog(void Function() onSuccess) {
+void showNoPaymentMethodsDialog(
+    void Function() onSuccess, void Function() handleAddWallet) {
   var context = NavigationService.navigatorKey.currentContext;
 
   if (context != null) {
@@ -87,17 +88,21 @@ void showNoPaymentMethodsDialog(void Function() onSuccess) {
                               type: ButtonTypes.SECONDARY,
                             ),
                           ),
-                          // const SizedBox(
-                          //   height: 20,
-                          // ),
-                          // Padding(
-                          //   padding: const EdgeInsets.symmetric(horizontal: 30),
-                          //   child: CustomButton(
-                          //     onPress: () {},
-                          //     text: Platform.isIOS ? 'Аpple Pay' : 'Google Pay',
-                          //     type: ButtonTypes.DARK,
-                          //   ),
-                          // )
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 30),
+                            child: CustomButton(
+                              onPress: () {
+                                Navigator.of(dialogContext, rootNavigator: true)
+                                    .pop();
+                                handleAddWallet();
+                              },
+                              text: Platform.isIOS ? 'Аpple Pay' : 'Google Pay',
+                              type: ButtonTypes.DARK,
+                            ),
+                          )
                         ],
                       ),
                     ),

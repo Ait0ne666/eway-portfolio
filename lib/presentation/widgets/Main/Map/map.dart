@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,6 +9,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_cluster_manager/google_maps_cluster_manager.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:lseway/core/dialogBuilder/dialogBuilder.dart';
+import 'package:lseway/core/toast/toast.dart';
 import 'package:lseway/domain/entitites/coordinates/coordinates.dart';
 import 'package:lseway/domain/entitites/filter/filter.dart';
 import 'package:lseway/domain/entitites/point/point.entity.dart';
@@ -22,6 +25,7 @@ import 'package:lseway/presentation/bloc/history/history.bloc.dart';
 import 'package:lseway/presentation/bloc/history/history.event.dart';
 import 'package:lseway/presentation/bloc/payment/payment.bloc.dart';
 import 'package:lseway/presentation/bloc/payment/payment.event.dart';
+import 'package:lseway/presentation/bloc/payment/payment.state.dart';
 import 'package:lseway/presentation/bloc/pointInfo/pointInfo.event.dart';
 import 'package:lseway/presentation/bloc/pointInfo/pointInfo.state.dart';
 import 'package:lseway/presentation/bloc/pointInfo/pointinfo.bloc.dart';
@@ -36,7 +40,9 @@ import 'package:lseway/presentation/widgets/Main/Map/Map/map.dart';
 import 'package:lseway/presentation/widgets/Main/Map/Point/Charge/timer.dart';
 import 'package:lseway/presentation/widgets/Main/Map/Point/point.dart';
 import 'package:lseway/presentation/widgets/Main/Map/geolocation.dart';
+import 'package:lseway/presentation/widgets/PaymentMethodsSuccessDialogs/google_success.dart';
 import 'package:lseway/presentation/widgets/QrScanner/qr_scanner.dart';
+import 'package:lseway/presentation/widgets/Settings/PaymentMethods/payment_methods.dart';
 import 'package:lseway/utils/ImageService/image_service.dart';
 import 'package:uuid/uuid.dart';
 import '../../../../injection_container.dart' as di;
@@ -634,9 +640,32 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
     }
   }
 
+  void paymentListener(BuildContext context, PaymentState state) {
+    var dialog = DialogBuilder();
+    var isVisible = TickerMode.of(context);
+    if (isVisible) {
+      if (state is WalletPaymentAddingState) {
+        dialog.showLoadingDialog(
+          context,
+        );
+      } else if (state is WalletPaymentAddErrorState) {
+        Navigator.of(context, rootNavigator: true).pop();
+        Toast.showToast(context, state.message);
+      } else if (state is WalletPaymentAddedState) {
+        Navigator.of(context, rootNavigator: true).pop();
+        if (Platform.isIOS) {
+        } else {
+          onGoogleSuccess();
+        }
+      } else if (state is WalletPayment3DSState) {
+        Navigator.of(context, rootNavigator: true).pop();
+        handle3DS(context, state.threeDs);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    
     return MultiBlocListener(
       listeners: [
         BlocListener<PointsBloc, PointsState>(listener: filterListener),
@@ -646,7 +675,8 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
         BlocListener<ActivePointsBloc, ActivePointsState>(
           listener: activePointsListener,
         ),
-        BlocListener<ChargeBloc, ChargeState>(listener: chargeListener)
+        BlocListener<ChargeBloc, ChargeState>(listener: chargeListener),
+        BlocListener<PaymentBloc, PaymentState>(listener: paymentListener)
       ],
       child: Container(
           child: Stack(

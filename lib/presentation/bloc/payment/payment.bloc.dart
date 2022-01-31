@@ -43,6 +43,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         emit(CreditCard3DSState(cards: cards, threeDs: success));
       });
     });
+
     on<ChangeActiveCard>((event, emit) {
       var newCards = cards.map((e) {
         if (e.id != event.id) {
@@ -81,13 +82,42 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     });
     on<Confirm3DSForPayment>((event, emit) async {
       emit(PaymentProcessingState(cards: cards));
-      var result =
-          await usecase.confirm3dsForPayment(event.md, event.paRes);
+      var result = await usecase.confirm3dsForPayment(event.md, event.paRes);
 
       result.fold((failure) {
         emit(PaymentErrorState(cards: cards, message: failure.message));
       }, (success) {
         emit(PaymentDoneState(cards: cards));
+      });
+    });
+
+    on<AddWalletPayment>((event, emit) async {
+      emit(WalletPaymentAddingState(cards: cards));
+      var result =
+          await usecase.addWalletPayment(event.cryptoToken, event.type);
+
+      result.fold((failure) {
+        emit(
+            WalletPaymentAddErrorState(cards: cards, message: failure.message));
+      }, (result) {
+        if (result.show3DS) {
+          emit(WalletPayment3DSState(cards: cards, threeDs: result.threeDS!));
+        } else {
+          cards = result.cards;
+          emit(WalletPaymentAddedState(cards: cards));
+        }
+      });
+    });
+    on<ConfirmWallet3DS>((event, emit) async {
+      emit(WalletPaymentAddingState(cards: cards));
+      var result = await usecase.confirm3Ds(event.md, event.paRes);
+
+      result.fold((failure) {
+        emit(
+            WalletPaymentAddErrorState(cards: cards, message: failure.message));
+      }, (success) {
+        cards = success;
+        emit(WalletPaymentAddedState(cards: cards));
       });
     });
   }
