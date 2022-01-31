@@ -146,7 +146,6 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
-  
   void showChargeResultScreen(ChargeEndedResult result) {
     // return;
     if (result.amount == 0) return;
@@ -156,11 +155,8 @@ class _MainScreenState extends State<MainScreen> {
           useRootNavigator: true,
           // useSafeArea: false,
           barrierDismissible: false,
-          // barrierLabel: 'label',
-          
           barrierColor: Color(0x00ffffff),
 
-          transitionDuration: Duration(milliseconds: 300),
           pageBuilder: (context, anim1, anim2) {
             return Dialog(
                 insetPadding: EdgeInsets.zero,
@@ -242,9 +238,6 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void chargeListener(BuildContext context, ChargeState state) {
-
-    
-
     if (state is ChargeEndedState) {
       var result = state.result;
 
@@ -262,28 +255,23 @@ class _MainScreenState extends State<MainScreen> {
 
       showChargeResultScreen(result);
     } else if (state is ChargeInProgressState) {
-      
       if (state.progress?.progress != null &&
-          (state.progress!.progress! >= 80) 
-          ) {
+          (state.progress!.progress! >= 80)) {
         show80Dialog(state.progress!.pointId);
       }
     }
   }
 
   void show80Dialog(int pointId) {
-      var phone = BlocProvider.of<UserBloc>(context).state.user!.phone;
-      var shown = userRepository.stopChargeAt80DialogShown(phone);
+    var phone = BlocProvider.of<UserBloc>(context).state.user!.phone;
+    var shown = userRepository.stopChargeAt80DialogShown(phone);
 
-      if (!shown) {
-        Navigator.of(context).popUntil((route) {
-          
-
-          return route.settings.name == '/main';
-        });
-        showCharge80Dialog(context, pointId, dontPop: true);
-      }
-
+    if (!shown) {
+      Navigator.of(context).popUntil((route) {
+        return route.settings.name == '/main';
+      });
+      showCharge80Dialog(context, pointId, dontPop: true);
+    }
   }
 
   @override
