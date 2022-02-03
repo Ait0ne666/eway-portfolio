@@ -40,6 +40,7 @@ import 'package:lseway/presentation/widgets/Main/Map/Map/map.dart';
 import 'package:lseway/presentation/widgets/Main/Map/Point/Charge/timer.dart';
 import 'package:lseway/presentation/widgets/Main/Map/Point/point.dart';
 import 'package:lseway/presentation/widgets/Main/Map/geolocation.dart';
+import 'package:lseway/presentation/widgets/PaymentMethodsSuccessDialogs/apple_success.dart';
 import 'package:lseway/presentation/widgets/PaymentMethodsSuccessDialogs/google_success.dart';
 import 'package:lseway/presentation/widgets/QrScanner/qr_scanner.dart';
 import 'package:lseway/presentation/widgets/Settings/PaymentMethods/payment_methods.dart';
@@ -654,6 +655,7 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver {
       } else if (state is WalletPaymentAddedState) {
         Navigator.of(context, rootNavigator: true).pop();
         if (Platform.isIOS) {
+          onAppleSuccess();
         } else {
           onGoogleSuccess();
         }

@@ -311,24 +311,6 @@ class _CardFormState extends State<CardForm> {
     }
   }
 
-  void handleGooglePay() async {
-    final googlePay = CloudpaymentsGooglePay(GooglePayEnvironment.test);
-
-    final result = await googlePay.requestGooglePayPayment(
-      price: '1',
-      currencyCode: 'RUB',
-      countryCode: 'RU',
-      merchantName: 'Cloudpayments',
-      publicId: Config.CLOUD_PAYMENTS_ID,
-    );
-
-    if (result != null) {
-      if (result.isSuccess) {
-        final paymentToken = result.token;
-      }
-    }
-  }
-
 
 
     void onKeyPress(RawKeyEvent? event, FocusNode node, FocusNode currentNode, TextEditingController controller, String type) {
