@@ -69,8 +69,8 @@ void handleApplePay(BuildContext context) async {
       if (result.isSuccess) {
         final paymentToken = result.token;
 
-        // BlocProvider.of<PaymentBloc>(context).add(
-        //     AddWalletPayment(cryptoToken: paymentToken!, type: 'Apple Pay'));
+        BlocProvider.of<PaymentBloc>(context).add(
+            AddWalletPayment(cryptoToken: paymentToken!, type: 'Apple Pay'));
         // onGoogleSuccess();
       }
     }
