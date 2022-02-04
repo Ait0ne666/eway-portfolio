@@ -44,7 +44,6 @@ void handleGooglePay(BuildContext context) async {
   }
 }
 
-
 void handleApplePay(BuildContext context) async {
   final applePay = CloudpaymentsApplePay();
 
@@ -57,18 +56,18 @@ void handleApplePay(BuildContext context) async {
 
   try {
     final result = await applePay.requestApplePayPayment(
-    merchantId: 'merchant.ru.eway',
-    currencyCode: 'RUB',
-    countryCode: 'RU',
-    products: [
+      merchantId: 'merchant.ru.eway',
+      currencyCode: 'RUB',
+      countryCode: 'RU',
+      products: [
         {"name": "Тестовый платеж", "price": "10"},
-    ],
-);
-
+      ],
+    );
 
     if (result != null) {
       if (result.isSuccess) {
         final paymentToken = result.token;
+        Toast.showToast(context, paymentToken ?? '');
 
         // BlocProvider.of<PaymentBloc>(context).add(
         //     AddWalletPayment(cryptoToken: paymentToken!, type: 'Apple Pay'));
