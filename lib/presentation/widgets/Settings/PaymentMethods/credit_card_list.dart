@@ -9,6 +9,7 @@ import 'package:lseway/domain/entitites/payment/card.entity.dart';
 import 'package:lseway/presentation/bloc/payment/payment.bloc.dart';
 import 'package:lseway/presentation/bloc/payment/payment.event.dart';
 import 'package:lseway/presentation/widgets/Core/SuccessModal/success_modal.dart';
+import 'package:lseway/presentation/widgets/PaymentMethodsSuccessDialogs/apple_success.dart';
 import 'package:lseway/presentation/widgets/global.dart';
 
 void handleGooglePay(BuildContext context) async {
@@ -69,8 +70,8 @@ void handleApplePay(BuildContext context) async {
         final paymentToken = result.token;
         Toast.showToast(context, paymentToken ?? '');
 
-        // BlocProvider.of<PaymentBloc>(context).add(
-        //     AddWalletPayment(cryptoToken: paymentToken!, type: 'Apple Pay'));
+        BlocProvider.of<PaymentBloc>(context).add(
+            AddWalletPayment(cryptoToken: paymentToken!, type: 'Apple Pay'));
         // onGoogleSuccess();
       }
     }

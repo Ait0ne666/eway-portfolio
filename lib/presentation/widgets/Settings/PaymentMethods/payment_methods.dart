@@ -11,6 +11,7 @@ import 'package:lseway/presentation/bloc/payment/payment.bloc.dart';
 import 'package:lseway/presentation/bloc/payment/payment.event.dart';
 import 'package:lseway/presentation/bloc/payment/payment.state.dart';
 import 'package:lseway/presentation/widgets/Core/SuccessModal/success_modal.dart';
+import 'package:lseway/presentation/widgets/PaymentMethodsSuccessDialogs/apple_success.dart';
 import 'package:lseway/presentation/widgets/PaymentMethodsSuccessDialogs/google_success.dart';
 import 'package:lseway/presentation/widgets/Settings/PaymentMethods/credit_card_form.dart';
 import 'package:lseway/presentation/widgets/Settings/PaymentMethods/credit_card_list.dart';
@@ -97,6 +98,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
       } else if (state is WalletPaymentAddedState) {
         Navigator.of(context, rootNavigator: true).pop();
         if (Platform.isIOS) {
+          onAppleSuccess();
         } else {
           onGoogleSuccess();
         }

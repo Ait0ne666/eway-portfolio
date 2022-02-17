@@ -201,6 +201,7 @@ class _PointContentState extends State<PointContent> {
     if (ctx == null) return;
 
     if (Platform.isIOS) {
+      handleApplePay(ctx);
     } else {
       handleGooglePay(ctx);
     }
