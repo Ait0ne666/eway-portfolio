@@ -61,7 +61,7 @@ void handleApplePay(BuildContext context) async {
       currencyCode: 'RUB',
       countryCode: 'RU',
       products: [
-        {"name": "Тестовый платеж", "price": "10"},
+        {"name": "Привязка карты E-way", "price": "10"},
       ],
     );
 
@@ -72,7 +72,7 @@ void handleApplePay(BuildContext context) async {
 
         BlocProvider.of<PaymentBloc>(context).add(
             AddWalletPayment(cryptoToken: paymentToken!, type: 'Apple Pay'));
-        // onGoogleSuccess();
+        
       }
     }
   } catch (err) {
