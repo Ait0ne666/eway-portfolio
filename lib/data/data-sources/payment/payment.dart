@@ -62,8 +62,14 @@ class PaymentRemoteDataSource {
       return Right(cards);
       // return Right([]);
     } on DioError catch (err) {
-      if (err.response?.statusCode == 400 || err.response?.statusCode == 401) {
-        return Left(ServerFailure('Произошла непредвиденная ошибка'));
+      if (err.response?.data['errors'] != null &&
+          err.response?.data['errors'].length > 0) {
+        var message = err.response?.data['errors'][0]['message'];
+        // if (message == '400 Client don`t have cards') {
+        //   return Left(
+        //       ServerFailure('У вас не привязан ни один способ платежа'));
+        // }
+        return Left(ServerFailure(message));
       }
       return Left(ServerFailure('Произошла непредвиденная ошибка'));
     }
@@ -82,6 +88,18 @@ class PaymentRemoteDataSource {
 
       return fetchCards();
     } catch (err) {
+      if (err is DioError) {
+        if (err.response?.data['errors'] != null &&
+            err.response?.data['errors'].length > 0) {
+          var message = err.response?.data['errors'][0]['message'];
+          // if (message == '400 Client don`t have cards') {
+          //   return Left(
+          //       ServerFailure('У вас не привязан ни один способ платежа'));
+          // }
+          return Left(ServerFailure(message));
+        }
+        return Left(ServerFailure('Произошла непредвиденная ошибка'));
+      }
       return Left(ServerFailure('Произошла непредвиденная ошибка'));
     }
   }
@@ -102,11 +120,13 @@ class PaymentRemoteDataSource {
           paReq: result["PaReq"].toString()));
     } catch (err) {
       if (err is DioError) {
-        print(err);
-        if (err.response?.statusCode == 400 &&
-            err.response?.data['errors'] != null &&
+        if (err.response?.data['errors'] != null &&
             err.response?.data['errors'].length > 0) {
           var message = err.response?.data['errors'][0]['message'];
+          // if (message == '400 Client don`t have cards') {
+          //   return Left(
+          //       ServerFailure('У вас не привязан ни один способ платежа'));
+          // }
           return Left(ServerFailure(message));
         }
         return Left(ServerFailure('Произошла непредвиденная ошибка'));
@@ -125,6 +145,19 @@ class PaymentRemoteDataSource {
 
       return Right(id);
     } catch (err) {
+      if (err is DioError) {
+        if (err.response?.data['errors'] != null &&
+            err.response?.data['errors'].length > 0) {
+          var message = err.response?.data['errors'][0]['message'];
+          // if (message == '400 Client don`t have cards') {
+          //   return Left(
+          //       ServerFailure('У вас не привязан ни один способ платежа'));
+          // }
+          return Left(ServerFailure(message));
+        }
+        return Left(ServerFailure('Не удалось сменить активную карту'));
+      }
+
       return Left(ServerFailure('Не удалось сменить активную карту'));
     }
   }
@@ -140,6 +173,19 @@ class PaymentRemoteDataSource {
 
       return fetchCards();
     } catch (err) {
+      if (err is DioError) {
+        if (err.response?.data['errors'] != null &&
+            err.response?.data['errors'].length > 0) {
+          var message = err.response?.data['errors'][0]['message'];
+          // if (message == '400 Client don`t have cards') {
+          //   return Left(
+          //       ServerFailure('У вас не привязан ни один способ платежа'));
+          // }
+          return Left(ServerFailure(message));
+        }
+        return Left(ServerFailure('Не удалось привязать карту'));
+      }
+
       return Left(ServerFailure('Не удалось привязать карту'));
     }
   }
@@ -147,6 +193,7 @@ class PaymentRemoteDataSource {
   Future<Either<Failure, Success>> confirmPayment(
       int chargeId, bool confirm) async {
     var url = _apiUrl + 'payment';
+    // var url  = "https://run.mocky.io/v3/b310a60b-0679-4f22-974e-7436aa41fad4";
 
     var data = {"charging_id": chargeId, "confirm_payment": confirm};
 
@@ -157,19 +204,17 @@ class PaymentRemoteDataSource {
       return Right(Success());
     } catch (err) {
       if (err is DioError) {
-        print(err);
-        if (err.response?.statusCode == 400 &&
-            err.response?.data['errors'] != null &&
+        if (err.response?.data['errors'] != null &&
             err.response?.data['errors'].length > 0) {
-          var message = err.response?.data['errors'][0]['message'];
-          if (message == '400 Client don`t have cards') {
-            return Left(
-                ServerFailure('У вас не привязан ни один способ платежа'));
-          }
+          var message = err.response?.data['errors']['message'];
+          // if (message == '400 Client don`t have cards') {
+          //   return Left(
+          //       ServerFailure('У вас не привязан ни один способ платежа'));
+          // }
           return Left(ServerFailure(message));
         }
         return Left(ServerFailure('Не удалось провести оплату'));
-      }
+      } 
       return Left(ServerFailure('Не удалось провести оплату'));
     }
   }
@@ -186,6 +231,14 @@ class PaymentRemoteDataSource {
 
       return Right(Success());
     } catch (err) {
+      if (err is DioError) {
+        if (err.response?.data['errors'] != null &&
+            err.response?.data['errors'].length > 0) {
+          var message = err.response?.data['errors'][0]['message'];
+          return Left(ServerFailure(message));
+        }
+        return Left(ServerFailure('Не удалось привязать карту'));
+      }
       return Left(ServerFailure('Не удалось привязать карту'));
     }
   }
@@ -226,7 +279,7 @@ class PaymentRemoteDataSource {
         });
       }
 
-      if (result != null && 
+      if (result != null &&
           result['AcsUrl'] != null &&
           result['TransactionId'] != null &&
           result["PaReq"] != null) {
@@ -261,9 +314,7 @@ class PaymentRemoteDataSource {
       }
     } catch (err) {
       if (err is DioError) {
-        print(err);
-        if (err.response?.statusCode == 400 &&
-            err.response?.data['errors'] != null &&
+        if (err.response?.data['errors'] != null &&
             err.response?.data['errors'].length > 0) {
           var message = err.response?.data['errors'][0]['message'];
           return Left(ServerFailure(message));
