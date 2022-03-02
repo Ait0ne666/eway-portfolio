@@ -206,7 +206,7 @@ class PaymentRemoteDataSource {
       if (err is DioError) {
         if (err.response?.data['errors'] != null &&
             err.response?.data['errors'].length > 0) {
-          var message = err.response?.data['errors']['message'];
+          var message = err.response?.data['errors'][0]['message'];
           // if (message == '400 Client don`t have cards') {
           //   return Left(
           //       ServerFailure('У вас не привязан ни один способ платежа'));

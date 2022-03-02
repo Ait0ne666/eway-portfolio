@@ -88,21 +88,21 @@ void showNoPaymentMethodsDialog(
                               type: ButtonTypes.SECONDARY,
                             ),
                           ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 30),
-                            child: CustomButton(
-                              onPress: () {
-                                Navigator.of(dialogContext, rootNavigator: true)
-                                    .pop();
-                                handleAddWallet();
-                              },
-                              text: Platform.isIOS ? 'Аpple Pay' : 'Google Pay',
-                              type: ButtonTypes.DARK,
-                            ),
-                          )
+                          // const SizedBox(
+                          //   height: 20,
+                          // ),
+                          // Padding(
+                          //   padding: const EdgeInsets.symmetric(horizontal: 30),
+                          //   child: CustomButton(
+                          //     onPress: () {
+                          //       Navigator.of(dialogContext, rootNavigator: true)
+                          //           .pop();
+                          //       handleAddWallet();
+                          //     },
+                          //     text: Platform.isIOS ? 'Аpple Pay' : 'Google Pay',
+                          //     type: ButtonTypes.DARK,
+                          //   ),
+                          // )
                         ],
                       ),
                     ),

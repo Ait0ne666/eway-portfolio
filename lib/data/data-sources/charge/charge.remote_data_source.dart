@@ -46,13 +46,16 @@ class ChargeRemoteDataSource {
           pointId: result['point_number'],
           powerAmount: result['power_amount'] != null ? result['power_amount'].toDouble() :  0,
           progress: result['battery_level'] ?? 0,
-          timeLeft: result['remaining_time']!=null ? result['remaining_time'].toDouble() : 0,
+          timeLeft: result['remaining_time']?.toDouble(),
           chargeId: result['id'],
           chargePower: result['charge_power'] != null ? result['charge_power'].toDouble() :  0,
           status: result["status"] == 'EV charging' ? ChargeStatus.CHARGING : ChargeStatus.PREPARING
           );
 
       lastProgress = progress;
+
+      print(progress.powerAmount);
+      print(result["power_amount"]);
       
       return Right(progress);
     } on DioError catch (err) {

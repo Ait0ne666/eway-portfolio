@@ -122,22 +122,22 @@ class _PaymentMethodsState extends State<PaymentMethods> {
             BlocConsumer<PaymentBloc, PaymentState>(
                 listener: paymentListener,
                 builder: (context, state) {
-                  var currentType = Platform.isIOS
-                      ? PaymentTypes.APPLE_PAY
-                      : PaymentTypes.GOOGLE_PAY;
+                  // var currentType = Platform.isIOS
+                  //     ? PaymentTypes.APPLE_PAY
+                  //     : PaymentTypes.GOOGLE_PAY;
 
-                  var paymentSystemActivated = state.cards
-                      .where((card) => card.type == currentType)
-                      .isNotEmpty;
+                  // var paymentSystemActivated = state.cards
+                  //     .where((card) => card.type == currentType)
+                  //     .isNotEmpty;
 
                   var cards = [...state.cards];
 
-                  if (!paymentSystemActivated) {
-                    cards = [
-                      Platform.isAndroid ? googleCard : appleCard,
-                      ...cards
-                    ];
-                  }
+                  // if (!paymentSystemActivated) {
+                  //   cards = [
+                  //     Platform.isAndroid ? googleCard : appleCard,
+                  //     ...cards
+                  //   ];
+                  // }
 
                   return CreditCardList(
                     cards: cards,
