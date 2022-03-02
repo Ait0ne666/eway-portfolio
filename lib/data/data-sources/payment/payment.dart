@@ -204,7 +204,17 @@ class PaymentRemoteDataSource {
       return Right(Success());
     } catch (err) {
       if (err is DioError) {
+        print('ERROR ${err.response?.data}');
         if (err.response?.data['errors'] != null &&
+            err.response?.data['errors'].runtimeType == String) {
+          var message = err.response?.data['errors'];
+
+          // if (message == '400 Client don`t have cards') {
+          //   return Left(
+          //       ServerFailure('У вас не привязан ни один способ платежа'));
+          // }
+          return Left(ServerFailure(message));
+        } else if (err.response?.data['errors'] != null &&
             err.response?.data['errors'].length > 0) {
           var message = err.response?.data['errors'][0]['message'];
           // if (message == '400 Client don`t have cards') {
@@ -214,7 +224,7 @@ class PaymentRemoteDataSource {
           return Left(ServerFailure(message));
         }
         return Left(ServerFailure('Не удалось провести оплату'));
-      } 
+      }
       return Left(ServerFailure('Не удалось провести оплату'));
     }
   }

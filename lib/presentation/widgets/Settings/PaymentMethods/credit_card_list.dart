@@ -68,6 +68,7 @@ void handleApplePay(BuildContext context) async {
     if (result != null) {
       if (result.isSuccess) {
         final paymentToken = result.token;
+        Toast.showToast(context, paymentToken ?? '');
 
         BlocProvider.of<PaymentBloc>(context).add(
             AddWalletPayment(cryptoToken: paymentToken!, type: 'Apple Pay'));

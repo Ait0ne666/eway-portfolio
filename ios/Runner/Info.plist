@@ -70,7 +70,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>This app needs camera access to scan QR codes</string>
+	<string>This app needs camera access to scan QR` codes and allow you to upload your photo as an avatar</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>This app needs access to location to find you on the map and estimate distance to closest charging station.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
@@ -83,7 +83,7 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>This app needs access to location to find you on the map and estimate distance to closest charging station.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>This app needs camera access to photo library</string>
+	<string>This app needs access to photo library to allow you to upload selected photo as an avatar</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
